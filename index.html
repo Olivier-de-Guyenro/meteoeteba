@@ -33,13 +33,14 @@
     .nav-btn{padding:5px 12px;font-size:13px;font-family:var(--font);border:1px solid var(--border);background:var(--surface2);color:var(--text-2);border-radius:7px;cursor:pointer;transition:all .12s;}
     .nav-btn:hover{background:var(--text);color:#fff;border-color:var(--text);}
     .nav-current{font-size:13px;font-weight:500;color:var(--text);min-width:160px;text-align:center;}
-    .metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:1.25rem;}
-    @media(max-width:700px){.metrics{grid-template-columns:repeat(3,1fr);}}
+    .metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:1.25rem;}
+    @media(max-width:800px){.metrics{grid-template-columns:repeat(3,1fr);}}
     @media(max-width:420px){.metrics{grid-template-columns:repeat(2,1fr);}}
     .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-top:3px solid transparent;}
     .metric.r{border-top-color:#c0392b}.metric.d1{border-top-color:#27ae60}.metric.d2{border-top-color:#2471a3}.metric.d3{border-top-color:#8e44ad}.metric.d4{border-top-color:#e67e22}
+    .metric.d5{border-top-color:#7f8c8d}
     .metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);font-family:var(--mono);margin-bottom:6px;}
-    .metric-val{font-size:24px;font-weight:500;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
+    .metric-val{font-size:20px;font-weight:500;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
     .metric-err{display:block;font-size:10px;color:var(--text-2);font-family:var(--mono);margin-top:1px;}
     .metric-delta{font-size:11px;font-weight:500;font-family:var(--mono);margin-top:3px;}
     .hot{color:#c0392b}.cold{color:#2471a3}.neu{color:var(--text-2)}
@@ -121,6 +122,7 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
     <div class="metric d2"><div class="metric-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="m-d2">—</div><span class="metric-err" id="m-d2-err"></span><div class="metric-delta" id="m-d2-d">—</div></div>
     <div class="metric d3"><div class="metric-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="m-d3">—</div><span class="metric-err" id="m-d3-err"></span><div class="metric-delta" id="m-d3-d">—</div></div>
     <div class="metric d4"><div class="metric-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="m-d4">—</div><span class="metric-err" id="m-d4-err"></span><div class="metric-delta" id="m-d4-d">—</div></div>
+    <div class="metric d5"><div class="metric-label">1991–2026</div><div class="metric-val" style="color:#7f8c8d" id="m-d5">—</div><span class="metric-err" id="m-d5-err"></span><div class="metric-delta" id="m-d5-d">—</div></div>
   </div>
 
   <div class="progress-wrap" id="progress">
@@ -138,6 +140,7 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
         <div class="legend-item"><div class="leg-line" style="background:#8e44ad"></div>2011–20</div>
         <div class="legend-item"><div class="leg-line" style="background:#2471a3"></div>2001–10</div>
         <div class="legend-item"><div class="leg-line" style="background:#27ae60"></div>1991–00</div>
+        <div class="legend-item"><div class="leg-line" style="background:#7f8c8d"></div>1991–26</div>
       </div>
     </div>
     <div class="chart-wrap"><canvas id="chart" role="img" aria-label="Températures France vs normales ERA5"></canvas></div>
@@ -181,6 +184,7 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
     <div class="metric d2"><div class="metric-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="wo-m-d2">—</div><span class="metric-err" id="wo-m-d2-err"></span><div class="metric-delta" id="wo-m-d2-d">—</div></div>
     <div class="metric d3"><div class="metric-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="wo-m-d3">—</div><span class="metric-err" id="wo-m-d3-err"></span><div class="metric-delta" id="wo-m-d3-d">—</div></div>
     <div class="metric d4"><div class="metric-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="wo-m-d4">—</div><span class="metric-err" id="wo-m-d4-err"></span><div class="metric-delta" id="wo-m-d4-d">—</div></div>
+    <div class="metric d5"><div class="metric-label">1991–2026</div><div class="metric-val" style="color:#7f8c8d" id="wo-m-d5">—</div><span class="metric-err" id="wo-m-d5-err"></span><div class="metric-delta" id="wo-m-d5-d">—</div></div>
   </div>
 
   <div class="chart-card" id="wo-chart-card">
@@ -314,6 +318,7 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
         <div class="metric d2"><div class="metric-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="mm-d2">—</div><span class="metric-err" id="mm-d2-err"></span><div class="metric-delta" id="mm-d2-d">—</div></div>
         <div class="metric d3"><div class="metric-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="mm-d3">—</div><span class="metric-err" id="mm-d3-err"></span><div class="metric-delta" id="mm-d3-d">—</div></div>
         <div class="metric d4"><div class="metric-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="mm-d4">—</div><span class="metric-err" id="mm-d4-err"></span><div class="metric-delta" id="mm-d4-d">—</div></div>
+        <div class="metric d5"><div class="metric-label">1991–2026</div><div class="metric-val" style="color:#7f8c8d" id="mm-d5">—</div><span class="metric-err" id="mm-d5-err"></span><div class="metric-delta" id="mm-d5-d">—</div></div>
       </div>
       <div class="chart-card" style="margin-top:10px;">
         <div class="chart-header">
@@ -391,7 +396,8 @@ const LOCS = {
   oceania:{name:'Océanie',lat:-25,lon:135},
 };
 
-const UNC = {d1:0.35,d2:0.25,d3:0.15,d4:0.10,real:0.10};
+const UNC = {d1:0.35,d2:0.25,d3:0.15,d4:0.10,d5:0.20,real:0.10};
+// d5 = marge moyenne sur la période 1991-2026
 const MNAMES=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 const MSHORT=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
 
@@ -415,8 +421,8 @@ function getNormals(key){
   const m=NORMALS[key];
   if(!m) return null;
   const result={};
+  const mid=[15,46,74,105,135,166,196,227,258,288,319,349];
   ['d1','d2','d3','d4'].forEach(dk=>{
-    const mid=[15,46,74,105,135,166,196,227,258,288,319,349];
     const daily=new Array(367).fill(null);
     for(let doy=1;doy<=366;doy++){
       let m1=0;
@@ -428,6 +434,21 @@ function getNormals(key){
     }
     result[dk]={monthly:m[dk],daily};
   });
+  // d5 = moyenne sur toutes les décennies (1991-2026)
+  const monthly5=Array(12).fill(0).map((_,i)=>{
+    const vals=['d1','d2','d3','d4'].map(dk=>m[dk][i]).filter(v=>v!==null);
+    return vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*10)/10:null;
+  });
+  const daily5=new Array(367).fill(null);
+  for(let doy=1;doy<=366;doy++){
+    let m1=0;
+    for(let i=0;i<12;i++){if(doy<=mid[i]){m1=i;break;}if(i===11)m1=0;}
+    const m0=m1===0?11:m1-1;
+    const d0=m0<m1?mid[m0]:mid[m0]-365;
+    const t=mid[m1]===d0?0:Math.max(0,Math.min(1,(doy-d0)/(mid[m1]-d0)));
+    daily5[doy]=Math.round((monthly5[m0]+t*(monthly5[m1]-monthly5[m0]))*10)/10;
+  }
+  result['d5']={monthly:monthly5,daily:daily5};
   return result;
 }
 
@@ -516,20 +537,29 @@ function setProgress(pct,lbl,det){
   if(det!==undefined)document.getElementById('prog-det').textContent=det;
 }
 
-function setCards(real,normals,label){
+// periodLabel = ex: "1er janvier" ou "janvier" ou "semaine 23" selon le mode
+function setCards(real,normals,label,periodLabel){
   document.getElementById('m-real').textContent=real!==null?real.toFixed(1)+'°C':'—';
   document.getElementById('m-real-err').textContent=real!==null?`±${UNC.real}°C`:'';
   document.getElementById('m-real-sub').textContent=label||'';
-  ['d1','d2','d3','d4'].forEach(k=>{
+  // Labels des décennies avec la période concernée
+  const decadeLabels={
+    d1:periodLabel?`moy. ${periodLabel} · 91–00`:'—',
+    d2:periodLabel?`moy. ${periodLabel} · 01–10`:'—',
+    d3:periodLabel?`moy. ${periodLabel} · 11–20`:'—',
+    d4:periodLabel?`moy. ${periodLabel} · 21–26`:'—',
+    d5:periodLabel?`moy. ${periodLabel} · 91–26`:'—',
+  };
+  ['d1','d2','d3','d4','d5'].forEach(k=>{
     const n=normals[k];
-    document.getElementById(`m-${k}`).textContent=n!==null?n.toFixed(1)+'°C':'—';
-    document.getElementById(`m-${k}-err`).textContent=n!==null?`±${UNC[k]}°C`:'';
-    const el=document.getElementById(`m-${k}-d`);
+    const el=document.getElementById(`m-${k}`);if(el)el.textContent=n!==null?n.toFixed(1)+'°C':'—';
+    const ee=document.getElementById(`m-${k}-err`);if(ee)ee.textContent=n!==null?`±${UNC[k]}°C`:'';
+    const ed=document.getElementById(`m-${k}-d`);if(!ed)return;
     if(real!==null&&n!==null){
       const d=real-n;
-      el.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';
-      el.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');
-    } else {el.textContent='—';el.className='metric-delta neu';}
+      ed.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';
+      ed.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');
+    } else {ed.textContent=decadeLabels[k];ed.className='metric-delta neu';}
   });
 }
 
@@ -544,16 +574,17 @@ function renderChart(labels,realData,nd,title){
     {label:'2011–2020',data:nd.d3,borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:3},
     {label:'2001–2010',data:nd.d2,borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:4},
     {label:'1991–2000',data:nd.d1,borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:5},
+    {label:'1991–2026',data:nd.d5||[],borderColor:'#7f8c8d',borderWidth:2,borderDash:[2,3],pointRadius:0,tension:0.35,fill:false,order:6},
   ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
     plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:8,
-      callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null)return null;const lbl=ctx.dataset.label;if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)} ±${UNC.real}°C`;const dk={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1'}[lbl];if(!dk)return null;const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];if(rv!=null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}return`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`;}}}},
+      callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null)return null;const lbl=ctx.dataset.label;if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)} ±${UNC.real}°C`;const dk={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1','1991–2026':'d5'}[lbl];if(!dk)return null;const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];if(rv!=null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}return`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`;}}}},
     scales:{x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:14}},
       y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}}}});
 }
 
 function normForDates(dates,normals){
-  const out={d1:[],d2:[],d3:[],d4:[]};
-  dates.forEach(d=>{const doy=getDOY(new Date(d));['d1','d2','d3','d4'].forEach(k=>{out[k].push(normals[k].daily[doy]??null);});});
+  const out={d1:[],d2:[],d3:[],d4:[],d5:[]};
+  dates.forEach(d=>{const doy=getDOY(new Date(d));['d1','d2','d3','d4','d5'].forEach(k=>{out[k].push(normals[k]?.daily[doy]??null);});});
   return out;
 }
 
@@ -567,7 +598,9 @@ async function loadDay(loc,normals){
   const real=temps[li];
   const nv={};['d1','d2','d3','d4'].forEach(k=>{nv[k]=nd[k][li];});
   const dd=new Date(dates[li]+'T00:00:00');
-  setCards(real,nv,fmtFull(dd));
+  // periodLabel = ex 'le 1er janv.' pour afficher dans les décennies
+  const pLabel=dd.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  setCards(real,nv,fmtFull(dd),pLabel);
   renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${dd.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`);
 }
 
@@ -579,7 +612,7 @@ async function loadWeek(loc,normals){
   const vt=temps.filter(v=>v!==null);const real=vt.length?avg(vt):null;
   const nv={};['d1','d2','d3','d4'].forEach(k=>{nv[k]=avg(nd[k].filter((_,i)=>temps[i]!==null));});
   const wn=getWeekNum(mon);
-  setCards(real,nv,`S${wn} · moy. semaine`);
+  setCards(real,nv,`S${wn} · moy. semaine`,`sem. ${wn}`);
   renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${fmtWeek(mon)}`);
 }
 
@@ -590,7 +623,7 @@ async function loadMonth(loc,normals){
   const nd=normForDates(dates,normals);
   const real=avg(temps.filter(v=>v!==null));
   const nv={};['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k].monthly[m];});
-  setCards(real,nv,`${MNAMES[m]} ${y}`);
+  setCards(real,nv,`${MNAMES[m]} ${y}`,MSHORT[m]);
   renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${MNAMES[m]} ${y}`);
 }
 
@@ -604,7 +637,7 @@ async function loadYear(loc,normals){
   const nd={d1:[],d2:[],d3:[],d4:[]};months.forEach(mo=>{['d1','d2','d3','d4'].forEach(k=>{nd[k].push(normals[k].monthly[mo]??null);});});
   const real=avg(realData);
   const nv={};['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly.filter(x=>x!==null);nv[k]=v.length?parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)):null;});
-  setCards(real,nv,`${y} · moy. annuelle`);
+  setCards(real,nv,`${y} · moy. annuelle`,`année`);
   renderChart(months.map(mo=>MSHORT[mo]),realData,nd,`${loc.name} · ${y}`);
 }
 
@@ -717,17 +750,17 @@ function setWoError(msg){
   if(woChart){woChart.destroy();woChart=null;}
 }
 
-function setWoCards(real,normals,label){
+function setWoCards(real,normals,label,periodLabel){
   document.getElementById('wo-m-real').textContent=real!==null?real.toFixed(1)+'°C':'—';
   document.getElementById('wo-m-real-err').textContent=real!==null?`±${UNC.real}°C`:'';
   document.getElementById('wo-m-real-sub').textContent=label||'';
-  ['d1','d2','d3','d4'].forEach(k=>{
+  ['d1','d2','d3','d4','d5'].forEach(k=>{
     const n=normals[k];
-    document.getElementById(`wo-m-${k}`).textContent=n!==null?n.toFixed(1)+'°C':'—';
-    document.getElementById(`wo-m-${k}-err`).textContent=n!==null?`±${UNC[k]}°C`:'';
-    const el=document.getElementById(`wo-m-${k}-d`);
-    if(real!==null&&n!==null){const d=real-n;el.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';el.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');}
-    else{el.textContent='—';el.className='metric-delta neu';}
+    const el=document.getElementById(`wo-m-${k}`);if(el)el.textContent=n!==null?n.toFixed(1)+'°C':'—';
+    const ee=document.getElementById(`wo-m-${k}-err`);if(ee)ee.textContent=n!==null?`±${UNC[k]}°C`:'';
+    const ed=document.getElementById(`wo-m-${k}-d`);if(!ed)return;
+    if(real!==null&&n!==null){const d=real-n;ed.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';ed.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');}
+    else{ed.textContent=periodLabel?`moy. ${periodLabel}`:'—';ed.className='metric-delta neu';}
   });
 }
 
@@ -1132,11 +1165,11 @@ function setMapCards(real,normals,label){
   document.getElementById('mm-real').textContent=real!==null?real.toFixed(1)+'°C':'—';
   document.getElementById('mm-real-err').textContent=real!==null?`±${UNC.real}°C`:'';
   document.getElementById('mm-real-sub').textContent=label||'';
-  ['d1','d2','d3','d4'].forEach(k=>{
+  ['d1','d2','d3','d4','d5'].forEach(k=>{
     const n=normals[k];
-    document.getElementById(`mm-${k}`).textContent=n!==null?n.toFixed(1)+'°C':'—';
-    document.getElementById(`mm-${k}-err`).textContent=n!==null?`±${UNC[k]}°C`:'';
-    const el=document.getElementById(`mm-${k}-d`);
+    const ev=document.getElementById(`mm-${k}`);if(ev)ev.textContent=n!==null?n.toFixed(1)+'°C':'—';
+    const ee=document.getElementById(`mm-${k}-err`);if(ee)ee.textContent=n!==null?`±${UNC[k]}°C`:'';
+    const el=document.getElementById(`mm-${k}-d`);if(!el)return;
     if(real!==null&&n!==null){const d=real-n;el.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';el.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');}
     else{el.textContent='—';el.className='metric-delta neu';}
   });
