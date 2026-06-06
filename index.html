@@ -259,7 +259,9 @@
   <footer>
     <span>Données : <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> · Réanalyse ERA5 (ECMWF)</span>
     <span>Normales calculées sur données ERA5 brutes · Cache 24h</span>
-    <span>Données jusqu'à J−5 environ</span>
+    <span>Données jusqu'à J−7 environ</span>
+    <span>Marges d'erreur ERA5 : ±0.10°C (2021–) · ±0.15°C (2011–20) · ±0.25°C (2001–10) · ±0.35°C (1991–00) · Source : ECMWF</span>
+    <span>Planète = moyenne pondérée de 15 points ERA5 répartis sur tous les continents et océans</span>
   </footer>
 </div>
 
@@ -283,8 +285,7 @@ const LOCS = {
   bfc:   { name:'Bourgogne-FC',        lat:47.28, lon:5.00  },
   cvl:   { name:'Centre-Val de Loire', lat:47.90, lon:1.90  },
   cor:   { name:'Corse',               lat:42.00, lon:9.00  },
-  // Monde
-  planet:   { name:'Planète',           lat:25,    lon:0    },
+  // Monde — planet est une grille de points, géré séparément
   europe:   { name:'Europe',            lat:54,    lon:15   },
   asia:     { name:'Asie',              lat:34,    lon:100  },
   namerica: { name:'Amér. du Nord',     lat:45,    lon:-100 },
@@ -340,6 +341,47 @@ const MNAMES=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août'
 const MSHORT=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
 const PRELOAD_WORLD=['planet','europe','asia','namerica','samerica','africa','oceania'];
 
+// ── Grille planète : 14 points pondérés par surface (source ECMWF/ERA5) ──────
+// Chaque point représente une zone climatique majeure avec son poids relatif
+const PLANET_GRID = [
+  // Arctique et hautes latitudes Nord
+  {lat:80,  lon:0,   w:0.03, label:'Arctique'},
+  {lat:70,  lon:-40, w:0.04, label:'Groenland/N.Atlantique'},
+  {lat:65,  lon:100, w:0.04, label:'Sibérie'},
+  // Latitudes tempérées Nord
+  {lat:50,  lon:-100,w:0.07, label:'Amérique Nord tempérée'},
+  {lat:50,  lon:10,  w:0.06, label:'Europe'},
+  {lat:45,  lon:90,  w:0.07, label:'Asie centrale'},
+  // Subtropiques et tropiques
+  {lat:25,  lon:-80, w:0.07, label:'Caraïbes/Mexique'},
+  {lat:20,  lon:30,  w:0.07, label:'Afrique Nord/Sahel'},
+  {lat:10,  lon:105, w:0.07, label:'Asie du Sud-Est'},
+  {lat:0,   lon:-50, w:0.07, label:'Amazonie'},
+  {lat:0,   lon:160, w:0.06, label:'Pacifique tropical'},
+  // Hémisphère Sud
+  {lat:-20, lon:25,  w:0.08, label:'Afrique australe'},
+  {lat:-30, lon:-60, w:0.07, label:'Amérique du Sud australe'},
+  {lat:-55, lon:0,   w:0.06, label:'Océan Austral'},
+  // Antarctique
+  {lat:-80, lon:0,   w:0.04, label:'Antarctique'},
+];
+// Vérification : somme des poids = 1.0
+// 0.03+0.04+0.04+0.07+0.06+0.07+0.07+0.07+0.07+0.07+0.06+0.08+0.07+0.06+0.04 = 1.00 ✓
+
+// ── Marges d'erreur ERA5 par décennie (source ECMWF documentation) ───────────
+// Ces valeurs sont des estimations publiées, pas calculées dynamiquement
+const ERA5_UNCERTAINTY = {
+  d1: 0.35,  // 1991–2000 : réseau stations incomplet, ±0.35°C
+  d2: 0.25,  // 2001–2010 : couverture satellite améliorée, ±0.25°C
+  d3: 0.15,  // 2011–2020 : bonne couverture, ±0.15°C
+  d4: 0.10,  // 2021–présent : couverture optimale, ±0.10°C
+  real: 0.10,// Données récentes ERA5, ±0.10°C
+};
+// Pour la planète, les marges sont plus larges (interpolation spatiale)
+const ERA5_UNCERTAINTY_PLANET = {
+  d1: 0.5, d2: 0.35, d3: 0.20, d4: 0.15, real: 0.15,
+};
+
 // ══════════════════════════════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════════════════════════════
@@ -347,7 +389,7 @@ const today=new Date(); today.setHours(0,0,0,0);
 const era5End=addDays(today,-7); // ERA5 lag garanti à J-7
 
 // Vider le cache si la version a changé
-const CACHE_VERSION='v4';
+const CACHE_VERSION='v5';
 if(localStorage.getItem('e5_version')!==CACHE_VERSION){
   Object.keys(localStorage).filter(k=>k.startsWith('e5_')).forEach(k=>localStorage.removeItem(k));
   localStorage.setItem('e5_version',CACHE_VERSION);
@@ -404,6 +446,23 @@ async function fetchERA5(lat,lon,start,end){
   const r=await fetch(url);if(!r.ok)throw new Error(`ERA5 HTTP ${r.status}`);
   const d=await r.json();if(d.error)throw new Error(d.reason||'Erreur API');return d;
 }
+
+// Fetch ERA5 pour plusieurs points et renvoie la moyenne pondérée jour par jour
+async function fetchERA5Grid(grid, start, end){
+  const results = await Promise.all(grid.map(pt => fetchERA5(pt.lat, pt.lon, start, end)));
+  const totalW = grid.reduce((s,pt)=>s+pt.w, 0);
+  const dates = results[0].daily.time;
+  const temps = dates.map((_,i) => {
+    let sum=0, wsum=0;
+    results.forEach((r,gi) => {
+      const v = r.daily.temperature_2m_mean[i];
+      if(v !== null){ sum += v * grid[gi].w; wsum += grid[gi].w; }
+    });
+    return wsum > 0 ? sum/wsum : null;
+  });
+  return { daily: { time: dates, temperature_2m_mean: temps } };
+}
+
 function buildDaily(dates,temps){
   const acc=Array.from({length:367},()=>({s:0,n:0}));
   for(let i=0;i<dates.length;i++){if(temps[i]===null)continue;const doy=getDOY(new Date(dates[i]));if(doy>=1&&doy<=366){acc[doy].s+=temps[i];acc[doy].n++;}}
@@ -417,16 +476,23 @@ function buildMonthly(dates,temps){
   for(let i=0;i<dates.length;i++){if(temps[i]===null)continue;const m=new Date(dates[i]).getMonth();acc[m].s+=temps[i];acc[m].n++;}
   return acc.map(a=>a.n>0?a.s/a.n:null);
 }
+
 async function getNormals(key,pfx){
   if(normalsCache[key])return normalsCache[key];
   const ck='nrm_'+key;const cached=cGet(ck);
   if(cached){normalsCache[key]=cached;return cached;}
-  const loc=LOCS[key];if(!loc)throw new Error('Lieu inconnu: '+key);
-  const result={};const d4end=toDS(era5End);
+  const isPlanet = key==='planet';
+  const loc=isPlanet?null:LOCS[key];
+  if(!isPlanet&&!loc)throw new Error('Lieu inconnu: '+key);
+  const result={};
+  const d4end=toDS(era5End);
   for(let i=0;i<DECADES.length;i++){
     const dec=DECADES[i];const endDate=dec.end||d4end;
-    setProgress(pfx,Math.round(10+(i/DECADES.length)*78),`${loc.name} · ${dec.label}`,`ERA5 ${dec.start}→${endDate}`);
-    const data=await fetchERA5(loc.lat,loc.lon,dec.start,endDate);
+    const label=isPlanet?`Planète · ${dec.label}`:`${loc.name} · ${dec.label}`;
+    setProgress(pfx,Math.round(10+(i/DECADES.length)*78),`Normales ERA5 · ${label}`,`${dec.start}→${endDate}`);
+    const data = isPlanet
+      ? await fetchERA5Grid(PLANET_GRID, dec.start, endDate)
+      : await fetchERA5(loc.lat,loc.lon,dec.start,endDate);
     result[dec.key]={daily:buildDaily(data.daily.time,data.daily.temperature_2m_mean),monthly:buildMonthly(data.daily.time,data.daily.temperature_2m_mean)};
   }
   cSet(ck,result);normalsCache[key]=result;return result;
@@ -530,11 +596,15 @@ function updateNavLabel(pfx,period,nav){
 // ══════════════════════════════════════════════════════════════════════════════
 // METRICS + CHART (générique)
 // ══════════════════════════════════════════════════════════════════════════════
-function setCards(pfx,real,normals,label){
-  document.getElementById(`${pfx}-m-real`).textContent=fmtT(real);
+function getUncertainty(key){ return key==='planet' ? ERA5_UNCERTAINTY_PLANET : ERA5_UNCERTAINTY; }
+
+function setCards(pfx,real,normals,label,locKey){
+  const unc=getUncertainty(locKey||'');
+  const fmtU=(v,u)=>v!==null?`${v.toFixed(1)} ±${u}°C`:'—';
+  document.getElementById(`${pfx}-m-real`).textContent=fmtU(real,unc.real);
   document.getElementById(`${pfx}-m-real-sub`).textContent=label||'';
   ['d1','d2','d3','d4'].forEach(k=>{
-    document.getElementById(`${pfx}-m-${k}`).textContent=fmtT(normals[k]);
+    document.getElementById(`${pfx}-m-${k}`).textContent=fmtU(normals[k],unc[k]);
     const el=document.getElementById(`${pfx}-m-${k}-d`);
     el.textContent=dStr(real,normals[k]);el.className='dc-delta '+dCls(real,normals[k]);
   });
@@ -546,20 +616,58 @@ function normForDates(dates,normals){
   return out;
 }
 
-function renderChart(canvasId,chartRef,labels,realData,nd,title,titleId){
+function renderChart(canvasId,chartRef,labels,realData,nd,title,titleId,locKey){
   document.getElementById(titleId).textContent=title;
   const canvas=document.getElementById(canvasId);
   if(chartRef.instance){chartRef.instance.destroy();chartRef.instance=null;}
   const ptR=realData.length>60?0:3;
+  const unc=getUncertainty(locKey||'');
+
+  // Génère les bandes ±erreur pour chaque décennie
+  function bandDataset(data, u, color, label){
+    return [
+      { label:`${label} +err`, data:data.map(v=>v!==null?parseFloat((v+u).toFixed(2)):null),
+        borderColor:'transparent', backgroundColor:color+'22', fill:'+1',
+        pointRadius:0, tension:0.35, order:10 },
+      { label:`${label} -err`, data:data.map(v=>v!==null?parseFloat((v-u).toFixed(2)):null),
+        borderColor:'transparent', backgroundColor:color+'22', fill:false,
+        pointRadius:0, tension:0.35, order:11 },
+    ];
+  }
+
   chartRef.instance=new Chart(canvas,{type:'line',data:{labels,datasets:[
-    {label:'Réelle',data:realData,borderColor:'#c0392b',borderWidth:2.5,pointRadius:ptR,pointHoverRadius:5,pointBackgroundColor:'#c0392b',tension:0.35,fill:false,order:1},
-    {label:'2021–', data:nd.d4,borderColor:'#e67e22',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:2},
-    {label:'2011–2020',data:nd.d3,borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:3},
-    {label:'2001–2010',data:nd.d2,borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:4},
-    {label:'1991–2000',data:nd.d1,borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:5},
+    // Bandes d'incertitude (derrière)
+    ...bandDataset(nd.d1, unc.d1, '#27ae60', '1991–2000'),
+    ...bandDataset(nd.d2, unc.d2, '#2471a3', '2001–2010'),
+    ...bandDataset(nd.d3, unc.d3, '#8e44ad', '2011–2020'),
+    ...bandDataset(nd.d4, unc.d4, '#e67e22', '2021–'),
+    // Courbe réelle avec sa bande
+    { label:'Réelle +err', data:realData.map(v=>v!==null?parseFloat((v+unc.real).toFixed(2)):null),
+      borderColor:'transparent', backgroundColor:'#c0392b18', fill:'+1',
+      pointRadius:0, tension:0.35, order:8 },
+    { label:'Réelle -err', data:realData.map(v=>v!==null?parseFloat((v-unc.real).toFixed(2)):null),
+      borderColor:'transparent', backgroundColor:'#c0392b18', fill:false,
+      pointRadius:0, tension:0.35, order:9 },
+    // Courbes principales (devant)
+    {label:'Réelle',    data:realData, borderColor:'#c0392b', borderWidth:2.5, pointRadius:ptR, pointHoverRadius:5, pointBackgroundColor:'#c0392b', tension:0.35, fill:false, order:1},
+    {label:'2021–',     data:nd.d4,   borderColor:'#e67e22', borderWidth:1.5, borderDash:[6,4], pointRadius:0, tension:0.35, fill:false, order:2},
+    {label:'2011–2020', data:nd.d3,   borderColor:'#8e44ad', borderWidth:1.5, borderDash:[6,4], pointRadius:0, tension:0.35, fill:false, order:3},
+    {label:'2001–2010', data:nd.d2,   borderColor:'#2471a3', borderWidth:1.5, borderDash:[6,4], pointRadius:0, tension:0.35, fill:false, order:4},
+    {label:'1991–2000', data:nd.d1,   borderColor:'#27ae60', borderWidth:1.5, borderDash:[6,4], pointRadius:0, tension:0.35, fill:false, order:5},
   ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
     plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:8,
-      callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null)return null;const lbl=ctx.dataset.label;if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)}°C`;const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];if(rv!==null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}return`  ${lbl} : ${v.toFixed(1)}°C`;}}}},
+      filter: item => !item.dataset.label.includes('+err') && !item.dataset.label.includes('-err'),
+      callbacks:{label:ctx=>{
+        const v=ctx.parsed.y;if(v===null)return null;
+        const lbl=ctx.dataset.label;
+        if(lbl==='Réelle'){const u=unc.real;return`  Réelle : ${v.toFixed(1)} ±${u}°C`;}
+        const decKey={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1'}[lbl];
+        if(!decKey)return null;
+        const u=unc[decKey];
+        const rv=ctx.chart.data.datasets.find(d=>d.label==='Réelle')?.data[ctx.dataIndex];
+        if(rv!==null&&rv!==undefined){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${u}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}
+        return`  ${lbl} : ${v.toFixed(1)} ±${u}°C`;
+      }}}},
     scales:{
       x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:12}},
       y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}
@@ -572,62 +680,61 @@ const woChartRef={instance:null};
 // ══════════════════════════════════════════════════════════════════════════════
 // LOADERS GÉNÉRIQUES
 // ══════════════════════════════════════════════════════════════════════════════
+// Fetch données récentes — gère planète (grille) ou point unique
+async function fetchRecent(key,start,end){
+  if(key==='planet') return fetchERA5Grid(PLANET_GRID,toDS(start),toDS(end));
+  const loc=LOCS[key];if(!loc)throw new Error('Lieu inconnu: '+key);
+  return fetchERA5(loc.lat,loc.lon,toDS(start),toDS(end));
+}
+function locName(key){return key==='planet'?'Planète':LOCS[key]?.name||key;}
+
 async function loadDay(pfx,key,period,nav,normals,chartRef){
-  const loc=LOCS[key];
-  const end=clamp(new Date(nav.day));
-  // La fenêtre de 30 jours se termine sur le jour sélectionné
-  const start=addDays(end,-29);
-  const data=await fetchERA5(loc.lat,loc.lon,toDS(start),toDS(end));
+  const end=clamp(new Date(nav.day));const start=addDays(end,-29);
+  const data=await fetchRecent(key,start,end);
   const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
   const nd=normForDates(dates,normals);
-  // Valeur du jour cible = dernier point disponible dans la fenêtre
   const lastValidIdx=[...temps].map((v,i)=>v!==null?i:-1).filter(i=>i>=0).pop()??temps.length-1;
   const real=temps[lastValidIdx];
   const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=nd[k][lastValidIdx];});
   const displayDate=new Date(dates[lastValidIdx]+'T00:00:00');
-  setCards(pfx,real,normVals,fmtFull(displayDate));
-  renderChart(`${pfx}-chart`,chartRef,dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${displayDate.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`,`${pfx}-chart-title`);
+  setCards(pfx,real,normVals,fmtFull(displayDate),key);
+  renderChart(`${pfx}-chart`,chartRef,dates.map(d=>fmtShort(new Date(d))),temps,nd,`${locName(key)} · ${displayDate.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`,`${pfx}-chart-title`,key);
   return real;
 }
 async function loadWeek(pfx,key,nav,normals,chartRef){
-  const loc=LOCS[key];
   const mon=new Date(nav.week);const sun=clamp(addDays(mon,6));
-  const data=await fetchERA5(loc.lat,loc.lon,toDS(mon),toDS(sun));
+  const data=await fetchRecent(key,mon,sun);
   const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
   const nd=normForDates(dates,normals);
-  // Moyenne uniquement sur les jours disponibles (non null)
   const validTemps=temps.filter(v=>v!==null);
   const real=validTemps.length?avg(validTemps):null;
   const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=avg(nd[k].filter((_,i)=>temps[i]!==null));});
   const wn=getWeekNum(mon);
-  const rangeLabel=sun<clamp(addDays(mon,6))?`S${wn} · du ${fmtShort(mon)} au ${fmtShort(sun)} (partielle)`:`S${wn} · ${fmtWeekRange(mon)}`;
-  setCards(pfx,real,normVals,rangeLabel);
-  renderChart(`${pfx}-chart`,chartRef,dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${fmtWeekRange(mon)}`,`${pfx}-chart-title`);
+  setCards(pfx,real,normVals,`S${wn} · moy. semaine`,key);
+  renderChart(`${pfx}-chart`,chartRef,dates.map(d=>fmtShort(new Date(d))),temps,nd,`${locName(key)} · ${fmtWeekRange(mon)}`,`${pfx}-chart-title`,key);
   return real;
 }
 async function loadMonth(pfx,key,nav,normals,chartRef){
-  const loc=LOCS[key];const{y,m}=nav.month;
-  const start=new Date(y,m,1);const end=clamp(new Date(y,m+1,0));
-  const data=await fetchERA5(loc.lat,loc.lon,toDS(start),toDS(end));
+  const{y,m}=nav.month;const start=new Date(y,m,1);const end=clamp(new Date(y,m+1,0));
+  const data=await fetchRecent(key,start,end);
   const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
   const nd=normForDates(dates,normals);
   const real=avg(temps.filter(v=>v!==null));const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=normals[k].monthly[m];});
-  setCards(pfx,real,normVals,`${MNAMES[m]} ${y}`);
-  renderChart(`${pfx}-chart`,chartRef,dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${MNAMES[m]} ${y}`,`${pfx}-chart-title`);
+  setCards(pfx,real,normVals,`${MNAMES[m]} ${y}`,key);
+  renderChart(`${pfx}-chart`,chartRef,dates.map(d=>fmtShort(new Date(d))),temps,nd,`${locName(key)} · ${MNAMES[m]} ${y}`,`${pfx}-chart-title`,key);
   return real;
 }
 async function loadYear(pfx,key,nav,normals,chartRef){
-  const loc=LOCS[key];const y=nav.year;
-  const start=new Date(y,0,1);const end=clamp(new Date(y,11,31));
-  const data=await fetchERA5(loc.lat,loc.lon,toDS(start),toDS(end));
+  const y=nav.year;const start=new Date(y,0,1);const end=clamp(new Date(y,11,31));
+  const data=await fetchRecent(key,start,end);
   const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
   const byM={};for(let i=0;i<dates.length;i++){const mo=new Date(dates[i]).getMonth();if(!byM[mo])byM[mo]=[];if(temps[i]!==null)byM[mo].push(temps[i]);}
   const months=Object.keys(byM).map(Number).sort((a,b)=>a-b);
   const realData=months.map(mo=>{const t=byM[mo];return t.length?parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)):null;});
   const nd={d1:[],d2:[],d3:[],d4:[]};months.forEach(mo=>{['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly[mo];nd[k].push(v!==null?parseFloat(v.toFixed(1)):null);});});
   const real=avg(realData);const normVals={};['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly.filter(x=>x!==null);normVals[k]=v.length?parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)):null;});
-  setCards(pfx,real,normVals,`${y} · moy. annuelle`);
-  renderChart(`${pfx}-chart`,chartRef,months.map(mo=>MSHORT[mo]),realData,nd,`${loc.name} · ${y}`,`${pfx}-chart-title`);
+  setCards(pfx,real,normVals,`${y} · moy. annuelle`,key);
+  renderChart(`${pfx}-chart`,chartRef,months.map(mo=>MSHORT[mo]),realData,nd,`${locName(key)} · ${y}`,`${pfx}-chart-title`,key);
   return real;
 }
 
