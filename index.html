@@ -153,11 +153,15 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
 
   <hr style="border:none;border-top:1px solid var(--border);margin:2.5rem 0;">
 
+  <hr class="section-sep">
+
+  <!-- ═══ MONDE ═══ -->
   <div class="site-header">
-    <h2 class="site-title" style="font-size:19px;">🌍 Monde — Continents</h2>
+    <h2 class="site-title" style="font-size:19px;">🌍 Monde</h2>
     <p class="site-sub">ERA5 · Réelles vs normales décennales</p>
   </div>
 
+  <!-- Onglets période + sélecteur référence -->
   <div class="controls-row">
     <div class="tab-group" id="wo-tabs">
       <button class="tab active" data-p="day">Jour</button>
@@ -165,19 +169,29 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
       <button class="tab" data-p="month">Mois</button>
       <button class="tab" data-p="year">Année</button>
     </div>
-    <span class="ctrl-label">Région</span>
-    <select id="wo-region-sel">
-      <option value="europe">Europe</option>
-      <option value="africa">Afrique</option>
-      <option value="namerica">Amér. du Nord</option>
-      <option value="samerica">Amér. du Sud</option>
-      <option value="asia">Asie</option>
-      <option value="oceania">Océanie</option>
+    <span class="ctrl-label">Réf.</span>
+    <select id="map-ref-sel" style="font-size:12px;">
+      <option value="d1">vs 1991–2000</option>
+      <option value="d2">vs 2001–2010</option>
+      <option value="d3">vs 2011–2020</option>
+      <option value="d4">vs depuis 2021</option>
     </select>
   </div>
 
+  <!-- Navigation temporelle -->
   <div class="nav-row" id="wo-nav-row"></div>
 
+  <!-- Sélection courante + statut -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap;">
+    <span class="ctrl-label">Sélection :</span>
+    <strong id="map-sel-name" style="font-size:14px;">Monde</strong>
+    <div class="status-bar" style="margin-left:auto;padding:0;">
+      <div class="status-dot" id="wo-status-dot" style="background:#f39c12"></div>
+      <span id="wo-status-txt" style="font-size:10px;">Chargement…</span>
+    </div>
+  </div>
+
+  <!-- 6 cartes métriques -->
   <div class="metrics" id="wo-metrics">
     <div class="metric r"><div class="metric-label">Réel</div><div class="metric-val hot" id="wo-m-real">—</div><span class="metric-err" id="wo-m-real-err"></span><div class="metric-delta neu" id="wo-m-real-sub">—</div></div>
     <div class="metric d1"><div class="metric-label">1991–2000</div><div class="metric-val" style="color:#27ae60" id="wo-m-d1">—</div><span class="metric-err" id="wo-m-d1-err"></span><div class="metric-delta" id="wo-m-d1-d">—</div></div>
@@ -187,6 +201,7 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
     <div class="metric d5"><div class="metric-label">1991–2026</div><div class="metric-val" style="color:#7f8c8d" id="wo-m-d5">—</div><span class="metric-err" id="wo-m-d5-err"></span><div class="metric-delta" id="wo-m-d5-d">—</div></div>
   </div>
 
+  <!-- Graphe -->
   <div class="chart-card" id="wo-chart-card">
     <div class="chart-header">
       <span class="chart-title" id="wo-chart-title">—</span>
@@ -202,48 +217,8 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
     <div class="chart-wrap"><canvas id="wo-chart" role="img" aria-label="Températures monde vs normales ERA5"></canvas></div>
   </div>
 
-  <div class="status-bar">
-    <div class="status-dot" id="wo-status-dot" style="background:#f39c12"></div>
-    <span id="wo-status-txt">Sélectionnez un continent</span>
-  </div>
-  <hr class="section-sep">
-
-  <!-- ═══ CARTE MONDE ═══ -->
-  <h2 class="section-title">🌍 Carte mondiale</h2>
-  <p class="section-sub">Anomalie thermique par rapport à la décennie de référence · Cliquez sur un pays</p>
-
-  <div class="controls-row" style="margin-bottom:.875rem;">
-    <span class="ctrl-label">Référence</span>
-    <select id="map-ref-sel">
-      <option value="d1">vs 1991–2000</option>
-      <option value="d2">vs 2001–2010</option>
-      <option value="d3">vs 2011–2020</option>
-      <option value="d4">vs depuis 2021</option>
-    </select>
-  </div>
-
-  <!-- Sélection + cartes métriques -->
-  <div style="margin-bottom:1rem;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap;">
-      <span class="section-sub" style="margin:0;">Sélection :</span>
-      <strong id="map-sel-name" style="font-size:14px;">Monde</strong>
-      <div class="status-bar" style="margin-left:auto;padding:0;">
-        <div class="status-dot" id="map-status-dot" style="background:#9b9b96"></div>
-        <span id="map-status-txt" style="font-size:10px;">Chargement…</span>
-      </div>
-    </div>
-    <div class="metrics" id="map-metrics">
-      <div class="metric r"><div class="metric-label">Réel</div><div class="metric-val hot" id="mm-real">—</div><span class="metric-err" id="mm-real-err"></span><div class="metric-delta neu" id="mm-real-sub">—</div></div>
-      <div class="metric d1"><div class="metric-label">1991–2000</div><div class="metric-val" style="color:#27ae60" id="mm-d1">—</div><span class="metric-err" id="mm-d1-err"></span><div class="metric-delta" id="mm-d1-d">—</div></div>
-      <div class="metric d2"><div class="metric-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="mm-d2">—</div><span class="metric-err" id="mm-d2-err"></span><div class="metric-delta" id="mm-d2-d">—</div></div>
-      <div class="metric d3"><div class="metric-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="mm-d3">—</div><span class="metric-err" id="mm-d3-err"></span><div class="metric-delta" id="mm-d3-d">—</div></div>
-      <div class="metric d4"><div class="metric-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="mm-d4">—</div><span class="metric-err" id="mm-d4-err"></span><div class="metric-delta" id="mm-d4-d">—</div></div>
-      <div class="metric d5"><div class="metric-label">1991–2026</div><div class="metric-val" style="color:#7f8c8d" id="mm-d5">—</div><span class="metric-err" id="mm-d5-err"></span><div class="metric-delta" id="mm-d5-d">—</div></div>
-    </div>
-  </div>
-
   <!-- Planisphère -->
-  <div class="map-card">
+  <div class="map-card" style="margin-top:1.25rem;">
     <div class="map-card-title">
       <span>Anomalie thermique · cliquez sur un pays ou continent</span>
       <span class="map-loading" id="map-loading"></span>
@@ -656,44 +631,112 @@ buildNav();
 load();
 
 // ══════════════════════════════════════════════════════════════════════════════
-// MONDE
+// MONDE UNIFIÉ — navigation temporelle + carte interactive
 // ══════════════════════════════════════════════════════════════════════════════
-let woPeriod='day', woRegion='europe', woLoadId=0, woChart=null;
+
+// ── Grille planète (moyenne pondérée ERA5) ───────────────────────────────────
+const PLANET_GRID=[
+  {lat:80,lon:0,w:0.03},{lat:70,lon:-40,w:0.04},{lat:65,lon:100,w:0.04},
+  {lat:50,lon:-100,w:0.07},{lat:50,lon:10,w:0.06},{lat:45,lon:90,w:0.07},
+  {lat:25,lon:-80,w:0.07},{lat:20,lon:30,w:0.07},{lat:10,lon:105,w:0.07},
+  {lat:0,lon:-50,w:0.07},{lat:0,lon:160,w:0.06},
+  {lat:-20,lon:25,w:0.08},{lat:-30,lon:-60,w:0.07},
+  {lat:-55,lon:0,w:0.06},{lat:-80,lon:0,w:0.04},
+];
+
+// Pays → clé LOCS / COUNTRY_LOCS
+const ID_MAP={
+  250:'france',276:'germany',826:'uk',724:'spain',380:'italy',
+  620:'portugal',528:'netherlands',56:'belgium',756:'switzerland',
+  40:'austria',616:'poland',752:'sweden',578:'norway',643:'russia',
+  792:'turkey',840:'usa',124:'canada',484:'mexico',76:'brazil',
+  32:'argentina',156:'china',356:'india',392:'japan',36:'australia',
+  710:'southafrica',566:'nigeria',818:'egypt',504:'morocco',12:'algeria',
+};
+
+// Coordonnées pays non dans LOCS
+const COUNTRY_LOCS={
+  germany:{name:'Allemagne',lat:51.5,lon:10.5},
+  uk:{name:'Royaume-Uni',lat:54,lon:-2},
+  spain:{name:'Espagne',lat:40.4,lon:-3.7},
+  italy:{name:'Italie',lat:42.5,lon:12.5},
+  portugal:{name:'Portugal',lat:39.5,lon:-8},
+  netherlands:{name:'Pays-Bas',lat:52.3,lon:5.3},
+  belgium:{name:'Belgique',lat:50.8,lon:4.4},
+  switzerland:{name:'Suisse',lat:46.8,lon:8.2},
+  austria:{name:'Autriche',lat:47.8,lon:13},
+  poland:{name:'Pologne',lat:52,lon:20},
+  sweden:{name:'Suède',lat:63,lon:16},
+  norway:{name:'Norvège',lat:65,lon:14},
+  russia:{name:'Russie',lat:60,lon:60},
+  turkey:{name:'Turquie',lat:39,lon:35},
+  usa:{name:'États-Unis',lat:39.5,lon:-98},
+  canada:{name:'Canada',lat:56,lon:-96},
+  mexico:{name:'Mexique',lat:23,lon:-102},
+  brazil:{name:'Brésil',lat:-10,lon:-53},
+  argentina:{name:'Argentine',lat:-34,lon:-64},
+  china:{name:'Chine',lat:35,lon:105},
+  india:{name:'Inde',lat:20,lon:77},
+  japan:{name:'Japon',lat:36,lon:138},
+  australia:{name:'Australie',lat:-25,lon:133},
+  southafrica:{name:'Afrique du Sud',lat:-29,lon:25},
+  nigeria:{name:'Nigeria',lat:9,lon:8},
+  egypt:{name:'Égypte',lat:26,lon:30},
+  morocco:{name:'Maroc',lat:32,lon:-5},
+  algeria:{name:'Algérie',lat:28,lon:2},
+};
+
+const CONTINENTS=['europe','africa','namerica','samerica','asia','oceania'];
+
+function getLoc(key){return LOCS[key]||COUNTRY_LOCS[key]||null;}
+
+function anomColor(delta){
+  if(delta===null||delta===undefined)return'#ddd';
+  const t=Math.max(-1,Math.min(1,delta/3));
+  if(t<=0){
+    const r=Math.round(36+(-t)*148),g=Math.round(113+(-t)*(-77)),b=Math.round(163+(-t)*(-127));
+    return`rgb(${r},${g},${b})`;
+  }
+  return`rgb(${Math.round(192+t*40)},${Math.round(57-t*30)},${Math.round(43-t*20)})`;
+}
+
+// ── State ────────────────────────────────────────────────────────────────────
+let woPeriod='day', woKey='planet', woLoadId=0, woChart=null;
+let mapRef='d1', svgMap=null, pathFn=null;
 const woNav={
   day:new Date(era5End),
   week:getMon(era5End),
   month:{y:era5End.getFullYear(),m:era5End.getMonth()},
   year:era5End.getFullYear()
 };
+// Cache anomalies par zone et par période
+const anomCache={};
 
+// ── Helpers UI ───────────────────────────────────────────────────────────────
 function setWoStatus(msg,ok){
-  document.getElementById('wo-status-dot').style.background=ok?'#27ae60':'#f39c12';
+  document.getElementById('wo-status-dot').style.background=ok?'#27ae60':ok===false?'#c0392b':'#f39c12';
   document.getElementById('wo-status-txt').textContent=msg;
-}
-function setWoError(msg){
-  document.getElementById('wo-status-dot').style.background='#c0392b';
-  document.getElementById('wo-status-txt').textContent='⚠ '+msg;
-  document.getElementById('wo-m-real').textContent='—';
-  document.getElementById('wo-m-real-sub').textContent='—';
-  ['d1','d2','d3','d4'].forEach(k=>{
-    const v=document.getElementById(`wo-m-${k}`);if(v)v.textContent='—';
-    const d=document.getElementById(`wo-m-${k}-d`);if(d){d.textContent='—';d.className='metric-delta neu';}
-  });
-  document.getElementById('wo-chart-title').textContent='—';
-  if(woChart){woChart.destroy();woChart=null;}
 }
 
 function setWoCards(real,normals,label,periodLabel){
-  document.getElementById('wo-m-real').textContent=real!==null?real.toFixed(1)+'°C':'—';
-  document.getElementById('wo-m-real-err').textContent=real!==null?`±${UNC.real}°C`:'';
+  document.getElementById('wo-m-real').textContent=(real!==null&&real!==undefined)?real.toFixed(1)+'°C':'—';
+  document.getElementById('wo-m-real-err').textContent=(real!==null&&real!==undefined)?`±${UNC.real}°C`:'';
   document.getElementById('wo-m-real-sub').textContent=label||'';
   ['d1','d2','d3','d4','d5'].forEach(k=>{
     const n=normals[k];
-    const el=document.getElementById(`wo-m-${k}`);if(el)el.textContent=(n!==null&&n!==undefined)?n.toFixed(1)+'°C':'—';
-    const ee=document.getElementById(`wo-m-${k}-err`);if(ee)ee.textContent=(n!==null&&n!==undefined)?`±${UNC[k]}°C`:'';
+    const ev=document.getElementById(`wo-m-${k}`);
+    if(ev)ev.textContent=(n!==null&&n!==undefined)?n.toFixed(1)+'°C':'—';
+    const ee=document.getElementById(`wo-m-${k}-err`);
+    if(ee)ee.textContent=(n!==null&&n!==undefined)?`±${UNC[k]}°C`:'';
     const ed=document.getElementById(`wo-m-${k}-d`);if(!ed)return;
-    if(real!==null&&n!==null){const d=real-n;ed.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';ed.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');}
-    else{ed.textContent=periodLabel?`moy. ${periodLabel}`:'—';ed.className='metric-delta neu';}
+    if(real!==null&&real!==undefined&&n!==null&&n!==undefined){
+      const d=real-n;
+      ed.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';
+      ed.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');
+    } else {
+      ed.textContent=periodLabel?`moy. ${periodLabel}`:'—';
+      ed.className='metric-delta neu';
+    }
   });
 }
 
@@ -704,54 +747,84 @@ function renderWoChart(labels,realData,nd,title){
   const ptR=realData.length>60?0:3;
   woChart=new Chart(canvas,{type:'line',data:{labels,datasets:[
     {label:'Réelle',data:realData,borderColor:'#c0392b',borderWidth:2.5,pointRadius:ptR,pointHoverRadius:5,pointBackgroundColor:'#c0392b',tension:0.35,fill:false,order:1},
-    {label:'2021–', data:nd.d4,borderColor:'#e67e22',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:2},
-    {label:'2011–2020',data:nd.d3,borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:3},
-    {label:'2001–2010',data:nd.d2,borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:4},
-    {label:'1991–2000',data:nd.d1,borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:5},
+    {label:'2021–',data:nd.d4||[],borderColor:'#e67e22',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:2},
+    {label:'2011–2020',data:nd.d3||[],borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:3},
+    {label:'2001–2010',data:nd.d2||[],borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:4},
+    {label:'1991–2000',data:nd.d1||[],borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:5},
+    {label:'1991–2026',data:nd.d5||[],borderColor:'#7f8c8d',borderWidth:2,borderDash:[2,3],pointRadius:0,tension:0.35,fill:false,order:6},
   ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
     plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:8,
-      callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null)return null;const lbl=ctx.dataset.label;if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)}°C`;const dk={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1'}[lbl];if(!dk)return null;const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];if(rv!=null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}return`  ${lbl} : ${v.toFixed(1)}°C`;}}}},
-    scales:{x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:14}},
-      y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}}}});
+      callbacks:{label:ctx=>{
+        const v=ctx.parsed.y;if(v===null||v===undefined)return null;
+        const lbl=ctx.dataset.label;
+        if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)} ±${UNC.real}°C`;
+        const dk={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1','1991–2026':'d5'}[lbl];
+        if(!dk)return null;
+        const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];
+        if(rv!=null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}
+        return`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`;
+      }}}},
+    scales:{
+      x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:14}},
+      y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}
+    }}});
 }
 
+// ── Loaders Monde ────────────────────────────────────────────────────────────
 async function loadWo(){
   const myId=++woLoadId;
-  const loc=LOCS[woRegion];
-  const normals=getNormals(woRegion);
-  if(!normals){setWoError('Zone inconnue');return;}
-  setWoStatus(`Chargement ${loc.name}…`,false);
+  const key=woKey, period=woPeriod;
+  const loc=getLoc(key);
+  if(!loc)return;
+  const normals=getNormals(key)||getNormals('europe');
+  if(!normals)return;
+
+  document.getElementById('map-sel-name').textContent=loc.name;
+  setWoStatus(`Chargement ${loc.name}…`,null);
+
   try{
-    let real=null,nv={},labels=[],realData=[],nd={d1:[],d2:[],d3:[],d4:[]};
-    if(woPeriod==='day'){
+    let real=null, nv={d1:null,d2:null,d3:null,d4:null,d5:null}, labels=[], realData=[], nd={};
+
+    if(period==='day'){
       const end=clamp(new Date(woNav.day));const start=addDays(end,-29);
       const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
       const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
-      const ndv=normForDates(dates,normals);
+      nd=normForDates(dates,normals);
       const li=[...temps].map((v,i)=>v!==null?i:-1).filter(i=>i>=0).pop()??temps.length-1;
-      real=temps[li];['d1','d2','d3','d4'].forEach(k=>{nv[k]=ndv[k][li];});
-      setWoCards(real,nv,fmtFull(new Date(dates[li]+'T00:00:00')));
-      renderWoChart(dates.map(d=>fmtShort(new Date(d))),temps,ndv,`${loc.name} · ${fmtShort(new Date(dates[li]+'T00:00:00'))}`);
-    } else if(woPeriod==='week'){
+      real=temps[li];
+      ['d1','d2','d3','d4'].forEach(k=>{nv[k]=nd[k][li]??null;});
+      const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
+      nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
+      const dd=new Date(dates[li]+'T00:00:00');
+      const pLabel=dd.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+      setWoCards(real,nv,fmtFull(dd),pLabel);
+      renderWoChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${dd.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`);
+
+    } else if(period==='week'){
       const mon=new Date(woNav.week);const sun=clamp(addDays(mon,6));
       const data=await fetchData(loc.lat,loc.lon,toDS(mon),toDS(sun));
       const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
-      const ndv=normForDates(dates,normals);
+      nd=normForDates(dates,normals);
       const vt=temps.filter(v=>v!==null);real=vt.length?avg(vt):null;
-      ['d1','d2','d3','d4'].forEach(k=>{nv[k]=avg(ndv[k].filter((_,i)=>temps[i]!==null));});
-      const d5ww=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);nv['d5']=d5ww.length?Math.round(d5ww.reduce((a,b)=>a+b,0)/d5ww.length*10)/10:null;
-      setWoCards(real,nv,`S${getWeekNum(mon)} · moy. semaine`);
-      renderWoChart(dates.map(d=>fmtShort(new Date(d))),temps,ndv,`${loc.name} · ${fmtWeek(mon)}`);
-    } else if(woPeriod==='month'){
+      ['d1','d2','d3','d4'].forEach(k=>{nv[k]=avg(nd[k].filter((_,i)=>temps[i]!==null));});
+      const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
+      nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
+      const wn=getWeekNum(mon);
+      setWoCards(real,nv,`S${wn} · moy. semaine`,`sem. ${wn}`);
+      renderWoChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${fmtWeek(mon)}`);
+
+    } else if(period==='month'){
       const{y,m}=woNav.month;const start=new Date(y,m,1);const end=clamp(new Date(y,m+1,0));
       const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
       const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
-      const ndv=normForDates(dates,normals);
+      nd=normForDates(dates,normals);
       real=avg(temps.filter(v=>v!==null));
-      ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k].monthly[m];});
-      const d5wm=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);nv['d5']=d5wm.length?Math.round(d5wm.reduce((a,b)=>a+b,0)/d5wm.length*10)/10:null;
-      setWoCards(real,nv,`${MNAMES[m]} ${y}`);
-      renderWoChart(dates.map(d=>fmtShort(new Date(d))),temps,ndv,`${loc.name} · ${MNAMES[m]} ${y}`);
+      ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k].monthly[m]??null;});
+      const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
+      nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
+      setWoCards(real,nv,`${MNAMES[m]} ${y}`,MSHORT[m]);
+      renderWoChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${MNAMES[m]} ${y}`);
+
     } else {
       const y=woNav.year;const start=new Date(y,0,1);const end=clamp(new Date(y,11,31));
       const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
@@ -759,20 +832,145 @@ async function loadWo(){
       const byM={};for(let i=0;i<dates.length;i++){const mo=new Date(dates[i]).getMonth();if(!byM[mo])byM[mo]=[];if(temps[i]!==null)byM[mo].push(temps[i]);}
       const months=Object.keys(byM).map(Number).sort((a,b)=>a-b);
       const realData=months.map(mo=>{const t=byM[mo];return t.length?parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)):null;});
-      const ndv={d1:[],d2:[],d3:[],d4:[]};months.forEach(mo=>{['d1','d2','d3','d4'].forEach(k=>{ndv[k].push(normals[k].monthly[mo]??null);});});
+      const ndY={d1:[],d2:[],d3:[],d4:[],d5:[]};
+      months.forEach(mo=>{['d1','d2','d3','d4','d5'].forEach(k=>{ndY[k].push(normals[k]?.monthly[mo]??null);});});
       real=avg(realData);
       ['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly.filter(x=>x!==null);nv[k]=v.length?parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)):null;});
-      setWoCards(real,nv,`${y} · moy. annuelle`);
-      renderWoChart(months.map(mo=>MSHORT[mo]),realData,ndv,`${loc.name} · ${y}`);
+      const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
+      nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
+      setWoCards(real,nv,`${woNav.year} · moy. annuelle`,'année');
+      renderWoChart(months.map(mo=>MSHORT[mo]),realData,ndY,`${loc.name} · ${woNav.year}`);
+      nd=ndY;
     }
+
     if(myId!==woLoadId)return;
     setWoStatus(`ERA5 · ${loc.name}`,true);
+
+    // Calculer anomalie pour colorer la carte
+    const normRef=nv[mapRef];
+    if(real!==null&&normRef!==null&&normRef!==undefined){
+      const delta=Math.round((real-normRef)*10)/10;
+      anomCache[key]=delta;
+      paintZone(key,delta);
+    }
+
   }catch(e){
     if(myId!==woLoadId)return;
-    setWoError(e.message);
+    setWoStatus(e.message,false);
+    setWoCards(null,{d1:null,d2:null,d3:null,d4:null,d5:null},e.message.slice(0,50));
+    if(woChart){woChart.destroy();woChart=null;}
+    document.getElementById('wo-chart-title').textContent='—';
   }
 }
 
+// ── Carte interactive ────────────────────────────────────────────────────────
+function paintZone(key,delta){
+  if(!svgMap)return;
+  const color=anomColor(delta);
+  // Continent → colorer les pays couverts par ce continent (approximation via zone géographique)
+  const CONTINENT_COUNTRIES={
+    europe:['276','826','724','380','620','528','56','756','40','616','752','578','643','792'],
+    namerica:['840','124','484'],
+    samerica:['76','32'],
+    africa:['566','818','504','710','12'],
+    asia:['156','356','392'],
+    oceania:['36'],
+  };
+  if(key==='planet'){
+    // Colorer tous les continents
+    CONTINENTS.forEach(c=>{
+      const delta_c=anomCache[c]??null;
+      const col=anomColor(delta_c);
+      const ids=CONTINENT_COUNTRIES[c]||[];
+      svgMap.selectAll('path.land').filter(d=>ids.includes(String(d.id))).attr('fill',col);
+    });
+    return;
+  }
+  if(CONTINENT_COUNTRIES[key]){
+    // Continent : colorer ses pays
+    const ids=CONTINENT_COUNTRIES[key];
+    svgMap.selectAll('path.land').filter(d=>ids.includes(String(d.id))).attr('fill',color);
+    return;
+  }
+  // Pays individuel
+  const numId=Object.entries(ID_MAP).find(([,v])=>v===key)?.[0];
+  if(numId)svgMap.selectAll('path.land').filter(d=>String(d.id)===numId).attr('fill',color);
+}
+
+function resetMap(){
+  if(!svgMap)return;
+  svgMap.selectAll('path.land').attr('fill','#ddd').attr('stroke','#fff').attr('stroke-width',.4);
+}
+
+function highlightSelected(key){
+  if(!svgMap)return;
+  svgMap.selectAll('path.land').attr('stroke','#fff').attr('stroke-width',.4);
+  const CONTINENT_COUNTRIES={
+    europe:['276','826','724','380','620','528','56','756','40','616','752','578','643','792'],
+    namerica:['840','124','484'],samerica:['76','32'],
+    africa:['566','818','504','710','12'],asia:['156','356','392'],oceania:['36'],
+  };
+  if(key==='planet'){
+    svgMap.selectAll('path.land').attr('stroke','rgba(192,57,43,.4)').attr('stroke-width',.8);
+    return;
+  }
+  const ids=CONTINENT_COUNTRIES[key]||[];
+  if(ids.length){
+    svgMap.selectAll('path.land').filter(d=>ids.includes(String(d.id))).attr('stroke','#c0392b').attr('stroke-width',1.5);
+    return;
+  }
+  const numId=Object.entries(ID_MAP).find(([,v])=>v===key)?.[0];
+  if(numId)svgMap.selectAll('path.land').filter(d=>String(d.id)===numId).attr('stroke','#c0392b').attr('stroke-width',2);
+}
+
+function selectZone(key){
+  woKey=key;
+  // Pills actives
+  document.querySelectorAll('.zone-pill').forEach(p=>p.classList.toggle('active',p.dataset.key===key));
+  // Highlight carte
+  highlightSelected(key);
+  // Charger les données → met à jour cartes + graphe + colorie la carte
+  loadWo();
+}
+
+async function initMap(){
+  const cont=document.getElementById('world-map').parentElement;
+  const W=Math.min(cont.clientWidth-32,700);const H=Math.round(W*0.5);
+  const svg=d3.select('#world-map').attr('viewBox',`0 0 ${W} ${H}`).attr('width','100%');
+  svgMap=svg;
+  const proj=d3.geoNaturalEarth1().scale(W/6.3).translate([W/2,H/2]);
+  pathFn=d3.geoPath(proj);
+  const world=await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+  const features=topojson.feature(world,world.objects.countries).features;
+
+  svg.selectAll('path.land').data(features).join('path').attr('class','land')
+    .attr('d',pathFn).attr('fill','#ddd').attr('stroke','#fff').attr('stroke-width',.4)
+    .style('cursor','pointer')
+    .on('mouseover',function(ev,d){
+      const ck=ID_MAP[+d.id];const loc=ck?getLoc(ck):null;if(!loc)return;
+      const anom=anomCache[ck];
+      const tt=document.getElementById('map-tooltip');
+      tt.innerHTML=`<strong>${loc.name}</strong>${anom!=null?`<br>Écart : ${anom>=0?'+':''}${anom.toFixed(1)}°C`:''}`;
+      tt.style.display='block';tt.style.left=(ev.offsetX+14)+'px';tt.style.top=(ev.offsetY+10)+'px';
+    })
+    .on('mousemove',ev=>{
+      const tt=document.getElementById('map-tooltip');
+      tt.style.left=(ev.offsetX+14)+'px';tt.style.top=(ev.offsetY+10)+'px';
+    })
+    .on('mouseout',()=>document.getElementById('map-tooltip').style.display='none')
+    .on('click',(_,d)=>{
+      const ck=ID_MAP[+d.id];
+      if(ck) selectZone(ck);
+    });
+
+  svg.append('path').datum(topojson.mesh(world,world.objects.countries))
+    .attr('fill','none').attr('stroke','#fff').attr('stroke-width',.5).attr('d',pathFn);
+
+  // Charger planète par défaut
+  selectZone('planet');
+}
+
+// ── Navigation temporelle Monde ───────────────────────────────────────────────
 function buildWoNav(){
   const row=document.getElementById('wo-nav-row');row.innerHTML='';
   if(woPeriod==='day'){
@@ -780,7 +978,7 @@ function buildWoNav(){
     const inp=document.getElementById('wond');inp.max=toDS(era5End);inp.min='1991-01-01';inp.value=toDS(woNav.day);
     updateWoLabel();
     inp.onchange=()=>{const v=new Date(inp.value+'T00:00:00');if(!isNaN(v)){woNav.day=v;updateWoLabel();loadWo();}};
-    document.getElementById('wop').onclick=()=>{woNav.day=addDays(woNav.day,-1);if(woNav.day<new Date('2024-01-01'))woNav.day=new Date('2024-01-01');inp.value=toDS(woNav.day);updateWoLabel();loadWo();};
+    document.getElementById('wop').onclick=()=>{woNav.day=addDays(woNav.day,-1);if(woNav.day<new Date('1991-01-01'))woNav.day=new Date('1991-01-01');inp.value=toDS(woNav.day);updateWoLabel();loadWo();};
     document.getElementById('wonn').onclick=()=>{woNav.day=addDays(woNav.day,1);if(woNav.day>era5End)woNav.day=new Date(era5End);inp.value=toDS(woNav.day);updateWoLabel();loadWo();};
     document.getElementById('wont').onclick=()=>{woNav.day=new Date(era5End);inp.value=toDS(woNav.day);updateWoLabel();loadWo();};
   } else if(woPeriod==='week'){
@@ -815,206 +1013,29 @@ function updateWoLabel(){
   else if(woPeriod==='week'){const wn=getWeekNum(woNav.week);el.textContent=`S${wn} · ${fmtWeek(woNav.week)}`;}
 }
 
+// ── Events ────────────────────────────────────────────────────────────────────
 document.querySelectorAll('#wo-tabs .tab').forEach(t=>{
   t.onclick=()=>{
     document.querySelectorAll('#wo-tabs .tab').forEach(x=>x.classList.remove('active'));
     t.classList.add('active');
     woPeriod=t.dataset.p;
-    buildWoNav();loadWo();
+    buildWoNav();
+    loadWo();
   };
 });
-document.getElementById('wo-region-sel').onchange=e=>{woRegion=e.target.value;loadWo();};
+
+document.querySelectorAll('.zone-pill').forEach(p=>{
+  p.onclick=()=>selectZone(p.dataset.key);
+});
+
+document.getElementById('map-ref-sel').onchange=e=>{
+  mapRef=e.target.value;
+  // Recalculer les couleurs avec la nouvelle référence
+  Object.entries(anomCache).forEach(([key,delta])=>paintZone(key,delta));
+};
+
 buildWoNav();
-loadWo();
-
-
-// ── Grille planète (moyenne pondérée ERA5) ───────────────────────────────────
-const PLANET_GRID=[
-  {lat:80,lon:0,w:0.03},{lat:70,lon:-40,w:0.04},{lat:65,lon:100,w:0.04},
-  {lat:50,lon:-100,w:0.07},{lat:50,lon:10,w:0.06},{lat:45,lon:90,w:0.07},
-  {lat:25,lon:-80,w:0.07},{lat:20,lon:30,w:0.07},{lat:10,lon:105,w:0.07},
-  {lat:0,lon:-50,w:0.07},{lat:0,lon:160,w:0.06},
-  {lat:-20,lon:25,w:0.08},{lat:-30,lon:-60,w:0.07},
-  {lat:-55,lon:0,w:0.06},{lat:-80,lon:0,w:0.04},
-];
-
-// Pays → numeric ID GeoJSON
-const ID_MAP={
-  250:'france',276:'germany',826:'uk',724:'spain',380:'italy',
-  620:'portugal',528:'netherlands',56:'belgium',756:'switzerland',
-  40:'austria',616:'poland',752:'sweden',578:'norway',643:'russia',
-  792:'turkey',840:'usa',124:'canada',484:'mexico',76:'brazil',
-  32:'argentina',156:'china',356:'india',392:'japan',36:'australia',
-  710:'southafrica',566:'nigeria',818:'egypt',504:'morocco',12:'algeria',
-};
-
-// Coordonnées pays supplémentaires (non dans LOCS)
-const COUNTRY_LOCS={
-  germany:{name:'Allemagne',lat:51.5,lon:10.5},
-  uk:{name:'Royaume-Uni',lat:54,lon:-2},
-  spain:{name:'Espagne',lat:40.4,lon:-3.7},
-  italy:{name:'Italie',lat:42.5,lon:12.5},
-  portugal:{name:'Portugal',lat:39.5,lon:-8},
-  netherlands:{name:'Pays-Bas',lat:52.3,lon:5.3},
-  belgium:{name:'Belgique',lat:50.8,lon:4.4},
-  switzerland:{name:'Suisse',lat:46.8,lon:8.2},
-  austria:{name:'Autriche',lat:47.8,lon:13},
-  poland:{name:'Pologne',lat:52,lon:20},
-  sweden:{name:'Suède',lat:63,lon:16},
-  norway:{name:'Norvège',lat:65,lon:14},
-  russia:{name:'Russie',lat:60,lon:60},
-  turkey:{name:'Turquie',lat:39,lon:35},
-  usa:{name:'États-Unis',lat:39.5,lon:-98},
-  canada:{name:'Canada',lat:56,lon:-96},
-  mexico:{name:'Mexique',lat:23,lon:-102},
-  brazil:{name:'Brésil',lat:-10,lon:-53},
-  argentina:{name:'Argentine',lat:-34,lon:-64},
-  china:{name:'Chine',lat:35,lon:105},
-  india:{name:'Inde',lat:20,lon:77},
-  japan:{name:'Japon',lat:36,lon:138},
-  australia:{name:'Australie',lat:-25,lon:133},
-  southafrica:{name:'Afrique du Sud',lat:-29,lon:25},
-  nigeria:{name:'Nigeria',lat:9,lon:8},
-  egypt:{name:'Égypte',lat:26,lon:30},
-  morocco:{name:'Maroc',lat:32,lon:-5},
-  algeria:{name:'Algérie',lat:28,lon:2},
-};
-
-function getLoc(key){
-  return LOCS[key]||COUNTRY_LOCS[key]||null;
-}
-
-function anomColor(d){
-  if(d===null||d===undefined)return'#ddd';
-  const t=Math.max(-1,Math.min(1,d/3));
-  if(t<0){const r=Math.round(36-t*(-148)),g=Math.round(113+t*77),b=Math.round(163+t*127);return`rgb(${r},${g},${b})`;}
-  return`rgb(${Math.round(184+t*8)},${Math.round(36+t*21)},${Math.round(36+t*7)})`;
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// CARTE MONDE
-// ══════════════════════════════════════════════════════════════════════════════
-let svgMap=null, pathFn=null, mapChart=null, mapRef='d1';
-const mapAnomalies={};
-const PRELOAD_MAP=['planet','europe','africa','namerica','samerica','asia','oceania'];
-
-async function initMap(){
-  const cont=document.getElementById('world-map').parentElement;
-  const W=Math.min(cont.clientWidth-32,520);const H=Math.round(W*0.54);
-  const svg=d3.select('#world-map').attr('viewBox',`0 0 ${W} ${H}`).attr('width','100%');
-  svgMap=svg;
-  const proj=d3.geoNaturalEarth1().scale(W/6.3).translate([W/2,H/2]);
-  pathFn=d3.geoPath(proj);
-  const world=await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
-  const features=topojson.feature(world,world.objects.countries).features;
-  svg.selectAll('path.land').data(features).join('path').attr('class','land')
-    .attr('d',pathFn).attr('fill','#ddd').attr('stroke','#fff').attr('stroke-width',.4)
-    .style('cursor','pointer')
-    .on('mouseover',function(ev,d){
-      const ck=ID_MAP[+d.id];const loc=ck?getLoc(ck):null;if(!loc)return;
-      d3.select(this).attr('fill',d3.color(d3.select(this).attr('fill')).darker(.2));
-      const tt=document.getElementById('map-tooltip');
-      const anom=mapAnomalies[ck];
-      tt.innerHTML=`<strong>${loc.name}</strong><br>Anomalie : ${anom!=null?(anom>=0?'+':'')+anom.toFixed(1)+'°C':'non chargé'}`;
-      tt.style.display='block';tt.style.left=(ev.offsetX+14)+'px';tt.style.top=(ev.offsetY+10)+'px';
-    })
-    .on('mousemove',ev=>{const tt=document.getElementById('map-tooltip');tt.style.left=(ev.offsetX+14)+'px';tt.style.top=(ev.offsetY+10)+'px';})
-    .on('mouseout',function(ev,d){
-      const ck=ID_MAP[+d.id];
-      d3.select(this).attr('fill',ck&&mapAnomalies[ck]!==undefined?anomColor(mapAnomalies[ck]):'#ddd');
-      document.getElementById('map-tooltip').style.display='none';
-    })
-    .on('click',(_,d)=>{const ck=ID_MAP[+d.id];if(ck)selectMapZone(ck);});
-  svg.append('path').datum(topojson.mesh(world,world.objects.countries))
-    .attr('fill','none').attr('stroke','#fff').attr('stroke-width',.5).attr('d',pathFn);
-  // Précharger les continents + planète
-  preloadMapZones();
-}
-
-async function preloadMapZones(){
-  const lbl=document.getElementById('map-loading');
-  let n=0;
-  for(const key of PRELOAD_MAP){
-    try{
-      const loc=getLoc(key);if(!loc)continue;
-      const end=clamp(new Date(era5End));const start=addDays(end,-6);
-      const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
-      const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
-      const real=temps.length?avg(temps):null;
-      const normals=getNormals(key)||getNormals('france');
-      const normVal=normals['d1'].daily[getDOY(end)];
-      if(real!==null&&normVal!==null){mapAnomalies[key]=Math.round((real-normVal)*10)/10;}
-      n++;if(lbl)lbl.textContent=`${n}/${PRELOAD_MAP.length} zones`;
-      await new Promise(r=>setTimeout(r,300));
-    }catch(e){}
-  }
-  if(lbl)lbl.textContent='';
-}
-
-function paintMap(key,delta){
-  if(!svgMap)return;
-  const numId=Object.entries(ID_MAP).find(([,v])=>v===key)?.[0];
-  if(numId)svgMap.selectAll('path.land').filter(d=>+d.id===+numId).attr('fill',anomColor(delta));
-}
-function highlightMap(key){
-  if(!svgMap)return;
-  svgMap.selectAll('path.land').attr('stroke','#fff').attr('stroke-width',.4);
-  const numId=Object.entries(ID_MAP).find(([,v])=>v===key)?.[0];
-  if(numId)svgMap.selectAll('path.land').filter(d=>+d.id===+numId).attr('stroke','#c0392b').attr('stroke-width',1.8);
-}
-
-function setMapCards(real,normals,label){
-  document.getElementById('mm-real').textContent=real!==null?real.toFixed(1)+'°C':'—';
-  document.getElementById('mm-real-err').textContent=real!==null?`±${UNC.real}°C`:'';
-  document.getElementById('mm-real-sub').textContent=label||'';
-  ['d1','d2','d3','d4','d5'].forEach(k=>{
-    const n=normals[k];
-    const ev=document.getElementById(`mm-${k}`);if(ev)ev.textContent=(n!==null&&n!==undefined)?n.toFixed(1)+'°C':'—';
-    const ee=document.getElementById(`mm-${k}-err`);if(ee)ee.textContent=n!==null?`±${UNC[k]}°C`:'';
-    const el=document.getElementById(`mm-${k}-d`);if(!el)return;
-    if(real!==null&&n!==null){const d=real-n;el.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';el.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');}
-    else{el.textContent='—';el.className='metric-delta neu';}
-  });
-}
-
-async function selectMapZone(key){
-  const loc=getLoc(key);if(!loc)return;
-  document.querySelectorAll('.zone-pill').forEach(p=>p.classList.toggle('active',p.dataset.key===key));
-  highlightMap(key==='france'||LOCS[key]?key:key);
-  document.getElementById('map-sel-name').textContent=loc.name;
-  document.getElementById('map-status-dot').style.background='#f39c12';
-  document.getElementById('map-status-txt').textContent=`Chargement ${loc.name}…`;
-  try{
-    const normals=getNormals(key)||getNormals('france');
-    const end=clamp(new Date(era5End));const start=addDays(end,-29);
-    const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
-    const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
-    const nd=normForDates(dates,normals);
-    const li=[...temps].map((v,i)=>v!==null?i:-1).filter(i=>i>=0).pop()??temps.length-1;
-    const real=temps[li];
-    const nv={};['d1','d2','d3','d4'].forEach(k=>{nv[k]=nd[k][li];});
-  // d5 = moyenne toutes décennies pour ce jour
-  const d5vals=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
-  nv['d5']=d5vals.length?Math.round(d5vals.reduce((a,b)=>a+b,0)/d5vals.length*10)/10:null;
-    setMapCards(real,nv,fmtShort(new Date(dates[li]+'T00:00:00')));
-    // Anomalie pour colorer la carte
-    if(real!==null&&nv[mapRef]!==null){
-      mapAnomalies[key]=Math.round((real-nv[mapRef])*10)/10;
-      paintMap(key,mapAnomalies[key]);
-    }
-    // Graphe 30j
-
-    document.getElementById('map-status-dot').style.background='#27ae60';
-    document.getElementById('map-status-txt').textContent=`ERA5 · ${loc.name}`;
-  }catch(e){
-    document.getElementById('map-status-dot').style.background='#c0392b';
-    document.getElementById('map-status-txt').textContent='Erreur : '+e.message;
-  }
-}
-
-document.querySelectorAll('.zone-pill').forEach(p=>{p.onclick=()=>selectMapZone(p.dataset.key);});
-document.getElementById('map-ref-sel').onchange=e=>{mapRef=e.target.value;};
-initMap().then(()=>selectMapZone('planet'));
+initMap();
 
 </script>
 </body>
