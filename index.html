@@ -721,8 +721,9 @@ function setWoCards(real,normals,label,periodLabel){
 }
 
 function renderWoChart(labels,realData,nd,title){
-  document.getElementById('wo-chart-title').textContent=title;
+  const _wct=document.getElementById('wo-chart-title');if(_wct)_wct.textContent=title;
   const canvas=document.getElementById('wo-chart');
+  if(!canvas)return;
   if(woChart){woChart.destroy();woChart=null;}
   const ptR=realData.length>60?0:3;
   woChart=new Chart(canvas,{type:'line',data:{labels,datasets:[
@@ -943,7 +944,7 @@ async function loadWo(){
     setWoStatus(e.message,false);
     setWoCards(null,{d1:null,d2:null,d3:null,d4:null,d5:null},e.message.slice(0,50));
     if(woChart){woChart.destroy();woChart=null;}
-    document.getElementById('wo-chart-title').textContent='—';
+    const _wct2=document.getElementById('wo-chart-title');if(_wct2)_wct2.textContent='—';
   }
 }
 
