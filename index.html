@@ -552,10 +552,10 @@ function setCards(real,normals,label,periodLabel){
   };
   ['d1','d2','d3','d4','d5'].forEach(k=>{
     const n=normals[k];
-    const el=document.getElementById(`m-${k}`);if(el)el.textContent=n!==null?n.toFixed(1)+'°C':'—';
-    const ee=document.getElementById(`m-${k}-err`);if(ee)ee.textContent=n!==null?`±${UNC[k]}°C`:'';
+    const el=document.getElementById(`m-${k}`);if(el)el.textContent=(n!==null&&n!==undefined)?n.toFixed(1)+'°C':'—';
+    const ee=document.getElementById(`m-${k}-err`);if(ee)ee.textContent=(n!==null&&n!==undefined)?`±${UNC[k]}°C`:'';
     const ed=document.getElementById(`m-${k}-d`);if(!ed)return;
-    if(real!==null&&n!==null){
+    if(real!==null&&n!==null&&n!==undefined){
       const d=real-n;
       ed.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';
       ed.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');
@@ -597,6 +597,9 @@ async function loadDay(loc,normals){
   const li=[...temps].map((v,i)=>v!==null?i:-1).filter(i=>i>=0).pop()??temps.length-1;
   const real=temps[li];
   const nv={};['d1','d2','d3','d4'].forEach(k=>{nv[k]=nd[k][li];});
+  // d5 = moyenne toutes décennies pour ce jour
+  const d5vals=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
+  nv['d5']=d5vals.length?Math.round(d5vals.reduce((a,b)=>a+b,0)/d5vals.length*10)/10:null;
   const dd=new Date(dates[li]+'T00:00:00');
   // periodLabel = ex 'le 1er janv.' pour afficher dans les décennies
   const pLabel=dd.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
@@ -611,6 +614,8 @@ async function loadWeek(loc,normals){
   const nd=normForDates(dates,normals);
   const vt=temps.filter(v=>v!==null);const real=vt.length?avg(vt):null;
   const nv={};['d1','d2','d3','d4'].forEach(k=>{nv[k]=avg(nd[k].filter((_,i)=>temps[i]!==null));});
+  const d5w=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
+  nv['d5']=d5w.length?Math.round(d5w.reduce((a,b)=>a+b,0)/d5w.length*10)/10:null;
   const wn=getWeekNum(mon);
   setCards(real,nv,`S${wn} · moy. semaine`,`sem. ${wn}`);
   renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${fmtWeek(mon)}`);
@@ -623,6 +628,8 @@ async function loadMonth(loc,normals){
   const nd=normForDates(dates,normals);
   const real=avg(temps.filter(v=>v!==null));
   const nv={};['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k].monthly[m];});
+  const d5m=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
+  nv['d5']=d5m.length?Math.round(d5m.reduce((a,b)=>a+b,0)/d5m.length*10)/10:null;
   setCards(real,nv,`${MNAMES[m]} ${y}`,MSHORT[m]);
   renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${MNAMES[m]} ${y}`);
 }
@@ -756,8 +763,8 @@ function setWoCards(real,normals,label,periodLabel){
   document.getElementById('wo-m-real-sub').textContent=label||'';
   ['d1','d2','d3','d4','d5'].forEach(k=>{
     const n=normals[k];
-    const el=document.getElementById(`wo-m-${k}`);if(el)el.textContent=n!==null?n.toFixed(1)+'°C':'—';
-    const ee=document.getElementById(`wo-m-${k}-err`);if(ee)ee.textContent=n!==null?`±${UNC[k]}°C`:'';
+    const el=document.getElementById(`wo-m-${k}`);if(el)el.textContent=(n!==null&&n!==undefined)?n.toFixed(1)+'°C':'—';
+    const ee=document.getElementById(`wo-m-${k}-err`);if(ee)ee.textContent=(n!==null&&n!==undefined)?`±${UNC[k]}°C`:'';
     const ed=document.getElementById(`wo-m-${k}-d`);if(!ed)return;
     if(real!==null&&n!==null){const d=real-n;ed.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';ed.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');}
     else{ed.textContent=periodLabel?`moy. ${periodLabel}`:'—';ed.className='metric-delta neu';}
@@ -806,6 +813,7 @@ async function loadWo(){
       const ndv=normForDates(dates,normals);
       const vt=temps.filter(v=>v!==null);real=vt.length?avg(vt):null;
       ['d1','d2','d3','d4'].forEach(k=>{nv[k]=avg(ndv[k].filter((_,i)=>temps[i]!==null));});
+      const d5ww=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);nv['d5']=d5ww.length?Math.round(d5ww.reduce((a,b)=>a+b,0)/d5ww.length*10)/10:null;
       setWoCards(real,nv,`S${getWeekNum(mon)} · moy. semaine`);
       renderWoChart(dates.map(d=>fmtShort(new Date(d))),temps,ndv,`${loc.name} · ${fmtWeek(mon)}`);
     } else if(woPeriod==='month'){
@@ -815,6 +823,7 @@ async function loadWo(){
       const ndv=normForDates(dates,normals);
       real=avg(temps.filter(v=>v!==null));
       ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k].monthly[m];});
+      const d5wm=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);nv['d5']=d5wm.length?Math.round(d5wm.reduce((a,b)=>a+b,0)/d5wm.length*10)/10:null;
       setWoCards(real,nv,`${MNAMES[m]} ${y}`);
       renderWoChart(dates.map(d=>fmtShort(new Date(d))),temps,ndv,`${loc.name} · ${MNAMES[m]} ${y}`);
     } else {
@@ -1167,7 +1176,7 @@ function setMapCards(real,normals,label){
   document.getElementById('mm-real-sub').textContent=label||'';
   ['d1','d2','d3','d4','d5'].forEach(k=>{
     const n=normals[k];
-    const ev=document.getElementById(`mm-${k}`);if(ev)ev.textContent=n!==null?n.toFixed(1)+'°C':'—';
+    const ev=document.getElementById(`mm-${k}`);if(ev)ev.textContent=(n!==null&&n!==undefined)?n.toFixed(1)+'°C':'—';
     const ee=document.getElementById(`mm-${k}-err`);if(ee)ee.textContent=n!==null?`±${UNC[k]}°C`:'';
     const el=document.getElementById(`mm-${k}-d`);if(!el)return;
     if(real!==null&&n!==null){const d=real-n;el.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';el.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');}
@@ -1191,6 +1200,9 @@ async function selectMapZone(key){
     const li=[...temps].map((v,i)=>v!==null?i:-1).filter(i=>i>=0).pop()??temps.length-1;
     const real=temps[li];
     const nv={};['d1','d2','d3','d4'].forEach(k=>{nv[k]=nd[k][li];});
+  // d5 = moyenne toutes décennies pour ce jour
+  const d5vals=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
+  nv['d5']=d5vals.length?Math.round(d5vals.reduce((a,b)=>a+b,0)/d5vals.length*10)/10:null;
     setMapCards(real,nv,fmtShort(new Date(dates[li]+'T00:00:00')));
     // Anomalie pour colorer la carte
     if(real!==null&&nv[mapRef]!==null){
