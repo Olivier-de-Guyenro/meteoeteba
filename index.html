@@ -304,29 +304,36 @@ function getWeekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d
 function getMon(d){const r=new Date(d);const dow=r.getDay()===0?6:r.getDay()-1;r.setDate(r.getDate()-dow);return r;}
 
 // ── API ───────────────────────────────────────────────────────────────────────
+// Proxy Netlify — évite les restrictions de rate limiting
+const PROXY = '/.netlify/functions/meteo';
+
 async function fetchData(lat,lon,startStr,endStr){
   const start=new Date(startStr+'T00:00:00');
   const pastDays=Math.ceil((today-start)/86400000);
-  if(pastDays>92){
-    // Essai archive ERA5
-    const url=`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startStr}&end_date=${endStr}&daily=temperature_2m_mean&timezone=auto`;
-    const r=await fetch(url);
-    if(!r.ok)throw new Error(`Données non disponibles pour cette période (${r.status}). Open-Meteo limite les accès historiques depuis les serveurs CDN. Essayez les 3 derniers mois.`);
-    const d=await r.json();
-    if(d.error)throw new Error(d.reason||'Erreur API');
-    return d;
+
+  let url;
+  if(pastDays<=92){
+    // Données récentes : API forecast via proxy
+    url=`${PROXY}?lat=${lat}&lon=${lon}&past_days=${pastDays}`;
+  } else {
+    // Données historiques : archive ERA5 via proxy
+    url=`${PROXY}?lat=${lat}&lon=${lon}&start=${startStr}&end=${endStr}`;
   }
-  // API forecast — fonctionne partout sans limite
-  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_mean&timezone=auto&past_days=${pastDays}&forecast_days=1`;
+
   const r=await fetch(url);
-  if(!r.ok)throw new Error(`Open-Meteo HTTP ${r.status}`);
+  if(!r.ok)throw new Error(`Erreur serveur ${r.status}`);
   const d=await r.json();
   if(d.error)throw new Error(d.reason||'Erreur API');
-  const times=d.daily.time,temps=d.daily.temperature_2m_mean;
-  let i0=-1,i1=-1;
-  for(let i=0;i<times.length;i++){if(times[i]>=startStr&&i0===-1)i0=i;if(times[i]<=endStr)i1=i;}
-  if(i0===-1||i1===-1)throw new Error('Données hors plage');
-  return{daily:{time:times.slice(i0,i1+1),temperature_2m_mean:temps.slice(i0,i1+1)}};
+
+  // Si past_days : filtrer sur la fenêtre demandée
+  if(pastDays<=92){
+    const times=d.daily.time,temps=d.daily.temperature_2m_mean;
+    let i0=-1,i1=-1;
+    for(let i=0;i<times.length;i++){if(times[i]>=startStr&&i0===-1)i0=i;if(times[i]<=endStr)i1=i;}
+    if(i0===-1||i1===-1)throw new Error('Données hors plage');
+    return{daily:{time:times.slice(i0,i1+1),temperature_2m_mean:temps.slice(i0,i1+1)}};
+  }
+  return d;
 }
 
 // ── UI ────────────────────────────────────────────────────────────────────────
