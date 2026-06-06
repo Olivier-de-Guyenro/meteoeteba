@@ -11,76 +11,63 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #f5f4f0;
-      --surface: #ffffff;
-      --surface2: #f0ede8;
-      --border: rgba(0,0,0,.08);
-      --border-strong: rgba(0,0,0,.14);
-      --text: #1a1a18;
-      --text-2: #6b6b66;
-      --text-3: #9b9b96;
-      --red: #c0392b;
-      --blue: #2471a3;
-      --green: #1e8449;
+      --bg: #f5f4f0; --surface: #ffffff; --surface2: #f0ede8;
+      --border: rgba(0,0,0,.08); --border-strong: rgba(0,0,0,.14);
+      --text: #1a1a18; --text-2: #6b6b66; --text-3: #9b9b96;
       --font: 'DM Sans', system-ui, sans-serif;
       --mono: 'DM Mono', monospace;
-      --radius: 10px;
-      --radius-lg: 16px;
+      --radius: 10px; --radius-lg: 16px;
     }
-    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; }
     .page { max-width: 1060px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 
-    .site-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2.5rem; gap: 1rem; flex-wrap: wrap; }
+    .site-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap; }
     .site-title { font-size: 22px; font-weight: 500; letter-spacing: -.3px; }
     .site-title span { color: var(--text-2); font-weight: 300; }
     .site-sub { font-size: 12px; color: var(--text-3); margin-top: 3px; font-family: var(--mono); }
 
-    .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    /* ─── Controls row ─── */
+    .controls-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; }
     .tab-group { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 3px; gap: 2px; }
     .tab { padding: 6px 16px; font-size: 13px; font-family: var(--font); border: none; background: transparent; color: var(--text-2); border-radius: 7px; cursor: pointer; transition: all .15s; font-weight: 400; }
     .tab:hover { color: var(--text); background: var(--surface2); }
     .tab.active { background: var(--text); color: #fff; font-weight: 500; }
     .region-wrap { display: flex; align-items: center; gap: 8px; margin-left: auto; }
     .region-wrap label { font-size: 12px; color: var(--text-3); font-family: var(--mono); white-space: nowrap; }
-    select { font-family: var(--font); font-size: 13px; padding: 7px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); cursor: pointer; outline: none; transition: border-color .15s; min-width: 220px; }
+    select { font-family: var(--font); font-size: 13px; padding: 7px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); cursor: pointer; outline: none; transition: border-color .15s; }
     select:hover, select:focus { border-color: var(--border-strong); }
+    #region-sel { min-width: 210px; }
+
+    /* ─── Nav row (sélecteurs de période) ─── */
+    .nav-row {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 12px 16px;
+      margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .nav-row label { font-size: 12px; color: var(--text-3); font-family: var(--mono); white-space: nowrap; }
+    .nav-btn { padding: 5px 12px; font-size: 13px; font-family: var(--font); border: 1px solid var(--border); background: var(--surface2); color: var(--text-2); border-radius: 7px; cursor: pointer; transition: all .15s; line-height: 1; }
+    .nav-btn:hover { background: var(--text); color: #fff; border-color: var(--text); }
+    .nav-current { font-size: 14px; font-weight: 500; min-width: 200px; text-align: center; }
+    .nav-sep { color: var(--border-strong); }
+    .nav-row select { min-width: 0; }
 
     /* ─── 5 metric cards ─── */
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
-      margin-bottom: 1.5rem;
-    }
-    @media (max-width: 800px) { .metrics { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 520px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
-
-    .metric {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 14px 16px;
-      border-top: 3px solid transparent;
-    }
+    .metrics { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-bottom: 1.5rem; }
+    @media (max-width: 800px) { .metrics { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 520px) { .metrics { grid-template-columns: repeat(2,1fr); } }
+    .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; border-top: 3px solid transparent; }
     .metric.is-real { border-top-color: #c0392b; }
     .metric.is-d1   { border-top-color: #27ae60; }
     .metric.is-d2   { border-top-color: #2471a3; }
     .metric.is-d3   { border-top-color: #8e44ad; }
     .metric.is-d4   { border-top-color: #e67e22; }
-
     .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); font-family: var(--mono); margin-bottom: 6px; }
     .metric-value { font-size: 26px; font-weight: 500; letter-spacing: -.5px; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
     .metric-delta { font-size: 12px; font-weight: 500; font-family: var(--mono); }
     .metric-sub   { font-size: 10px; color: var(--text-3); margin-top: 2px; }
-    .c-real { color: #c0392b; }
-    .c-d1   { color: #27ae60; }
-    .c-d2   { color: #2471a3; }
-    .c-d3   { color: #8e44ad; }
-    .c-d4   { color: #e67e22; }
-    .c-muted { color: var(--text-2); }
-    .delta-hot  { color: #c0392b; }
-    .delta-cold { color: #2471a3; }
-    .delta-neu  { color: var(--text-3); }
+    .c-real{color:#c0392b} .c-d1{color:#27ae60} .c-d2{color:#2471a3} .c-d3{color:#8e44ad} .c-d4{color:#e67e22} .c-muted{color:var(--text-2)}
+    .delta-hot{color:#c0392b} .delta-cold{color:#2471a3} .delta-neu{color:var(--text-3)}
 
     /* ─── Chart ─── */
     .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
@@ -96,17 +83,14 @@
     .progress-wrap.visible { display: block; }
     .progress-bar-outer { background: var(--surface2); border-radius: 4px; height: 6px; margin: 1rem auto; max-width: 400px; overflow: hidden; }
     .progress-bar-inner { height: 100%; background: var(--text); border-radius: 4px; transition: width .4s; width: 0%; }
-    .progress-label { font-size: 13px; color: var(--text-2); }
+    .progress-label  { font-size: 13px; color: var(--text-2); }
     .progress-detail { font-size: 11px; color: var(--text-3); font-family: var(--mono); margin-top: 4px; }
+    .cache-badge { display:none; align-items:center; gap:4px; font-size:10px; font-family:var(--mono); color:var(--text-3); background:var(--surface2); border-radius:4px; padding:2px 6px; margin-left:8px; vertical-align:middle; }
 
-    .cache-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-family: var(--mono); color: var(--text-3); background: var(--surface2); border-radius: 4px; padding: 2px 6px; margin-left: 8px; vertical-align: middle; }
-
-    .status-bar { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); color: var(--text-3); padding: 8px 0; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; transition: background .3s; }
-
-    footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-3); font-family: var(--mono); display: flex; gap: 1.5rem; flex-wrap: wrap; }
-    footer a { color: var(--text-3); text-decoration: underline; text-underline-offset: 2px; }
-    footer a:hover { color: var(--text-2); }
+    .status-bar { display:flex; align-items:center; gap:8px; font-size:11px; font-family:var(--mono); color:var(--text-3); padding:8px 0; }
+    .status-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+    footer { margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); font-size:11px; color:var(--text-3); font-family:var(--mono); display:flex; gap:1.5rem; flex-wrap:wrap; }
+    footer a { color:var(--text-3); text-decoration:underline; text-underline-offset:2px; }
   </style>
 </head>
 <body>
@@ -115,11 +99,12 @@
   <header class="site-header">
     <div>
       <h1 class="site-title">Températures France <span id="current-year"></span></h1>
-      <p class="site-sub">Réelles vs normales ERA5 décennales · Source : Open-Meteo</p>
+      <p class="site-sub">Réelles vs normales ERA5 décennales · Open-Meteo</p>
     </div>
   </header>
 
-  <div class="controls">
+  <!-- Onglets + région -->
+  <div class="controls-row">
     <div class="tab-group" id="period-tabs">
       <button class="tab active" data-period="day">Jour</button>
       <button class="tab" data-period="week">Semaine</button>
@@ -147,12 +132,17 @@
     </div>
   </div>
 
-  <!-- 5 metric cards -->
+  <!-- Sélecteur de période (change selon l'onglet) -->
+  <div class="nav-row" id="nav-row">
+    <!-- rempli dynamiquement -->
+  </div>
+
+  <!-- 5 cards -->
   <div class="metrics">
     <div class="metric is-real">
       <div class="metric-label">Réel</div>
       <div class="metric-value c-real" id="m-real">—</div>
-      <div class="metric-delta" id="m-real-delta" style="visibility:hidden">—</div>
+      <div class="metric-delta" style="visibility:hidden">—</div>
       <div class="metric-sub" id="m-real-sub">—</div>
     </div>
     <div class="metric is-d1">
@@ -185,26 +175,26 @@
   <div class="progress-wrap" id="progress-wrap">
     <div class="progress-label" id="progress-label">Calcul des normales ERA5…</div>
     <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
-    <div class="progress-detail" id="progress-detail">Chargement des données historiques (30+ ans)</div>
+    <div class="progress-detail" id="progress-detail">Chargement 1991–présent</div>
   </div>
 
   <!-- Chart -->
   <div class="chart-card" id="chart-card">
     <div class="chart-header">
       <div>
-        <span class="chart-title" id="chart-title">Températures journalières</span>
-        <span class="cache-badge" id="cache-badge" style="display:none">⚡ cache</span>
+        <span class="chart-title" id="chart-title">—</span>
+        <span class="cache-badge" id="cache-badge">⚡ cache</span>
       </div>
       <div class="legend">
         <div class="legend-item"><div class="leg-line" style="background:#c0392b"></div>Réelle</div>
-        <div class="legend-item"><div class="leg-line" style="background:#e67e22;opacity:.7"></div>2021–</div>
-        <div class="legend-item"><div class="leg-line" style="background:#8e44ad;opacity:.7"></div>2011–2020</div>
-        <div class="legend-item"><div class="leg-line" style="background:#2471a3;opacity:.7"></div>2001–2010</div>
-        <div class="legend-item"><div class="leg-line" style="background:#27ae60;opacity:.7"></div>1991–2000</div>
+        <div class="legend-item"><div class="leg-line" style="background:#e67e22;opacity:.8"></div>2021–</div>
+        <div class="legend-item"><div class="leg-line" style="background:#8e44ad;opacity:.8"></div>2011–2020</div>
+        <div class="legend-item"><div class="leg-line" style="background:#2471a3;opacity:.8"></div>2001–2010</div>
+        <div class="legend-item"><div class="leg-line" style="background:#27ae60;opacity:.8"></div>1991–2000</div>
       </div>
     </div>
     <div class="chart-container">
-      <canvas id="main-chart" role="img" aria-label="Graphique températures réelles vs normales ERA5 décennales"></canvas>
+      <canvas id="main-chart" role="img" aria-label="Températures réelles vs normales ERA5"></canvas>
     </div>
   </div>
 
@@ -215,417 +205,465 @@
 
   <footer>
     <span>Données : <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> · Réanalyse ERA5 (ECMWF)</span>
-    <span>Normales calculées sur données ERA5 brutes par décennie</span>
-    <span>Cache local 24h · Dernière donnée ERA5 : J−5 environ</span>
+    <span>Normales calculées sur données ERA5 brutes · Cache 24h</span>
+    <span>Dernière donnée disponible : J−5 environ</span>
   </footer>
-
 </div>
+
 <script>
-// ─── Régions ──────────────────────────────────────────────────────────────────
+// ─── Config ───────────────────────────────────────────────────────────────────
 const REGIONS = {
-  france: { name:"France entière",           lat:46.5,  lon:2.3   },
-  idf:    { name:"Île-de-France",            lat:48.85, lon:2.35  },
-  aura:   { name:"Auvergne-Rhône-Alpes",     lat:45.75, lon:4.85  },
-  paca:   { name:"Prov.-Alpes-Côte d'Azur", lat:43.93, lon:6.07  },
-  occ:    { name:"Occitanie",                lat:43.60, lon:1.44  },
-  na:     { name:"Nouvelle-Aquitaine",       lat:44.84, lon:-0.58 },
-  bre:    { name:"Bretagne",                 lat:48.11, lon:-1.68 },
-  pdl:    { name:"Pays de la Loire",         lat:47.22, lon:-1.55 },
-  nor:    { name:"Normandie",                lat:49.18, lon:0.35  },
-  hdf:    { name:"Hauts-de-France",          lat:50.63, lon:3.06  },
-  ges:    { name:"Grand Est",                lat:48.57, lon:7.75  },
-  bfc:    { name:"Bourgogne-Franche-Comté",  lat:47.28, lon:5.00  },
-  cvl:    { name:"Centre-Val de Loire",      lat:47.90, lon:1.90  },
-  cor:    { name:"Corse",                    lat:42.00, lon:9.00  }
+  france:{name:"France entière",lat:46.5,lon:2.3},
+  idf:{name:"Île-de-France",lat:48.85,lon:2.35},
+  aura:{name:"Auvergne-Rhône-Alpes",lat:45.75,lon:4.85},
+  paca:{name:"Prov.-Alpes-Côte d'Azur",lat:43.93,lon:6.07},
+  occ:{name:"Occitanie",lat:43.60,lon:1.44},
+  na:{name:"Nouvelle-Aquitaine",lat:44.84,lon:-0.58},
+  bre:{name:"Bretagne",lat:48.11,lon:-1.68},
+  pdl:{name:"Pays de la Loire",lat:47.22,lon:-1.55},
+  nor:{name:"Normandie",lat:49.18,lon:0.35},
+  hdf:{name:"Hauts-de-France",lat:50.63,lon:3.06},
+  ges:{name:"Grand Est",lat:48.57,lon:7.75},
+  bfc:{name:"Bourgogne-Franche-Comté",lat:47.28,lon:5.00},
+  cvl:{name:"Centre-Val de Loire",lat:47.90,lon:1.90},
+  cor:{name:"Corse",lat:42.00,lon:9.00}
 };
-
-// ─── Décennies ────────────────────────────────────────────────────────────────
-const DECADES = [
-  { key:'d1', label:'1991–2000', start:'1991-01-01', end:'2000-12-31', color:'#27ae60' },
-  { key:'d2', label:'2001–2010', start:'2001-01-01', end:'2010-12-31', color:'#2471a3' },
-  { key:'d3', label:'2011–2020', start:'2011-01-01', end:'2020-12-31', color:'#8e44ad' },
-  { key:'d4', label:'2021–',     start:'2021-01-01', end:null,         color:'#e67e22' }
+const DECADES=[
+  {key:'d1',label:'1991–2000',start:'1991-01-01',end:'2000-12-31',color:'#27ae60'},
+  {key:'d2',label:'2001–2010',start:'2001-01-01',end:'2010-12-31',color:'#2471a3'},
+  {key:'d3',label:'2011–2020',start:'2011-01-01',end:'2020-12-31',color:'#8e44ad'},
+  {key:'d4',label:'2021–',    start:'2021-01-01',end:null,        color:'#e67e22'}
 ];
+const MNAMES=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MSHORT=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
 
-// ─── Cache localStorage 24h ───────────────────────────────────────────────────
-const CACHE_TTL = 24 * 60 * 60 * 1000;
+// ─── State ────────────────────────────────────────────────────────────────────
+let currentPeriod = 'day';
+let currentRegion = 'france';
+let normalsCache  = {};
+let chartInstance = null;
+
+// Navigation state
+const today = new Date(); today.setHours(0,0,0,0);
+const era5End = addDays(today, -5); // ERA5 lag ~5 jours
+
+let navDay   = new Date(era5End);
+let navWeek  = new Date(era5End); // lundi de la semaine ERA5-end
+let navMonth = { y: era5End.getFullYear(), m: era5End.getMonth() };
+let navYear  = era5End.getFullYear();
+
+// Aligner navWeek sur le lundi de la semaine de era5End
+(function() {
+  const d = new Date(era5End);
+  const dow = d.getDay() === 0 ? 6 : d.getDay() - 1;
+  d.setDate(d.getDate() - dow);
+  navWeek = d;
+})();
+
+// ─── Cache ────────────────────────────────────────────────────────────────────
+const CACHE_TTL = 24*60*60*1000;
 function cacheGet(key) {
-  try {
-    const raw = localStorage.getItem('meteo_' + key);
-    if (!raw) return null;
-    const { ts, data } = JSON.parse(raw);
-    if (Date.now() - ts > CACHE_TTL) { localStorage.removeItem('meteo_' + key); return null; }
-    return data;
-  } catch(e) { return null; }
+  try { const r=localStorage.getItem('meteo_'+key); if(!r) return null; const {ts,data}=JSON.parse(r); if(Date.now()-ts>CACHE_TTL){localStorage.removeItem('meteo_'+key);return null;} return data; } catch(e){return null;}
 }
-function cacheSet(key, data) {
-  try { localStorage.setItem('meteo_' + key, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
+function cacheSet(key,data) {
+  try{localStorage.setItem('meteo_'+key,JSON.stringify({ts:Date.now(),data}));}catch(e){}
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-function toDateStr(d) { return d.toISOString().slice(0, 10); }
-function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
-function fmtDate(d) { return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' }); }
-function avg(arr) {
-  const v = arr.filter(x => x !== null && !isNaN(x));
-  return v.length ? v.reduce((a,b) => a+b, 0) / v.length : null;
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function toDateStr(d){return d.toISOString().slice(0,10);}
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function avg(arr){const v=arr.filter(x=>x!==null&&!isNaN(x));return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;}
+function getDOY(date){return Math.floor((date-new Date(date.getFullYear(),0,0))/86400000);}
+function clampToEra5(d){return d>era5End?new Date(era5End):d;}
+
+function fmtFull(d){return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+function fmtShort(d){return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
+function fmtWeekRange(monday){
+  const sunday=addDays(monday,6);
+  const s=monday.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  const e=sunday.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+  return `Semaine du ${s} au ${e}`;
 }
-function getDOY(date) {
-  return Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
+function getWeekNumber(d){
+  const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  const dayNum=date.getUTCDay()||7;
+  date.setUTCDate(date.getUTCDate()+4-dayNum);
+  const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  return Math.ceil((((date-yearStart)/86400000)+1)/7);
 }
 
-function computeDailyNormals(dates, temps) {
-  const acc = Array.from({length: 367}, () => ({ sum: 0, count: 0 }));
-  for (let i = 0; i < dates.length; i++) {
-    if (temps[i] === null) continue;
-    const doy = getDOY(new Date(dates[i]));
-    if (doy >= 1 && doy <= 366) { acc[doy].sum += temps[i]; acc[doy].count++; }
+// ─── Normales ERA5 ────────────────────────────────────────────────────────────
+function computeDailyNormals(dates,temps){
+  const acc=Array.from({length:367},()=>({sum:0,count:0}));
+  for(let i=0;i<dates.length;i++){
+    if(temps[i]===null)continue;
+    const doy=getDOY(new Date(dates[i]));
+    if(doy>=1&&doy<=366){acc[doy].sum+=temps[i];acc[doy].count++;}
   }
-  const raw = acc.map(a => a.count > 0 ? a.sum / a.count : null);
-  const smoothed = new Array(367).fill(null);
-  for (let doy = 1; doy <= 366; doy++) {
-    const vals = [];
-    for (let d = -7; d <= 7; d++) {
-      let idx = doy + d;
-      if (idx < 1) idx += 365;
-      if (idx > 366) idx -= 365;
-      if (raw[idx] !== null) vals.push(raw[idx]);
-    }
-    smoothed[doy] = vals.length > 0 ? avg(vals) : null;
+  const raw=acc.map(a=>a.count>0?a.sum/a.count:null);
+  const sm=new Array(367).fill(null);
+  for(let doy=1;doy<=366;doy++){
+    const vals=[];
+    for(let d=-7;d<=7;d++){let idx=doy+d;if(idx<1)idx+=365;if(idx>366)idx-=365;if(raw[idx]!==null)vals.push(raw[idx]);}
+    sm[doy]=vals.length?avg(vals):null;
   }
-  return smoothed;
+  return sm;
+}
+function computeMonthlyNormals(dates,temps){
+  const acc=Array.from({length:12},()=>({sum:0,count:0}));
+  for(let i=0;i<dates.length;i++){if(temps[i]===null)continue;const m=new Date(dates[i]).getMonth();acc[m].sum+=temps[i];acc[m].count++;}
+  return acc.map(a=>a.count>0?a.sum/a.count:null);
 }
 
-function computeMonthlyNormals(dates, temps) {
-  const acc = Array.from({length: 12}, () => ({ sum: 0, count: 0 }));
-  for (let i = 0; i < dates.length; i++) {
-    if (temps[i] === null) continue;
-    const m = new Date(dates[i]).getMonth();
-    acc[m].sum += temps[i]; acc[m].count++;
-  }
-  return acc.map(a => a.count > 0 ? a.sum / a.count : null);
-}
-
-// ─── API Open-Meteo ───────────────────────────────────────────────────────────
-async function fetchOpenMeteo(lat, lon, startDate, endDate) {
-  const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_mean&timezone=Europe%2FParis`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
-  const data = await res.json();
-  if (data.error) throw new Error(data.reason || 'Erreur API');
+async function fetchOpenMeteo(lat,lon,startDate,endDate){
+  const url=`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_mean&timezone=Europe%2FParis`;
+  const res=await fetch(url);
+  if(!res.ok)throw new Error(`Open-Meteo HTTP ${res.status}`);
+  const data=await res.json();
+  if(data.error)throw new Error(data.reason||'Erreur API');
   return data;
 }
 
-// ─── Chargement des normales par décennie ─────────────────────────────────────
-async function loadDecadeNormals(lat, lon, regionKey, onProgress) {
-  const cacheKey = `normals4_${regionKey}`;
-  const cached = cacheGet(cacheKey);
-  if (cached) {
-    document.getElementById('cache-badge').style.display = 'inline-flex';
-    onProgress(100, 'Normales chargées depuis le cache', '');
-    return cached;
+async function loadDecadeNormals(lat,lon,regionKey,onProgress){
+  const ck=`normals4_${regionKey}`;
+  const cached=cacheGet(ck);
+  if(cached){document.getElementById('cache-badge').style.display='inline-flex';onProgress(100,'Normales depuis le cache','');return cached;}
+  document.getElementById('cache-badge').style.display='none';
+  const result={};
+  const d4end=toDateStr(era5End);
+  for(let i=0;i<DECADES.length;i++){
+    const dec=DECADES[i];
+    const endDate=dec.end||d4end;
+    onProgress(Math.round(10+(i/DECADES.length)*78),`Calcul normales ${dec.label}…`,`ERA5 ${dec.start} → ${endDate}`);
+    const data=await fetchOpenMeteo(lat,lon,dec.start,endDate);
+    result[dec.key]={daily:computeDailyNormals(data.daily.time,data.daily.temperature_2m_mean),monthly:computeMonthlyNormals(data.daily.time,data.daily.temperature_2m_mean)};
   }
-  document.getElementById('cache-badge').style.display = 'none';
-
-  const result = {};
-  const today = new Date(); today.setHours(0,0,0,0);
-  const d4end = toDateStr(addDays(today, -5)); // ERA5 lag
-
-  for (let i = 0; i < DECADES.length; i++) {
-    const dec = DECADES[i];
-    const endDate = dec.end || d4end;
-    const pct = Math.round(10 + (i / DECADES.length) * 75);
-    onProgress(pct, `Calcul normales ${dec.label}…`, `Chargement ERA5 ${dec.start} → ${endDate}`);
-
-    const data = await fetchOpenMeteo(lat, lon, dec.start, endDate);
-    result[dec.key] = {
-      daily:   computeDailyNormals(data.daily.time, data.daily.temperature_2m_mean),
-      monthly: computeMonthlyNormals(data.daily.time, data.daily.temperature_2m_mean)
-    };
-  }
-
-  onProgress(92, 'Mise en cache…', '');
-  cacheSet(cacheKey, result);
-  onProgress(100, 'Normales prêtes', '');
+  onProgress(93,'Mise en cache…','');
+  cacheSet(ck,result);
+  onProgress(100,'Normales prêtes','');
   return result;
 }
 
-// ─── État global ──────────────────────────────────────────────────────────────
-let chartInstance = null;
-let currentPeriod = 'day';
-let currentRegion = 'france';
-let normalsCache = {};
+// ─── Nav row ──────────────────────────────────────────────────────────────────
+function buildNavRow(){
+  const row=document.getElementById('nav-row');
+  row.innerHTML='';
 
-// ─── UI ───────────────────────────────────────────────────────────────────────
-function setStatus(msg, ok) {
-  document.getElementById('status-dot').style.background = ok ? '#27ae60' : '#f39c12';
-  document.getElementById('status-text').textContent = msg;
-}
-function setError(msg) {
-  document.getElementById('status-dot').style.background = '#c0392b';
-  document.getElementById('status-text').textContent = 'Erreur : ' + msg;
-  hideProgress();
-}
-function showProgress() {
-  document.getElementById('progress-wrap').classList.add('visible');
-  document.getElementById('chart-card').style.opacity = '0.3';
-}
-function hideProgress() {
-  document.getElementById('progress-wrap').classList.remove('visible');
-  document.getElementById('chart-card').style.opacity = '1';
-}
-function setProgress(pct, label, detail) {
-  document.getElementById('progress-bar').style.width = pct + '%';
-  if (label !== undefined) document.getElementById('progress-label').textContent = label;
-  if (detail !== undefined) document.getElementById('progress-detail').textContent = detail;
+  if(currentPeriod==='day'){
+    // ← date → avec input date
+    row.innerHTML=`
+      <button class="nav-btn" id="nav-prev">←</button>
+      <input type="date" id="nav-date" style="font-family:var(--mono);font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);cursor:pointer;outline:none;">
+      <button class="nav-btn" id="nav-next">→</button>
+      <span class="nav-current" id="nav-label" style="font-size:13px;color:var(--text-2);font-family:var(--mono);"></span>
+      <button class="nav-btn" id="nav-today" style="margin-left:auto;font-size:11px;">Dernier jour dispo</button>
+    `;
+    const inp=document.getElementById('nav-date');
+    inp.max=toDateStr(era5End);
+    inp.min='1991-01-02';
+    inp.value=toDateStr(navDay);
+    updateNavDayLabel();
+    inp.addEventListener('change',()=>{
+      const v=new Date(inp.value+'T00:00:00');
+      if(!isNaN(v)){navDay=v;updateNavDayLabel();loadData();}
+    });
+    document.getElementById('nav-prev').addEventListener('click',()=>{
+      navDay=addDays(navDay,-1);
+      if(navDay<new Date('1991-01-02'))navDay=new Date('1991-01-02');
+      inp.value=toDateStr(navDay);updateNavDayLabel();loadData();
+    });
+    document.getElementById('nav-next').addEventListener('click',()=>{
+      navDay=addDays(navDay,1);
+      if(navDay>era5End)navDay=new Date(era5End);
+      inp.value=toDateStr(navDay);updateNavDayLabel();loadData();
+    });
+    document.getElementById('nav-today').addEventListener('click',()=>{
+      navDay=new Date(era5End);inp.value=toDateStr(navDay);updateNavDayLabel();loadData();
+    });
+  }
+
+  else if(currentPeriod==='week'){
+    row.innerHTML=`
+      <button class="nav-btn" id="nav-prev">←</button>
+      <span class="nav-current" id="nav-label"></span>
+      <button class="nav-btn" id="nav-next">→</button>
+      <button class="nav-btn" id="nav-today" style="margin-left:auto;font-size:11px;">Semaine actuelle</button>
+    `;
+    updateNavWeekLabel();
+    document.getElementById('nav-prev').addEventListener('click',()=>{navWeek=addDays(navWeek,-7);updateNavWeekLabel();loadData();});
+    document.getElementById('nav-next').addEventListener('click',()=>{
+      const next=addDays(navWeek,7);
+      if(next<=era5End){navWeek=next;updateNavWeekLabel();loadData();}
+    });
+    document.getElementById('nav-today').addEventListener('click',()=>{
+      const d=new Date(era5End);const dow=d.getDay()===0?6:d.getDay()-1;d.setDate(d.getDate()-dow);
+      navWeek=d;updateNavWeekLabel();loadData();
+    });
+  }
+
+  else if(currentPeriod==='month'){
+    // Sélecteurs mois + année
+    let monthOpts=MNAMES.map((n,i)=>`<option value="${i}" ${i===navMonth.m?'selected':''}>${n}</option>`).join('');
+    let yearOpts='';
+    for(let y=new Date().getFullYear();y>=1991;y--){yearOpts+=`<option value="${y}" ${y===navMonth.y?'selected':''}>${y}</option>`;}
+    row.innerHTML=`
+      <label>Mois</label>
+      <select id="nav-month-sel">${monthOpts}</select>
+      <label>Année</label>
+      <select id="nav-year-sel">${yearOpts}</select>
+      <button class="nav-btn" id="nav-prev">← Mois préc.</button>
+      <button class="nav-btn" id="nav-next">Mois suiv. →</button>
+      <button class="nav-btn" id="nav-today" style="margin-left:auto;font-size:11px;">Mois actuel</button>
+    `;
+    function syncMonthSelectors(){
+      document.getElementById('nav-month-sel').value=navMonth.m;
+      document.getElementById('nav-year-sel').value=navMonth.y;
+    }
+    document.getElementById('nav-month-sel').addEventListener('change',e=>{navMonth.m=parseInt(e.target.value);loadData();});
+    document.getElementById('nav-year-sel').addEventListener('change',e=>{navMonth.y=parseInt(e.target.value);loadData();});
+    document.getElementById('nav-prev').addEventListener('click',()=>{
+      navMonth.m--;if(navMonth.m<0){navMonth.m=11;navMonth.y--;}
+      if(navMonth.y<1991){navMonth.y=1991;navMonth.m=0;}
+      syncMonthSelectors();loadData();
+    });
+    document.getElementById('nav-next').addEventListener('click',()=>{
+      navMonth.m++;if(navMonth.m>11){navMonth.m=0;navMonth.y++;}
+      const maxY=era5End.getFullYear();const maxM=era5End.getMonth();
+      if(navMonth.y>maxY||(navMonth.y===maxY&&navMonth.m>maxM)){navMonth.y=maxY;navMonth.m=maxM;}
+      syncMonthSelectors();loadData();
+    });
+    document.getElementById('nav-today').addEventListener('click',()=>{
+      navMonth={y:era5End.getFullYear(),m:era5End.getMonth()};syncMonthSelectors();loadData();
+    });
+  }
+
+  else if(currentPeriod==='year'){
+    let yearOpts='';
+    for(let y=new Date().getFullYear();y>=1991;y--){yearOpts+=`<option value="${y}" ${y===navYear?'selected':''}>${y}</option>`;}
+    row.innerHTML=`
+      <label>Année</label>
+      <select id="nav-year-sel">${yearOpts}</select>
+      <button class="nav-btn" id="nav-prev">← Préc.</button>
+      <button class="nav-btn" id="nav-next">Suiv. →</button>
+      <button class="nav-btn" id="nav-today" style="margin-left:auto;font-size:11px;">Année actuelle</button>
+    `;
+    document.getElementById('nav-year-sel').addEventListener('change',e=>{navYear=parseInt(e.target.value);loadData();});
+    document.getElementById('nav-prev').addEventListener('click',()=>{
+      if(navYear>1991){navYear--;document.getElementById('nav-year-sel').value=navYear;loadData();}
+    });
+    document.getElementById('nav-next').addEventListener('click',()=>{
+      if(navYear<era5End.getFullYear()){navYear++;document.getElementById('nav-year-sel').value=navYear;loadData();}
+    });
+    document.getElementById('nav-today').addEventListener('click',()=>{
+      navYear=era5End.getFullYear();document.getElementById('nav-year-sel').value=navYear;loadData();
+    });
+  }
 }
 
-function fmtTemp(v) { return v !== null ? v.toFixed(1) + '°C' : '—'; }
-function fmtDelta(real, norm) {
-  if (real === null || norm === null) return { text: '—', cls: 'delta-neu' };
-  const d = real - norm;
-  const sign = d >= 0 ? '+' : '';
-  const cls = d > 0.5 ? 'delta-hot' : d < -0.5 ? 'delta-cold' : 'delta-neu';
-  return { text: `${sign}${d.toFixed(1)}°C vs réel`, cls };
+function updateNavDayLabel(){
+  const el=document.getElementById('nav-label');
+  if(el)el.textContent=fmtFull(navDay);
+}
+function updateNavWeekLabel(){
+  const el=document.getElementById('nav-label');
+  if(el){
+    const wn=getWeekNumber(navWeek);
+    el.textContent=`S${wn} · ${fmtWeekRange(navWeek)}`;
+  }
 }
 
-function setMetrics(real, normals, realLabel) {
-  document.getElementById('m-real').textContent = fmtTemp(real);
-  document.getElementById('m-real-sub').textContent = realLabel || '';
-
-  ['d1','d2','d3','d4'].forEach(k => {
-    const n = normals[k];
-    document.getElementById(`m-${k}`).textContent = fmtTemp(n);
-    const { text, cls } = fmtDelta(real, n);
-    const el = document.getElementById(`m-${k}-delta`);
-    el.textContent = text;
-    el.className = 'metric-delta ' + cls;
+// ─── Metrics ──────────────────────────────────────────────────────────────────
+function fmtTemp(v){return v!==null?v.toFixed(1)+'°C':'—';}
+function fmtDelta(real,norm){
+  if(real===null||norm===null)return{text:'—',cls:'delta-neu'};
+  const d=real-norm;
+  return{text:(d>=0?'+':'')+d.toFixed(1)+'°C vs réel',cls:d>0.5?'delta-hot':d<-0.5?'delta-cold':'delta-neu'};
+}
+function setMetrics(real,normals,realLabel){
+  document.getElementById('m-real').textContent=fmtTemp(real);
+  document.getElementById('m-real-sub').textContent=realLabel||'';
+  ['d1','d2','d3','d4'].forEach(k=>{
+    document.getElementById(`m-${k}`).textContent=fmtTemp(normals[k]);
+    const{text,cls}=fmtDelta(real,normals[k]);
+    const el=document.getElementById(`m-${k}-delta`);
+    el.textContent=text;el.className='metric-delta '+cls;
   });
 }
 
 // ─── Chart ────────────────────────────────────────────────────────────────────
-function renderChart(labels, realData, nd, title) {
-  document.getElementById('chart-title').textContent = title;
-  const canvas = document.getElementById('main-chart');
-  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-  const ptR = realData.length > 60 ? 0 : 3;
-
-  chartInstance = new Chart(canvas, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label:'Réelle',     data:realData, borderColor:'#c0392b', borderWidth:2.5, pointRadius:ptR, pointHoverRadius:5, pointBackgroundColor:'#c0392b', tension:0.35, fill:false, order:1 },
-        { label:'2021–',      data:nd.d4,    borderColor:'#e67e22', borderWidth:1.5, borderDash:[6,4], pointRadius:0, pointHoverRadius:4, tension:0.35, fill:false, order:2 },
-        { label:'2011–2020',  data:nd.d3,    borderColor:'#8e44ad', borderWidth:1.5, borderDash:[6,4], pointRadius:0, pointHoverRadius:4, tension:0.35, fill:false, order:3 },
-        { label:'2001–2010',  data:nd.d2,    borderColor:'#2471a3', borderWidth:1.5, borderDash:[6,4], pointRadius:0, pointHoverRadius:4, tension:0.35, fill:false, order:4 },
-        { label:'1991–2000',  data:nd.d1,    borderColor:'#27ae60', borderWidth:1.5, borderDash:[6,4], pointRadius:0, pointHoverRadius:4, tension:0.35, fill:false, order:5 }
-      ]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false,
-      interaction:{ mode:'index', intersect:false },
-      plugins: {
-        legend:{ display:false },
-        tooltip:{
-          backgroundColor:'#fff', borderColor:'rgba(0,0,0,.1)', borderWidth:1,
-          titleColor:'#1a1a18', bodyColor:'#6b6b66', padding:10,
-          callbacks:{
-            label: ctx => {
-              const v = ctx.parsed.y;
-              if (v === null) return null;
-              const lbl = ctx.dataset.label;
-              if (lbl === 'Réelle') return `  Réelle : ${v.toFixed(1)}°C`;
-              const realV = ctx.chart.data.datasets[0].data[ctx.dataIndex];
-              if (realV !== null) {
-                const d = realV - v;
-                return [`  ${lbl} : ${v.toFixed(1)}°C`, `  Écart : ${d >= 0?'+':''}${d.toFixed(1)}°C`];
-              }
-              return `  ${lbl} : ${v.toFixed(1)}°C`;
-            }
-          }
+function renderChart(labels,realData,nd,title){
+  document.getElementById('chart-title').textContent=title;
+  const canvas=document.getElementById('main-chart');
+  if(chartInstance){chartInstance.destroy();chartInstance=null;}
+  const ptR=realData.length>60?0:3;
+  chartInstance=new Chart(canvas,{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Réelle',data:realData,borderColor:'#c0392b',borderWidth:2.5,pointRadius:ptR,pointHoverRadius:5,pointBackgroundColor:'#c0392b',tension:0.35,fill:false,order:1},
+      {label:'2021–', data:nd.d4,borderColor:'#e67e22',borderWidth:1.5,borderDash:[6,4],pointRadius:0,pointHoverRadius:4,tension:0.35,fill:false,order:2},
+      {label:'2011–2020',data:nd.d3,borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,pointHoverRadius:4,tension:0.35,fill:false,order:3},
+      {label:'2001–2010',data:nd.d2,borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,pointHoverRadius:4,tension:0.35,fill:false,order:4},
+      {label:'1991–2000',data:nd.d1,borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,pointHoverRadius:4,tension:0.35,fill:false,order:5}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:10,
+          callbacks:{label:ctx=>{
+            const v=ctx.parsed.y;if(v===null)return null;
+            const lbl=ctx.dataset.label;
+            if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)}°C`;
+            const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];
+            if(rv!==null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}
+            return`  ${lbl} : ${v.toFixed(1)}°C`;
+          }}
         }
       },
       scales:{
-        x:{ grid:{color:'rgba(0,0,0,.04)'}, border:{color:'rgba(0,0,0,.08)'}, ticks:{color:'#9b9b96', font:{size:11, family:"'DM Mono',monospace"}, maxRotation:45, autoSkip:true, maxTicksLimit:14} },
-        y:{ grid:{color:'rgba(0,0,0,.04)'}, border:{color:'rgba(0,0,0,.08)', dash:[4,4]}, ticks:{color:'#9b9b96', font:{size:11, family:"'DM Mono',monospace"}, callback:v=>v.toFixed(0)+'°C'} }
+        x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:11,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:14}},
+        y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:11,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}
       }
     }
   });
 }
 
-// ─── Loaders ─────────────────────────────────────────────────────────────────
-function normalsForDates(dates, normals) {
-  const out = { d1:[], d2:[], d3:[], d4:[] };
-  dates.forEach(d => {
-    const doy = getDOY(new Date(d));
-    ['d1','d2','d3','d4'].forEach(k => {
-      const v = normals[k].daily[doy];
-      out[k].push(v !== null ? parseFloat(v.toFixed(1)) : null);
-    });
+// ─── Normales pour un tableau de dates ───────────────────────────────────────
+function normalsForDates(dates,normals){
+  const out={d1:[],d2:[],d3:[],d4:[]};
+  dates.forEach(d=>{
+    const doy=getDOY(new Date(d));
+    ['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].daily[doy];out[k].push(v!==null?parseFloat(v.toFixed(1)):null);});
   });
   return out;
 }
 
-async function loadDay(region, normals) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const end = addDays(today, -1);
-  const start = addDays(end, -29);
-  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(start), toDateStr(end));
-  const dates = data.daily.time;
-  const temps = data.daily.temperature_2m_mean;
-  const nd = normalsForDates(dates, normals);
-  const lastReal = [...temps].reverse().find(v => v !== null);
-  const lastNorms = {};
-  ['d1','d2','d3','d4'].forEach(k => { lastNorms[k] = nd[k][nd[k].length-1]; });
-  setMetrics(lastReal, lastNorms, 'J−1 · ' + fmtDate(end));
-  renderChart(dates.map(d => fmtDate(new Date(d))), temps, nd, 'Températures journalières · 30 derniers jours (J−1)');
+// ─── Loaders ─────────────────────────────────────────────────────────────────
+async function loadDay(region,normals){
+  // Affiche les 30 jours autour de navDay (centré ou fin = navDay)
+  const end=clampToEra5(new Date(navDay));
+  const start=addDays(end,-29);
+  const data=await fetchOpenMeteo(region.lat,region.lon,toDateStr(start),toDateStr(end));
+  const dates=data.daily.time;
+  const temps=data.daily.temperature_2m_mean;
+  const nd=normalsForDates(dates,normals);
+  // Valeur du jour cible
+  const idx=dates.indexOf(toDateStr(end));
+  const realVal=idx>=0?temps[idx]:[...temps].reverse().find(v=>v!==null);
+  const normVals={};
+  ['d1','d2','d3','d4'].forEach(k=>{normVals[k]=idx>=0?nd[k][idx]:nd[k][nd[k].length-1];});
+  setMetrics(realVal,normVals,fmtFull(end));
+  renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`Températures · ${fmtWeekContext(end)}`);
 }
 
-async function loadWeek(region, normals) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const end = addDays(today, -1);
-  const start = addDays(end, -83);
-  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(start), toDateStr(end));
-  const dates = data.daily.time;
-  const temps = data.daily.temperature_2m_mean;
+function fmtWeekContext(d){return d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});}
 
-  const weeks = [];
-  let wT=[], wN={d1:[],d2:[],d3:[],d4:[]}, wLabel='';
-  for (let i=0; i<dates.length; i++) {
-    const d = new Date(dates[i]);
-    if (d.getDay()===1 && wT.length>0) {
-      const nr={};
-      ['d1','d2','d3','d4'].forEach(k=>{ nr[k]=avg(wN[k]); });
-      weeks.push({label:wLabel, real:avg(wT), n:nr});
-      wT=[]; wN={d1:[],d2:[],d3:[],d4:[]};
-    }
-    if (wT.length===0) wLabel=fmtDate(d);
-    wT.push(temps[i]);
-    const doy=getDOY(d);
-    ['d1','d2','d3','d4'].forEach(k=>{ wN[k].push(normals[k].daily[doy]); });
-  }
-  if (wT.length) {
-    const nr={};
-    ['d1','d2','d3','d4'].forEach(k=>{ nr[k]=avg(wN[k]); });
-    weeks.push({label:wLabel, real:avg(wT), n:nr});
-  }
-
-  const labels=weeks.map(w=>w.label);
-  const realData=weeks.map(w=>w.real!==null?parseFloat(w.real.toFixed(1)):null);
-  const nd={d1:[],d2:[],d3:[],d4:[]};
-  weeks.forEach(w=>{ ['d1','d2','d3','d4'].forEach(k=>{ nd[k].push(w.n[k]!==null?parseFloat(w.n[k].toFixed(1)):null); }); });
-
-  const lastR=[...realData].reverse().find(v=>v!==null);
-  const lastN={};
-  ['d1','d2','d3','d4'].forEach(k=>{ lastN[k]=nd[k][nd[k].length-1]; });
-  setMetrics(lastR, lastN, 'semaine courante');
-  renderChart(labels, realData, nd, 'Températures hebdomadaires · 12 dernières semaines');
+async function loadWeek(region,normals){
+  const monday=new Date(navWeek);
+  const sunday=clampToEra5(addDays(monday,6));
+  const data=await fetchOpenMeteo(region.lat,region.lon,toDateStr(monday),toDateStr(sunday));
+  const dates=data.daily.time;
+  const temps=data.daily.temperature_2m_mean;
+  const nd=normalsForDates(dates,normals);
+  const realAvg=avg(temps);
+  const normVals={};
+  ['d1','d2','d3','d4'].forEach(k=>{normVals[k]=avg(nd[k]);});
+  const wn=getWeekNumber(monday);
+  setMetrics(realAvg,normVals,`S${wn} · moy. semaine`);
+  renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${fmtWeekRange(monday)} (S${wn})`);
 }
 
-async function loadMonth(region, normals) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const end = addDays(today, -1);
-  const startOfYear = new Date(today.getFullYear(), 0, 1);
-  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(startOfYear), toDateStr(end));
-  const dates = data.daily.time;
-  const temps = data.daily.temperature_2m_mean;
+async function loadMonth(region,normals){
+  const {y,m}=navMonth;
+  const start=new Date(y,m,1);
+  const endOfMonth=new Date(y,m+1,0);
+  const end=clampToEra5(endOfMonth);
+  const data=await fetchOpenMeteo(region.lat,region.lon,toDateStr(start),toDateStr(end));
+  const dates=data.daily.time;
+  const temps=data.daily.temperature_2m_mean;
+  const nd=normalsForDates(dates,normals);
+  const realAvg=avg(temps.filter(v=>v!==null));
+  const normVals={};
+  ['d1','d2','d3','d4'].forEach(k=>{normVals[k]=normals[k].monthly[m];});
+  setMetrics(realAvg,normVals,`${MNAMES[m]} ${y} · moy. mensuelle`);
+  renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${MNAMES[m]} ${y}`);
+}
 
-  const MNAMES=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+async function loadYear(region,normals){
+  const y=navYear;
+  const start=new Date(y,0,1);
+  const endOfYear=new Date(y,11,31);
+  const end=clampToEra5(endOfYear);
+  const data=await fetchOpenMeteo(region.lat,region.lon,toDateStr(start),toDateStr(end));
+  const dates=data.daily.time;
+  const temps=data.daily.temperature_2m_mean;
+  // Agréger par mois pour le graphe
   const byM={};
-  for (let i=0; i<dates.length; i++) {
-    const m=new Date(dates[i]).getMonth();
-    if (!byM[m]) byM[m]={t:[]};
-    if (temps[i]!==null) byM[m].t.push(temps[i]);
-  }
+  for(let i=0;i<dates.length;i++){const mo=new Date(dates[i]).getMonth();if(!byM[mo])byM[mo]=[];if(temps[i]!==null)byM[mo].push(temps[i]);}
   const months=Object.keys(byM).map(Number).sort((a,b)=>a-b);
-  const labels=months.map(m=>MNAMES[m]);
-  const realData=months.map(m=>{ const t=byM[m].t; return t.length?parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)):null; });
+  const labels=months.map(mo=>MSHORT[mo]);
+  const realData=months.map(mo=>{const t=byM[mo];return t.length?parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)):null;});
   const nd={d1:[],d2:[],d3:[],d4:[]};
-  months.forEach(m=>{ ['d1','d2','d3','d4'].forEach(k=>{ const v=normals[k].monthly[m]; nd[k].push(v!==null?parseFloat(v.toFixed(1)):null); }); });
-
-  const lastR=[...realData].reverse().find(v=>v!==null);
-  const lastM=months[months.length-1];
-  const lastN={};
-  ['d1','d2','d3','d4'].forEach(k=>{ lastN[k]=nd[k][nd[k].length-1]; });
-  setMetrics(lastR, lastN, MNAMES[lastM]+' '+today.getFullYear());
-  renderChart(labels, realData, nd, 'Températures mensuelles · '+today.getFullYear());
+  months.forEach(mo=>{['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly[mo];nd[k].push(v!==null?parseFloat(v.toFixed(1)):null);});});
+  // Métriques = moyenne annuelle
+  const realAvg=avg(realData);
+  const normVals={};
+  ['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly.filter(x=>x!==null);normVals[k]=v.length?parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)):null;});
+  setMetrics(realAvg,normVals,`${y} · moy. annuelle`);
+  renderChart(labels,realData,nd,`Températures mensuelles · ${y}`);
 }
 
-async function loadYear(region, normals) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const end = addDays(today, -1);
-  const startYear = today.getFullYear()-4;
-  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(new Date(startYear,0,1)), toDateStr(end));
-  const dates = data.daily.time;
-  const temps = data.daily.temperature_2m_mean;
-
-  const byY={};
-  for (let i=0; i<dates.length; i++) {
-    const y=new Date(dates[i]).getFullYear();
-    if (!byY[y]) byY[y]={t:[]};
-    if (temps[i]!==null) byY[y].t.push(temps[i]);
-  }
-  const years=Object.keys(byY).map(Number).sort((a,b)=>a-b);
-  const labels=years.map(String);
-  const realData=years.map(y=>{ const t=byY[y].t; return t.length?parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)):null; });
-
-  function annualAvg(dec) {
-    const v=dec.monthly.filter(x=>x!==null);
-    return v.length?parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)):null;
-  }
-  const nd={};
-  ['d1','d2','d3','d4'].forEach(k=>{ const a=annualAvg(normals[k]); nd[k]=years.map(()=>a); });
-
-  const lastR=[...realData].reverse().find(v=>v!==null);
-  const lastN={};
-  ['d1','d2','d3','d4'].forEach(k=>{ lastN[k]=nd[k][nd[k].length-1]; });
-  setMetrics(lastR, lastN, String(today.getFullYear()));
-  renderChart(labels, realData, nd, 'Températures annuelles · '+startYear+'–'+today.getFullYear());
+// ─── UI helpers ───────────────────────────────────────────────────────────────
+function setStatus(msg,ok){document.getElementById('status-dot').style.background=ok?'#27ae60':'#f39c12';document.getElementById('status-text').textContent=msg;}
+function setError(msg){document.getElementById('status-dot').style.background='#c0392b';document.getElementById('status-text').textContent='Erreur : '+msg;hideProgress();}
+function showProgress(){document.getElementById('progress-wrap').classList.add('visible');document.getElementById('chart-card').style.opacity='0.3';}
+function hideProgress(){document.getElementById('progress-wrap').classList.remove('visible');document.getElementById('chart-card').style.opacity='1';}
+function setProgress(pct,label,detail){
+  document.getElementById('progress-bar').style.width=pct+'%';
+  if(label!==undefined)document.getElementById('progress-label').textContent=label;
+  if(detail!==undefined)document.getElementById('progress-detail').textContent=detail;
 }
 
 // ─── Dispatcher ───────────────────────────────────────────────────────────────
-async function loadData() {
-  const region = REGIONS[currentRegion];
-  setStatus(`Chargement pour ${region.name}…`, false);
-
-  let normals = normalsCache[currentRegion] || null;
-  if (!normals) {
+async function loadData(){
+  const region=REGIONS[currentRegion];
+  setStatus(`Chargement pour ${region.name}…`,false);
+  let normals=normalsCache[currentRegion]||null;
+  if(!normals){
     showProgress();
-    setProgress(0, 'Calcul des normales ERA5…', 'Chargement 1991–présent (4 décennies)');
-    try {
-      normals = await loadDecadeNormals(region.lat, region.lon, currentRegion, (pct, label, detail) => {
-        setProgress(pct, label, detail);
-      });
-      normalsCache[currentRegion] = normals;
-    } catch(e) { setError(e.message); return; }
+    setProgress(0,'Calcul des normales ERA5…','Chargement 1991–présent (4 décennies)');
+    try{
+      normals=await loadDecadeNormals(region.lat,region.lon,currentRegion,(pct,label,detail)=>{setProgress(pct,label,detail);});
+      normalsCache[currentRegion]=normals;
+    }catch(e){setError(e.message);return;}
   }
-
-  try {
-    setProgress(95, 'Chargement données récentes…', '');
-    if      (currentPeriod==='day')   await loadDay(region, normals);
-    else if (currentPeriod==='week')  await loadWeek(region, normals);
-    else if (currentPeriod==='month') await loadMonth(region, normals);
-    else                              await loadYear(region, normals);
+  try{
+    setProgress(95,'Chargement données…','');
+    if     (currentPeriod==='day')  await loadDay(region,normals);
+    else if(currentPeriod==='week') await loadWeek(region,normals);
+    else if(currentPeriod==='month')await loadMonth(region,normals);
+    else                            await loadYear(region,normals);
     hideProgress();
-    setStatus(`ERA5 · Normales calculées par décennie · ${region.name}`, true);
-  } catch(e) { setError(e.message); }
+    setStatus(`ERA5 · Normales calculées par décennie · ${region.name}`,true);
+  }catch(e){setError(e.message);}
 }
 
-// ─── Events & init ────────────────────────────────────────────────────────────
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
+// ─── Events ───────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     tab.classList.add('active');
-    currentPeriod = tab.dataset.period;
+    currentPeriod=tab.dataset.period;
+    buildNavRow();
     loadData();
   });
 });
-document.getElementById('region-sel').addEventListener('change', e => {
-  currentRegion = e.target.value;
-  loadData();
-});
-document.getElementById('current-year').textContent = new Date().getFullYear();
+document.getElementById('region-sel').addEventListener('change',e=>{currentRegion=e.target.value;loadData();});
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.getElementById('current-year').textContent=new Date().getFullYear();
+buildNavRow();
 loadData();
 </script>
 </body>
