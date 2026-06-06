@@ -123,7 +123,7 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
     <div class="metric d2"><div class="metric-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="m-d2">—</div><span class="metric-err" id="m-d2-err"></span><div class="metric-delta" id="m-d2-d">—</div></div>
     <div class="metric d3"><div class="metric-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="m-d3">—</div><span class="metric-err" id="m-d3-err"></span><div class="metric-delta" id="m-d3-d">—</div></div>
     <div class="metric d4"><div class="metric-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="m-d4">—</div><span class="metric-err" id="m-d4-err"></span><div class="metric-delta" id="m-d4-d">—</div></div>
-    <div class="metric d5"><div class="metric-label">1991–2026</div><div class="metric-val" style="color:#7f8c8d" id="m-d5">—</div><span class="metric-err" id="m-d5-err"></span><div class="metric-delta" id="m-d5-d">—</div></div>
+    <div class="metric d5"><div class="metric-label">Moy. 1991–2025</div><div class="metric-val" style="color:#7f8c8d" id="m-d5">—</div><span class="metric-err" id="m-d5-err"></span><div class="metric-delta" id="m-d5-d">—</div></div>
   </div>
 
   <div class="progress-wrap" id="progress">
@@ -193,7 +193,7 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
     <div class="metric d2"><div class="metric-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="wo-m-d2">—</div><span class="metric-err" id="wo-m-d2-err"></span><div class="metric-delta" id="wo-m-d2-d">—</div></div>
     <div class="metric d3"><div class="metric-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="wo-m-d3">—</div><span class="metric-err" id="wo-m-d3-err"></span><div class="metric-delta" id="wo-m-d3-d">—</div></div>
     <div class="metric d4"><div class="metric-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="wo-m-d4">—</div><span class="metric-err" id="wo-m-d4-err"></span><div class="metric-delta" id="wo-m-d4-d">—</div></div>
-    <div class="metric d5"><div class="metric-label">1991–2026</div><div class="metric-val" style="color:#7f8c8d" id="wo-m-d5">—</div><span class="metric-err" id="wo-m-d5-err"></span><div class="metric-delta" id="wo-m-d5-d">—</div></div>
+    <div class="metric d5"><div class="metric-label">Moy. 1991–2025</div><div class="metric-val" style="color:#7f8c8d" id="wo-m-d5">—</div><span class="metric-err" id="wo-m-d5-err"></span><div class="metric-delta" id="wo-m-d5-d">—</div></div>
   </div>
 
   <!-- Planisphère -->
@@ -222,7 +222,7 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
 
   <footer>
     <span>Données : <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> · Réanalyse ERA5 (ECMWF)</span>
-    <span>Normales précalculées ERA5 · Données récentes : 3 derniers mois</span>
+    <span>Normales précalculées ERA5 (1991–2025) · Données brutes ERA5 depuis 1940</span>
     <span>Marges d'erreur : ±0.10°C (2021–) · ±0.15°C (2011–20) · ±0.25°C (2001–10) · ±0.35°C (1991–00)</span>
   </footer>
 </div>
@@ -456,7 +456,7 @@ function setCards(real,normals,label,periodLabel,year){
     d2:periodLabel?`moy. ${periodLabel} · 01–10`:'—',
     d3:periodLabel?`moy. ${periodLabel} · 11–20`:'—',
     d4:periodLabel?`moy. ${periodLabel} · 21–26`:'—',
-    d5:periodLabel?`moy. ${periodLabel} · 91–26`:'—',
+    d5:periodLabel?`moy. 1991–2025`:'—',
   };
   ['d1','d2','d3','d4','d5'].forEach(k=>{
     const n=normals[k];
@@ -482,10 +482,10 @@ function renderChart(labels,realData,nd,title){
     {label:'2011–2020',data:nd.d3,borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:3},
     {label:'2001–2010',data:nd.d2,borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:4},
     {label:'1991–2000',data:nd.d1,borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:5},
-    {label:'1991–2026',data:nd.d5||[],borderColor:'#7f8c8d',borderWidth:2,borderDash:[2,3],pointRadius:0,tension:0.35,fill:false,order:6},
+    {label:'Moy. 1991–2025',data:nd.d5||[],borderColor:'#7f8c8d',borderWidth:2,borderDash:[2,3],pointRadius:0,tension:0.35,fill:false,order:6},
   ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
     plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:8,
-      callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null)return null;const lbl=ctx.dataset.label;if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)} ±${UNC.real}°C`;const dk={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1','1991–2026':'d5'}[lbl];if(!dk)return null;const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];if(rv!=null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}return`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`;}}}},
+      callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null)return null;const lbl=ctx.dataset.label;if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)} ±${UNC.real}°C`;const dk={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1','Moy. 1991–2025':'d5'}[lbl];if(!dk)return null;const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];if(rv!=null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}return`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`;}}}},
     scales:{x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:14}},
       y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}}}});
 }
