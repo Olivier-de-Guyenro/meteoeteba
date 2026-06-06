@@ -449,7 +449,7 @@ const today=new Date(); today.setHours(0,0,0,0);
 const era5End=addDays(today,-7); // ERA5 lag garanti à J-7
 
 // Vider le cache si la version a changé
-const CACHE_VERSION='v11';
+const CACHE_VERSION='v13';
 if(localStorage.getItem('e5_version')!==CACHE_VERSION){
   Object.keys(localStorage).filter(k=>k.startsWith('e5_')).forEach(k=>localStorage.removeItem(k));
   localStorage.setItem('e5_version',CACHE_VERSION);
@@ -503,37 +503,39 @@ function anomColor(delta){
 // ══════════════════════════════════════════════════════════════════════════════
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
-// ── Fetch données récentes via API forecast (fonctionne partout, 92j max) ────
-async function fetchForecast(lat,lon,startDate,endDate){
-  const start=new Date(startDate);const end=new Date(endDate);
-  const today=new Date();today.setHours(0,0,0,0);
-  const pastDays=Math.min(92,Math.ceil((today-start)/86400000)+1);
-  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_mean&timezone=auto&past_days=${pastDays}&forecast_days=0`;
-  const r=await fetch(url);
-  if(!r.ok)throw new Error(`Forecast HTTP ${r.status}`);
-  const d=await r.json();
-  if(d.error)throw new Error(d.reason||'Erreur API');
-  const startStr=toDS(start);const endStr=toDS(end);
-  const times=d.daily.time;const temps=d.daily.temperature_2m_mean;
-  // Compatible Safari — pas de findLastIndex
-  let idxStart=-1,idxEnd=-1;
-  for(let i=0;i<times.length;i++){if(times[i]>=startStr&&idxStart===-1)idxStart=i;if(times[i]<=endStr)idxEnd=i;}
-  if(idxStart===-1||idxEnd===-1||idxStart>idxEnd)throw new Error('Plage hors des 92 jours disponibles');
-  return{daily:{time:times.slice(idxStart,idxEnd+1),temperature_2m_mean:temps.slice(idxStart,idxEnd+1)}};
+// ── Fetch via API Open-Meteo forecast (past_days) ────────────────────────────
+// Seul endpoint fonctionnel depuis Netlify. Limite ~365 jours en arrière.
+async function fetchOpenMeteo(lat, lon, startStr, endStr){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const start = new Date(startStr + 'T00:00:00');
+  const end   = new Date(endStr   + 'T00:00:00');
+  // Nombre de jours depuis start jusqu'à aujourd'hui
+  const pastDays = Math.ceil((today - start) / 86400000) + 1;
+  if(pastDays > 366){
+    throw new Error(`Données non disponibles : ${startStr} est trop ancien (max 1 an)`);
+  }
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_mean&timezone=auto&past_days=${pastDays}&forecast_days=1`;
+  const r = await fetch(url);
+  if(!r.ok) throw new Error(`Open-Meteo HTTP ${r.status}`);
+  const d = await r.json();
+  if(d.error) throw new Error(d.reason || 'Erreur API');
+  if(!d.daily || !d.daily.time) throw new Error('Pas de données');
+  // Filtrer sur la fenêtre demandée
+  const times = d.daily.time;
+  const temps = d.daily.temperature_2m_mean;
+  let i0 = -1, i1 = -1;
+  for(let i = 0; i < times.length; i++){
+    if(times[i] >= startStr && i0 === -1) i0 = i;
+    if(times[i] <= endStr) i1 = i;
+  }
+  if(i0 === -1 || i1 === -1 || i0 > i1){
+    throw new Error('Aucune donnée dans la plage ' + startStr + ' → ' + endStr);
+  }
+  return { daily:{ time: times.slice(i0, i1+1), temperature_2m_mean: temps.slice(i0, i1+1) }};
 }
 
-// ── Archive ERA5 (pour données > 92 jours, tente l'archive puis signale) ─────
-async function fetchERA5(lat,lon,start,end,retries=4){
-  const url=`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${start}&end_date=${end}&daily=temperature_2m_mean&timezone=auto`;
-  for(let attempt=0;attempt<retries;attempt++){
-    try{
-      const r=await fetch(url);
-      if(r.status===429||r.status===403){await sleep(3000*(attempt+1));continue;}
-      if(!r.ok)throw new Error(`ERA5 HTTP ${r.status}`);
-      const d=await r.json();if(d.error)throw new Error(d.reason||'Erreur API');return d;
-    }catch(e){if(attempt===retries-1)throw e;await sleep(2000);}
-  }
-  throw new Error('ERA5 archive non disponible');
+async function fetchERA5(lat, lon, start, end){
+  return fetchOpenMeteo(lat, lon, start, end);
 }
 
 // Fetch ERA5 pour plusieurs points et renvoie la moyenne pondérée jour par jour
@@ -760,36 +762,29 @@ const woChartRef={instance:null};
 // ══════════════════════════════════════════════════════════════════════════════
 // LOADERS GÉNÉRIQUES
 // ══════════════════════════════════════════════════════════════════════════════
-// ── Fetch données : forecast si < 92j, archive ERA5 sinon ────────────────────
-function isWithin92Days(start){
-  const today=new Date();today.setHours(0,0,0,0);
-  return Math.ceil((today-new Date(start))/86400000)<=91;
-}
-
-async function fetchSingle(lat,lon,start,end){
-  if(isWithin92Days(toDS(start))){
-    return fetchForecast(lat,lon,toDS(start),toDS(end));
-  }
-  return fetchERA5(lat,lon,toDS(start),toDS(end));
-}
-
-async function fetchRecent(key,start,end){
-  if(key==='planet'){
-    const results=[];
+async function fetchRecent(key, start, end){
+  const startStr = toDS(new Date(start));
+  const endStr = toDS(new Date(end));
+  if(key === 'planet'){
+    const results = [];
     for(const pt of PLANET_GRID){
-      results.push(await fetchSingle(pt.lat,pt.lon,start,end));
-      await sleep(150);
+      results.push(await fetchOpenMeteo(pt.lat, pt.lon, startStr, endStr));
+      await sleep(100);
     }
-    const dates=results[0].daily.time;
-    const temps=dates.map((_,i)=>{
-      let sum=0,wsum=0;
-      results.forEach((r,gi)=>{const v=r.daily.temperature_2m_mean[i];if(v!==null){sum+=v*PLANET_GRID[gi].w;wsum+=PLANET_GRID[gi].w;}});
-      return wsum>0?Math.round(sum/wsum*10)/10:null;
+    const dates = results[0].daily.time;
+    const temps = dates.map((_,i) => {
+      let sum=0, wsum=0;
+      results.forEach((r,gi) => {
+        const v = r.daily.temperature_2m_mean[i];
+        if(v !== null){ sum += v * PLANET_GRID[gi].w; wsum += PLANET_GRID[gi].w; }
+      });
+      return wsum > 0 ? Math.round(sum/wsum*10)/10 : null;
     });
-    return{daily:{time:dates,temperature_2m_mean:temps}};
+    return { daily:{ time:dates, temperature_2m_mean:temps }};
   }
-  const loc=LOCS[key];if(!loc)throw new Error('Lieu inconnu: '+key);
-  return fetchSingle(loc.lat,loc.lon,start,end);
+  const loc = LOCS[key];
+  if(!loc) throw new Error('Lieu inconnu: ' + key);
+  return fetchOpenMeteo(loc.lat, loc.lon, startStr, endStr);
 }
 function locName(key){return key==='planet'?'Planète':LOCS[key]?.name||key;}
 
