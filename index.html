@@ -344,7 +344,14 @@ const PRELOAD_WORLD=['planet','europe','asia','namerica','samerica','africa','oc
 // STATE
 // ══════════════════════════════════════════════════════════════════════════════
 const today=new Date(); today.setHours(0,0,0,0);
-const era5End=addDays(today,-5);
+const era5End=addDays(today,-7); // ERA5 lag garanti à J-7
+
+// Vider le cache si la version a changé
+const CACHE_VERSION='v3';
+if(localStorage.getItem('e5_version')!==CACHE_VERSION){
+  Object.keys(localStorage).filter(k=>k.startsWith('e5_')).forEach(k=>localStorage.removeItem(k));
+  localStorage.setItem('e5_version',CACHE_VERSION);
+}
 
 // France state
 let frKey='france', frPeriod='day';
@@ -567,15 +574,19 @@ const woChartRef={instance:null};
 // ══════════════════════════════════════════════════════════════════════════════
 async function loadDay(pfx,key,period,nav,normals,chartRef){
   const loc=LOCS[key];
-  const end=clamp(new Date(nav.day));const start=addDays(end,-29);
+  const end=clamp(new Date(nav.day));
+  // La fenêtre de 30 jours se termine sur le jour sélectionné
+  const start=addDays(end,-29);
   const data=await fetchERA5(loc.lat,loc.lon,toDS(start),toDS(end));
   const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
   const nd=normForDates(dates,normals);
-  const idx=dates.indexOf(toDS(end));
-  const real=idx>=0?temps[idx]:[...temps].reverse().find(v=>v!==null);
-  const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=idx>=0?nd[k][idx]:nd[k][nd[k].length-1];});
-  setCards(pfx,real,normVals,fmtFull(end));
-  renderChart(`${pfx}-chart`,chartRef,dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${end.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`,`${pfx}-chart-title`);
+  // Valeur du jour cible = dernier point disponible dans la fenêtre
+  const lastValidIdx=[...temps].map((v,i)=>v!==null?i:-1).filter(i=>i>=0).pop()??temps.length-1;
+  const real=temps[lastValidIdx];
+  const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=nd[k][lastValidIdx];});
+  const displayDate=new Date(dates[lastValidIdx]+'T00:00:00');
+  setCards(pfx,real,normVals,fmtFull(displayDate));
+  renderChart(`${pfx}-chart`,chartRef,dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${displayDate.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`,`${pfx}-chart-title`);
   return real;
 }
 async function loadWeek(pfx,key,nav,normals,chartRef){
@@ -584,8 +595,13 @@ async function loadWeek(pfx,key,nav,normals,chartRef){
   const data=await fetchERA5(loc.lat,loc.lon,toDS(mon),toDS(sun));
   const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
   const nd=normForDates(dates,normals);
-  const real=avg(temps);const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=avg(nd[k]);});
-  setCards(pfx,real,normVals,`S${getWeekNum(mon)} · moy. semaine`);
+  // Moyenne uniquement sur les jours disponibles (non null)
+  const validTemps=temps.filter(v=>v!==null);
+  const real=validTemps.length?avg(validTemps):null;
+  const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=avg(nd[k].filter((_,i)=>temps[i]!==null));});
+  const wn=getWeekNum(mon);
+  const rangeLabel=sun<clamp(addDays(mon,6))?`S${wn} · du ${fmtShort(mon)} au ${fmtShort(sun)} (partielle)`:`S${wn} · ${fmtWeekRange(mon)}`;
+  setCards(pfx,real,normVals,rangeLabel);
   renderChart(`${pfx}-chart`,chartRef,dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${fmtWeekRange(mon)}`,`${pfx}-chart-title`);
   return real;
 }
