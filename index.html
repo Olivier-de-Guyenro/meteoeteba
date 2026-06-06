@@ -10,7 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --bg: #f5f4f0;
       --surface: #ffffff;
@@ -22,204 +21,53 @@
       --text-3: #9b9b96;
       --red: #c0392b;
       --blue: #2471a3;
-      --red-light: #fdf0ee;
-      --blue-light: #eaf4fb;
       --green: #1e8449;
       --font: 'DM Sans', system-ui, sans-serif;
       --mono: 'DM Mono', monospace;
       --radius: 10px;
       --radius-lg: 16px;
     }
-
-    body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    /* ─── Layout ─── */
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
     .page { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-
-    /* ─── Header ─── */
-    .site-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 2.5rem;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
+    .site-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2.5rem; gap: 1rem; flex-wrap: wrap; }
     .site-title { font-size: 22px; font-weight: 500; letter-spacing: -.3px; }
     .site-title span { color: var(--text-2); font-weight: 300; }
     .site-sub { font-size: 12px; color: var(--text-3); margin-top: 3px; font-family: var(--mono); }
-
-    /* ─── Controls ─── */
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
-    }
-
-    .tab-group {
-      display: flex;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 3px;
-      gap: 2px;
-    }
-    .tab {
-      padding: 6px 16px;
-      font-size: 13px;
-      font-family: var(--font);
-      border: none;
-      background: transparent;
-      color: var(--text-2);
-      border-radius: 7px;
-      cursor: pointer;
-      transition: all .15s;
-      font-weight: 400;
-    }
+    .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .tab-group { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 3px; gap: 2px; }
+    .tab { padding: 6px 16px; font-size: 13px; font-family: var(--font); border: none; background: transparent; color: var(--text-2); border-radius: 7px; cursor: pointer; transition: all .15s; font-weight: 400; }
     .tab:hover { color: var(--text); background: var(--surface2); }
-    .tab.active {
-      background: var(--text);
-      color: #fff;
-      font-weight: 500;
-    }
-
-    .region-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-left: auto;
-    }
+    .tab.active { background: var(--text); color: #fff; font-weight: 500; }
+    .region-wrap { display: flex; align-items: center; gap: 8px; margin-left: auto; }
     .region-wrap label { font-size: 12px; color: var(--text-3); font-family: var(--mono); white-space: nowrap; }
-    select {
-      font-family: var(--font);
-      font-size: 13px;
-      padding: 7px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--surface);
-      color: var(--text);
-      cursor: pointer;
-      outline: none;
-      transition: border-color .15s;
-      min-width: 220px;
-    }
+    select { font-family: var(--font); font-size: 13px; padding: 7px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); cursor: pointer; outline: none; transition: border-color .15s; min-width: 220px; }
     select:hover, select:focus { border-color: var(--border-strong); }
-
-    /* ─── Metric cards ─── */
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-bottom: 1.5rem;
-    }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
     @media (max-width: 680px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
-
-    .metric {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 16px 18px;
-    }
-    .metric-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--text-3);
-      font-family: var(--mono);
-      margin-bottom: 8px;
-    }
-    .metric-value {
-      font-size: 28px;
-      font-weight: 500;
-      letter-spacing: -.5px;
-      margin-bottom: 4px;
-      font-variant-numeric: tabular-nums;
-    }
+    .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
+    .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); font-family: var(--mono); margin-bottom: 8px; }
+    .metric-value { font-size: 28px; font-weight: 500; letter-spacing: -.5px; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
     .metric-sub { font-size: 11px; color: var(--text-3); }
     .c-red { color: var(--red); }
     .c-blue { color: var(--blue); }
     .c-green { color: var(--green); }
     .c-muted { color: var(--text-2); }
-
-    /* ─── Chart card ─── */
-    .chart-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-    }
-    .chart-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.25rem;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
+    .chart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; gap: 12px; flex-wrap: wrap; }
     .chart-title { font-size: 14px; font-weight: 500; }
-
-    .legend {
-      display: flex;
-      gap: 16px;
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: var(--text-2);
-      font-family: var(--mono);
-    }
-    .leg-line {
-      width: 18px;
-      height: 2px;
-      border-radius: 1px;
-    }
-    .leg-line.dashed {
-      background: repeating-linear-gradient(90deg, #2471a3 0 5px, transparent 5px 8px);
-    }
-
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-2); font-family: var(--mono); }
+    .leg-line { width: 18px; height: 2px; border-radius: 1px; flex-shrink: 0; }
     .chart-container { position: relative; width: 100%; height: 300px; }
-
-    /* ─── Status ─── */
-    .status-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      font-family: var(--mono);
-      color: var(--text-3);
-      padding: 8px 0;
-    }
-    .status-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      transition: background .3s;
-    }
-
-    /* ─── Footer ─── */
-    footer {
-      margin-top: 3rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border);
-      font-size: 11px;
-      color: var(--text-3);
-      font-family: var(--mono);
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
+    .status-bar { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); color: var(--text-3); padding: 8px 0; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; transition: background .3s; }
+    .progress-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 1rem; text-align: center; display: none; }
+    .progress-wrap.visible { display: block; }
+    .progress-bar-outer { background: var(--surface2); border-radius: 4px; height: 6px; margin: 1rem auto; max-width: 400px; overflow: hidden; }
+    .progress-bar-inner { height: 100%; background: var(--text); border-radius: 4px; transition: width .3s; width: 0%; }
+    .progress-label { font-size: 12px; color: var(--text-3); font-family: var(--mono); }
+    .cache-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-family: var(--mono); color: var(--text-3); background: var(--surface2); border-radius: 4px; padding: 2px 6px; margin-left: 8px; }
+    footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-3); font-family: var(--mono); display: flex; gap: 1.5rem; flex-wrap: wrap; }
     footer a { color: var(--text-3); text-decoration: underline; text-underline-offset: 2px; }
     footer a:hover { color: var(--text-2); }
   </style>
@@ -230,7 +78,7 @@
   <header class="site-header">
     <div>
       <h1 class="site-title">Températures France <span id="current-year"></span></h1>
-      <p class="site-sub">Réelles vs normales climatiques 1991–2020</p>
+      <p class="site-sub">Réelles vs normales ERA5 décennales · Source : Open-Meteo</p>
     </div>
   </header>
 
@@ -269,138 +117,203 @@
       <div class="metric-sub" id="m-real-sub">en attente</div>
     </div>
     <div class="metric">
-      <div class="metric-label">Normale 1991–2020</div>
+      <div class="metric-label">Normale 2011–2020</div>
       <div class="metric-value c-muted" id="m-norm">—</div>
-      <div class="metric-sub" id="m-norm-sub">référence</div>
+      <div class="metric-sub" id="m-norm-sub">décennie récente</div>
     </div>
     <div class="metric">
-      <div class="metric-label">Écart à la normale</div>
+      <div class="metric-label">Écart à 2011–2020</div>
       <div class="metric-value" id="m-delta">—</div>
       <div class="metric-sub" id="m-delta-sub">—</div>
     </div>
     <div class="metric">
-      <div class="metric-label">Moyenne période</div>
+      <div class="metric-label">Réchauffement</div>
       <div class="metric-value" id="m-trend">—</div>
-      <div class="metric-sub" id="m-trend-sub">vs normale</div>
+      <div class="metric-sub" id="m-trend-sub">1991–2000 → 2011–2020</div>
     </div>
   </div>
 
-  <div class="chart-card">
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-label" id="progress-label">Calcul des normales ERA5…</div>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
+    <div class="progress-label" id="progress-detail" style="margin-top:6px;font-size:10px;">Chargement des données historiques (30 ans)</div>
+  </div>
+
+  <div class="chart-card" id="chart-card">
     <div class="chart-header">
-      <span class="chart-title" id="chart-title">Températures journalières</span>
+      <div>
+        <span class="chart-title" id="chart-title">Températures journalières</span>
+        <span class="cache-badge" id="cache-badge" style="display:none">⚡ cache</span>
+      </div>
       <div class="legend">
-        <div class="legend-item">
-          <div class="leg-line" style="background:#c0392b"></div>
-          Réelle
-        </div>
-        <div class="legend-item">
-          <div class="leg-line dashed"></div>
-          Normale 91–20
-        </div>
+        <div class="legend-item"><div class="leg-line" style="background:#c0392b"></div>Réelle</div>
+        <div class="legend-item"><div class="leg-line" style="background:#8e44ad;border-top:2px dashed #8e44ad;height:0"></div>2011–2020</div>
+        <div class="legend-item"><div class="leg-line" style="background:#2471a3;border-top:2px dashed #2471a3;height:0"></div>2001–2010</div>
+        <div class="legend-item"><div class="leg-line" style="background:#27ae60;border-top:2px dashed #27ae60;height:0"></div>1991–2000</div>
       </div>
     </div>
     <div class="chart-container">
-      <canvas id="main-chart" role="img" aria-label="Graphique températures réelles vs normales climatiques"></canvas>
+      <canvas id="main-chart" role="img" aria-label="Graphique températures réelles vs normales ERA5 décennales"></canvas>
     </div>
   </div>
 
   <div class="status-bar">
     <div class="status-dot" id="status-dot" style="background:#f39c12"></div>
-    <span id="status-text">Chargement des données Open-Meteo…</span>
+    <span id="status-text">Initialisation…</span>
   </div>
 
   <footer>
-    <span>Données réelles : <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> · Réanalyse ERA5 (ECMWF)</span>
-    <span>Normales : <a href="https://meteofrance.com" target="_blank">Météo-France</a> · Période 1991–2020</span>
-    <span>Régions : 13 régions administratives françaises</span>
+    <span>Données : <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> · Réanalyse ERA5 (ECMWF)</span>
+    <span>Normales calculées sur données ERA5 1991–2020</span>
+    <span>Cache local 24h · Dernière donnée disponible : J−5</span>
   </footer>
 
 </div>
 
 <script>
-// ─── Config régions ───────────────────────────────────────────────────────────
+// ─── Régions ──────────────────────────────────────────────────────────────────
 const REGIONS = {
-  france: { name:"France entière",            lat:46.5,  lon:2.3   },
-  idf:    { name:"Île-de-France",             lat:48.85, lon:2.35  },
-  aura:   { name:"Auvergne-Rhône-Alpes",      lat:45.75, lon:4.85  },
-  paca:   { name:"Prov.-Alpes-Côte d'Azur",  lat:43.93, lon:6.07  },
-  occ:    { name:"Occitanie",                 lat:43.60, lon:1.44  },
-  na:     { name:"Nouvelle-Aquitaine",        lat:44.84, lon:-0.58 },
-  bre:    { name:"Bretagne",                  lat:48.11, lon:-1.68 },
-  pdl:    { name:"Pays de la Loire",          lat:47.22, lon:-1.55 },
-  nor:    { name:"Normandie",                 lat:49.18, lon:0.35  },
-  hdf:    { name:"Hauts-de-France",           lat:50.63, lon:3.06  },
-  ges:    { name:"Grand Est",                 lat:48.57, lon:7.75  },
-  bfc:    { name:"Bourgogne-Franche-Comté",   lat:47.28, lon:5.00  },
-  cvl:    { name:"Centre-Val de Loire",       lat:47.90, lon:1.90  },
-  cor:    { name:"Corse",                     lat:42.00, lon:9.00  }
+  france: { name:"France entière",           lat:46.5,  lon:2.3   },
+  idf:    { name:"Île-de-France",            lat:48.85, lon:2.35  },
+  aura:   { name:"Auvergne-Rhône-Alpes",     lat:45.75, lon:4.85  },
+  paca:   { name:"Prov.-Alpes-Côte d'Azur", lat:43.93, lon:6.07  },
+  occ:    { name:"Occitanie",                lat:43.60, lon:1.44  },
+  na:     { name:"Nouvelle-Aquitaine",       lat:44.84, lon:-0.58 },
+  bre:    { name:"Bretagne",                 lat:48.11, lon:-1.68 },
+  pdl:    { name:"Pays de la Loire",         lat:47.22, lon:-1.55 },
+  nor:    { name:"Normandie",                lat:49.18, lon:0.35  },
+  hdf:    { name:"Hauts-de-France",          lat:50.63, lon:3.06  },
+  ges:    { name:"Grand Est",                lat:48.57, lon:7.75  },
+  bfc:    { name:"Bourgogne-Franche-Comté",  lat:47.28, lon:5.00  },
+  cvl:    { name:"Centre-Val de Loire",      lat:47.90, lon:1.90  },
+  cor:    { name:"Corse",                    lat:42.00, lon:9.00  }
 };
 
-// ─── Normales Météo-France 1991-2020 (temp. moyenne mensuelle °C) ─────────────
-// Sources : bulletins climatologiques et données publiées Météo-France
-const NORMALS = {
-  france: [5.0,5.8,8.6,11.4,15.2,18.6,20.8,20.5,16.9,13.0,8.5,5.4],
-  idf:    [4.3,5.1,8.3,11.5,15.4,18.7,21.1,20.8,16.9,12.7,7.8,4.8],
-  aura:   [3.1,4.2,7.8,11.2,15.4,18.9,21.4,20.9,16.8,12.5,7.0,3.6],
-  paca:   [7.8,8.7,11.4,14.2,18.2,22.2,25.4,25.0,21.0,16.5,11.5,8.2],
-  occ:    [6.7,7.8,10.6,13.5,17.5,21.4,24.2,23.8,19.8,15.4,10.1,7.1],
-  na:     [6.5,7.5,10.2,12.8,16.6,19.8,22.0,21.9,18.5,14.5,9.8,7.0],
-  bre:    [6.8,7.3,9.4,11.5,14.8,17.6,19.5,19.5,17.0,13.7,9.8,7.3],
-  pdl:    [5.6,6.4,9.2,11.8,15.5,18.5,20.7,20.5,17.3,13.5,8.8,6.0],
-  nor:    [5.3,5.9,8.4,11.0,14.6,17.5,19.6,19.4,16.5,12.8,8.5,5.8],
-  hdf:    [4.2,4.8,7.6,10.5,14.2,17.1,19.4,19.1,15.9,12.0,7.5,4.7],
-  ges:    [2.8,4.0,7.8,11.3,15.4,18.8,21.1,20.5,16.5,11.8,6.4,3.1],
-  bfc:    [3.5,4.5,8.1,11.4,15.4,18.7,21.0,20.5,16.8,12.5,7.2,3.9],
-  cvl:    [4.4,5.4,8.5,11.4,15.2,18.4,20.7,20.4,16.9,12.7,7.8,4.8],
-  cor:    [9.3,10.0,12.0,14.5,18.4,22.5,25.8,25.6,22.0,17.8,13.3,10.4]
-};
+// ─── Décennies de normales ────────────────────────────────────────────────────
+const DECADES = [
+  { key:'d1', label:'1991–2000', start:'1991-01-01', end:'2000-12-31', color:'#27ae60', dash:[6,4] },
+  { key:'d2', label:'2001–2010', start:'2001-01-01', end:'2010-12-31', color:'#2471a3', dash:[6,4] },
+  { key:'d3', label:'2011–2020', start:'2011-01-01', end:'2020-12-31', color:'#8e44ad', dash:[6,4] }
+];
+
+// ─── Cache localStorage (TTL 24h) ─────────────────────────────────────────────
+const CACHE_TTL = 24 * 60 * 60 * 1000;
+
+function cacheGet(key) {
+  try {
+    const raw = localStorage.getItem('meteo_' + key);
+    if (!raw) return null;
+    const { ts, data } = JSON.parse(raw);
+    if (Date.now() - ts > CACHE_TTL) { localStorage.removeItem('meteo_' + key); return null; }
+    return data;
+  } catch(e) { return null; }
+}
+
+function cacheSet(key, data) {
+  try { localStorage.setItem('meteo_' + key, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-function getDOY(date) {
-  const start = new Date(date.getFullYear(), 0, 0);
-  return Math.floor((date - start) / 86400000);
-}
-
-function getDailyNormal(regionKey, dayOfYear) {
-  const norms = NORMALS[regionKey];
-  const midMonths = [15,46,74,105,135,166,196,227,258,288,319,349];
-  let m0 = 11, m1 = 0;
-  for (let i = 0; i < 12; i++) {
-    if (dayOfYear <= midMonths[i]) { m1 = i; m0 = i === 0 ? 11 : i - 1; break; }
-    if (i === 11) { m0 = 11; m1 = 0; }
-  }
-  const d0 = m0 < m1 ? midMonths[m0] : midMonths[m0] - 365;
-  const d1 = midMonths[m1];
-  const t = d1 === d0 ? 0 : Math.max(0, Math.min(1, (dayOfYear - d0) / (d1 - d0)));
-  return norms[m0] + t * (norms[m1] - norms[m0]);
-}
-
-function getMonthlyNormal(regionKey, month) {
-  return NORMALS[regionKey][month];
-}
-
 function toDateStr(d) { return d.toISOString().slice(0, 10); }
-
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
-
-function fmtDate(d) {
-  return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
-}
-
-function fmtTemp(v) { return v !== null ? v.toFixed(1) + '°C' : '—'; }
-
+function fmtDate(d) { return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' }); }
 function avg(arr) {
-  const valid = arr.filter(v => v !== null && !isNaN(v));
-  return valid.length ? valid.reduce((a,b) => a + b, 0) / valid.length : null;
+  const v = arr.filter(x => x !== null && !isNaN(x));
+  return v.length ? v.reduce((a,b) => a+b, 0) / v.length : null;
 }
 
-// ─── State ────────────────────────────────────────────────────────────────────
+function getDOY(date) {
+  return Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
+}
+
+// Calcule les normales journalières moyennes sur une période depuis les données ERA5 brutes
+// Retourne un tableau de 366 valeurs (doy 1..366), null si pas de données
+function computeDailyNormals(dates, temps) {
+  // Accumulate by DOY (1-366)
+  const acc = Array.from({length: 367}, () => ({ sum: 0, count: 0 }));
+  for (let i = 0; i < dates.length; i++) {
+    if (temps[i] === null) continue;
+    const doy = getDOY(new Date(dates[i]));
+    acc[doy].sum += temps[i];
+    acc[doy].count++;
+  }
+  // Smooth with 15-day window
+  const raw = acc.map(a => a.count > 0 ? a.sum / a.count : null);
+  const smoothed = new Array(367).fill(null);
+  for (let doy = 1; doy <= 366; doy++) {
+    const vals = [];
+    for (let d = -7; d <= 7; d++) {
+      let idx = doy + d;
+      if (idx < 1) idx += 365;
+      if (idx > 366) idx -= 365;
+      if (raw[idx] !== null) vals.push(raw[idx]);
+    }
+    smoothed[doy] = vals.length > 0 ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
+  }
+  return smoothed;
+}
+
+// Calcule les normales mensuelles depuis les données ERA5 brutes
+function computeMonthlyNormals(dates, temps) {
+  const acc = Array.from({length: 12}, () => ({ sum: 0, count: 0 }));
+  for (let i = 0; i < dates.length; i++) {
+    if (temps[i] === null) continue;
+    const m = new Date(dates[i]).getMonth();
+    acc[m].sum += temps[i];
+    acc[m].count++;
+  }
+  return acc.map(a => a.count > 0 ? a.sum / a.count : null);
+}
+
+// ─── API Open-Meteo ───────────────────────────────────────────────────────────
+async function fetchOpenMeteo(lat, lon, startDate, endDate) {
+  const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_mean&timezone=Europe%2FParis`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.reason || 'Erreur API');
+  return data;
+}
+
+// ─── Chargement des normales (avec cache) ────────────────────────────────────
+// Retourne { d1, d2, d3 } chacun avec { daily: [366], monthly: [12] }
+async function loadDecadeNormals(lat, lon, regionKey, onProgress) {
+  const cacheKey = `normals_${regionKey}`;
+  const cached = cacheGet(cacheKey);
+  if (cached) {
+    document.getElementById('cache-badge').style.display = 'inline-flex';
+    onProgress(100, 'Normales chargées depuis le cache');
+    return cached;
+  }
+
+  document.getElementById('cache-badge').style.display = 'none';
+  const result = {};
+
+  for (let i = 0; i < DECADES.length; i++) {
+    const dec = DECADES[i];
+    const pct = Math.round((i / DECADES.length) * 80);
+    onProgress(pct, `Calcul normales ${dec.label}…`);
+
+    const data = await fetchOpenMeteo(lat, lon, dec.start, dec.end);
+    result[dec.key] = {
+      daily: computeDailyNormals(data.daily.time, data.daily.temperature_2m_mean),
+      monthly: computeMonthlyNormals(data.daily.time, data.daily.temperature_2m_mean)
+    };
+  }
+
+  onProgress(90, 'Mise en cache…');
+  cacheSet(cacheKey, result);
+  onProgress(100, 'Normales calculées');
+  return result;
+}
+
+// ─── État global ─────────────────────────────────────────────────────────────
 let chartInstance = null;
 let currentPeriod = 'day';
 let currentRegion = 'france';
-let cache = {};
+let normalsCache = {}; // en mémoire pour la session
 
-// ─── Status / Metrics ─────────────────────────────────────────────────────────
+// ─── UI helpers ───────────────────────────────────────────────────────────────
 function setStatus(msg, ok) {
   document.getElementById('status-dot').style.background = ok ? '#27ae60' : '#f39c12';
   document.getElementById('status-text').textContent = msg;
@@ -409,36 +322,52 @@ function setStatus(msg, ok) {
 function setError(msg) {
   document.getElementById('status-dot').style.background = '#c0392b';
   document.getElementById('status-text').textContent = 'Erreur : ' + msg;
+  hideProgress();
 }
 
-function setMetrics(real, norm, realLabel, trendReal, trendNorm) {
-  const delta = real !== null && norm !== null ? real - norm : null;
-  const trendDelta = trendReal !== null && trendNorm !== null ? trendReal - trendNorm : null;
+function showProgress() {
+  document.getElementById('progress-wrap').classList.add('visible');
+  document.getElementById('chart-card').style.opacity = '0.3';
+}
 
-  document.getElementById('m-real').textContent = fmtTemp(real);
+function hideProgress() {
+  document.getElementById('progress-wrap').classList.remove('visible');
+  document.getElementById('chart-card').style.opacity = '1';
+}
+
+function setProgress(pct, label, detail) {
+  document.getElementById('progress-bar').style.width = pct + '%';
+  if (label) document.getElementById('progress-label').textContent = label;
+  if (detail) document.getElementById('progress-detail').textContent = detail;
+}
+
+function setMetrics(real, norm3, realLabel, warming) {
+  const delta = real !== null && norm3 !== null ? real - norm3 : null;
+
+  document.getElementById('m-real').textContent = real !== null ? real.toFixed(1) + '°C' : '—';
   document.getElementById('m-real-sub').textContent = realLabel || '';
 
-  document.getElementById('m-norm').textContent = fmtTemp(norm);
-  document.getElementById('m-norm-sub').textContent = 'normale 1991–2020';
+  document.getElementById('m-norm').textContent = norm3 !== null ? norm3.toFixed(1) + '°C' : '—';
 
   const deltaEl = document.getElementById('m-delta');
   deltaEl.textContent = delta !== null ? (delta >= 0 ? '+' : '') + delta.toFixed(1) + '°C' : '—';
   deltaEl.className = 'metric-value ' + (delta === null ? 'c-muted' : delta > 0.5 ? 'c-red' : delta < -0.5 ? 'c-blue' : 'c-muted');
   document.getElementById('m-delta-sub').textContent = delta !== null
-    ? (Math.abs(delta) < 0.5 ? 'dans la norme' : delta > 0 ? 'au-dessus de la normale' : 'en dessous de la normale')
+    ? (Math.abs(delta) < 0.5 ? 'dans la norme' : delta > 0 ? 'au-dessus' : 'en dessous')
     : '—';
 
   const trendEl = document.getElementById('m-trend');
-  trendEl.textContent = trendDelta !== null ? (trendDelta >= 0 ? '+' : '') + trendDelta.toFixed(1) + '°C' : '—';
-  trendEl.className = 'metric-value ' + (trendDelta === null ? 'c-muted' : trendDelta > 0.5 ? 'c-red' : trendDelta < -0.5 ? 'c-blue' : 'c-muted');
-  document.getElementById('m-trend-sub').textContent = 'écart moyen période';
+  trendEl.textContent = warming !== null ? (warming >= 0 ? '+' : '') + warming.toFixed(1) + '°C' : '—';
+  trendEl.className = 'metric-value ' + (warming === null ? 'c-muted' : warming > 0 ? 'c-red' : 'c-blue');
 }
 
 // ─── Chart ────────────────────────────────────────────────────────────────────
-function renderChart(labels, realData, normData, title) {
+function renderChart(labels, realData, normalsData, title) {
   document.getElementById('chart-title').textContent = title;
   const canvas = document.getElementById('main-chart');
   if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+  const ptRadius = realData.length > 60 ? 0 : 3;
 
   chartInstance = new Chart(canvas, {
     type: 'line',
@@ -449,27 +378,50 @@ function renderChart(labels, realData, normData, title) {
           label: 'Réelle',
           data: realData,
           borderColor: '#c0392b',
-          backgroundColor: 'rgba(192,57,43,.06)',
-          borderWidth: 2,
-          pointRadius: realData.length > 60 ? 0 : 3,
+          borderWidth: 2.5,
+          pointRadius: ptRadius,
           pointHoverRadius: 5,
           pointBackgroundColor: '#c0392b',
           tension: 0.35,
           fill: false,
-          order: 1
+          order: 1,
+          z: 10
         },
         {
-          label: 'Normale',
-          data: normData,
-          borderColor: '#2471a3',
-          backgroundColor: 'rgba(36,113,163,.04)',
-          borderWidth: 2,
-          borderDash: [5, 4],
+          label: '2011–2020',
+          data: normalsData.d3,
+          borderColor: '#8e44ad',
+          borderWidth: 1.5,
+          borderDash: [6, 4],
           pointRadius: 0,
           pointHoverRadius: 4,
           tension: 0.35,
           fill: false,
           order: 2
+        },
+        {
+          label: '2001–2010',
+          data: normalsData.d2,
+          borderColor: '#2471a3',
+          borderWidth: 1.5,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.35,
+          fill: false,
+          order: 3
+        },
+        {
+          label: '1991–2000',
+          data: normalsData.d1,
+          borderColor: '#27ae60',
+          borderWidth: 1.5,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.35,
+          fill: false,
+          order: 4
         }
       ]
     },
@@ -490,19 +442,14 @@ function renderChart(labels, realData, normData, title) {
             label: ctx => {
               const v = ctx.parsed.y;
               if (v === null) return null;
-              if (ctx.dataset.label === 'Réelle') {
-                return `  Réelle : ${v.toFixed(1)}°C`;
+              const lbl = ctx.dataset.label;
+              if (lbl === 'Réelle') return `  Réelle : ${v.toFixed(1)}°C`;
+              const realV = ctx.chart.data.datasets[0].data[ctx.dataIndex];
+              if (lbl === '2011–2020' && realV !== null) {
+                const d = realV - v;
+                return [`  ${lbl} : ${v.toFixed(1)}°C`, `  Écart : ${d >= 0 ? '+' : ''}${d.toFixed(1)}°C`];
               }
-              if (ctx.dataset.label === 'Normale') {
-                const realV = ctx.chart.data.datasets[0].data[ctx.dataIndex];
-                const delta = realV !== null ? realV - v : null;
-                const sign = delta !== null && delta >= 0 ? '+' : '';
-                return [
-                  `  Normale : ${v.toFixed(1)}°C`,
-                  delta !== null ? `  Écart : ${sign}${delta.toFixed(1)}°C` : ''
-                ].filter(Boolean);
-              }
-              return null;
+              return `  ${lbl} : ${v.toFixed(1)}°C`;
             }
           }
         }
@@ -511,152 +458,191 @@ function renderChart(labels, realData, normData, title) {
         x: {
           grid: { color: 'rgba(0,0,0,.04)' },
           border: { color: 'rgba(0,0,0,.08)' },
-          ticks: {
-            color: '#9b9b96',
-            font: { size: 11, family: "'DM Mono', monospace" },
-            maxRotation: 45,
-            autoSkip: true,
-            maxTicksLimit: 14
-          }
+          ticks: { color: '#9b9b96', font: { size: 11, family: "'DM Mono', monospace" }, maxRotation: 45, autoSkip: true, maxTicksLimit: 14 }
         },
         y: {
           grid: { color: 'rgba(0,0,0,.04)' },
           border: { color: 'rgba(0,0,0,.08)', dash: [4,4] },
-          ticks: {
-            color: '#9b9b96',
-            font: { size: 11, family: "'DM Mono', monospace" },
-            callback: v => v.toFixed(0) + '°C'
-          }
+          ticks: { color: '#9b9b96', font: { size: 11, family: "'DM Mono', monospace" }, callback: v => v.toFixed(0) + '°C' }
         }
       }
     }
   });
 }
 
-// ─── API Open-Meteo ───────────────────────────────────────────────────────────
-async function fetchOpenMeteo(lat, lon, startDate, endDate) {
-  const key = `${lat},${lon},${startDate},${endDate}`;
-  if (cache[key]) return cache[key];
-  const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_mean&timezone=Europe%2FParis`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
-  const data = await res.json();
-  if (data.error) throw new Error(data.reason || 'Erreur API');
-  cache[key] = data;
-  return data;
-}
-
-// ─── Loaders par période ──────────────────────────────────────────────────────
-async function loadDay(region, regionKey) {
+// ─── Loaders ─────────────────────────────────────────────────────────────────
+async function loadDay(region, regionKey, normals) {
+  // Fetch derniers 30 jours (jusqu'à J-1 max)
   const today = new Date(); today.setHours(0,0,0,0);
-  const start = addDays(today, -29);
-  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(start), toDateStr(today));
+  const end = addDays(today, -1); // J-1 car ERA5 a délai
+  const start = addDays(end, -29);
+
+  setProgress(92, 'Chargement températures récentes…');
+  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(start), toDateStr(end));
   const dates = data.daily.time;
   const temps = data.daily.temperature_2m_mean;
 
   const labels = dates.map(d => fmtDate(new Date(d)));
-  const normData = dates.map(d => parseFloat(getDailyNormal(regionKey, getDOY(new Date(d))).toFixed(1)));
+  const nd1 = dates.map(d => { const n = normals.d1.daily[getDOY(new Date(d))]; return n !== null ? parseFloat(n.toFixed(1)) : null; });
+  const nd2 = dates.map(d => { const n = normals.d2.daily[getDOY(new Date(d))]; return n !== null ? parseFloat(n.toFixed(1)) : null; });
+  const nd3 = dates.map(d => { const n = normals.d3.daily[getDOY(new Date(d))]; return n !== null ? parseFloat(n.toFixed(1)) : null; });
 
-  const lastValid = [...temps].reverse().find(v => v !== null);
-  const lastNorm = normData[normData.length - 1];
-  setMetrics(lastValid, lastNorm, fmtDate(today), avg(temps), avg(normData));
-  renderChart(labels, temps, normData, `Températures journalières · 30 derniers jours`);
+  const lastReal = [...temps].reverse().find(v => v !== null);
+  const lastD3 = nd3[nd3.length - 1];
+  const lastD1 = nd1[nd1.length - 1];
+  const warming = lastD1 !== null && lastD3 !== null ? lastD3 - lastD1 : null;
+
+  setMetrics(lastReal, lastD3, 'J−1 · ' + fmtDate(end), warming);
+  renderChart(labels, temps, { d1: nd1, d2: nd2, d3: nd3 }, `Températures journalières · 30 derniers jours (J−1)`);
 }
 
-async function loadWeek(region, regionKey) {
+async function loadWeek(region, regionKey, normals) {
   const today = new Date(); today.setHours(0,0,0,0);
-  const start = addDays(today, -83);
-  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(start), toDateStr(today));
+  const end = addDays(today, -1);
+  const start = addDays(end, -83);
+
+  setProgress(92, 'Chargement semaines récentes…');
+  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(start), toDateStr(end));
   const dates = data.daily.time;
   const temps = data.daily.temperature_2m_mean;
 
   const weeks = [];
-  let wT = [], wN = [], wLabel = '';
+  let wT = [], wd1 = [], wd2 = [], wd3 = [], wLabel = '';
 
   for (let i = 0; i < dates.length; i++) {
     const d = new Date(dates[i]);
     if (d.getDay() === 1 && wT.length > 0) {
-      weeks.push({ label: wLabel, real: avg(wT), norm: avg(wN) });
-      wT = []; wN = [];
+      weeks.push({ label: wLabel, real: avg(wT), d1: avg(wd1), d2: avg(wd2), d3: avg(wd3) });
+      wT = []; wd1 = []; wd2 = []; wd3 = [];
     }
     if (wT.length === 0) wLabel = fmtDate(d);
     wT.push(temps[i]);
-    wN.push(getDailyNormal(regionKey, getDOY(d)));
+    const doy = getDOY(d);
+    wd1.push(normals.d1.daily[doy]);
+    wd2.push(normals.d2.daily[doy]);
+    wd3.push(normals.d3.daily[doy]);
   }
-  if (wT.length) weeks.push({ label: wLabel, real: avg(wT), norm: avg(wN) });
+  if (wT.length) weeks.push({ label: wLabel, real: avg(wT), d1: avg(wd1), d2: avg(wd2), d3: avg(wd3) });
 
   const labels = weeks.map(w => w.label);
   const realData = weeks.map(w => w.real !== null ? parseFloat(w.real.toFixed(1)) : null);
-  const normData = weeks.map(w => parseFloat(w.norm.toFixed(1)));
+  const nd1 = weeks.map(w => w.d1 !== null ? parseFloat(w.d1.toFixed(1)) : null);
+  const nd2 = weeks.map(w => w.d2 !== null ? parseFloat(w.d2.toFixed(1)) : null);
+  const nd3 = weeks.map(w => w.d3 !== null ? parseFloat(w.d3.toFixed(1)) : null);
+
   const lastR = [...realData].reverse().find(v => v !== null);
-  setMetrics(lastR, normData[normData.length - 1], 'semaine courante', avg(realData), avg(normData));
-  renderChart(labels, realData, normData, `Températures hebdomadaires · 12 dernières semaines`);
+  const lastD3 = nd3[nd3.length - 1];
+  const warming = nd1[nd1.length-1] !== null && lastD3 !== null ? lastD3 - nd1[nd1.length-1] : null;
+  setMetrics(lastR, lastD3, 'semaine courante', warming);
+  renderChart(labels, realData, { d1: nd1, d2: nd2, d3: nd3 }, `Températures hebdomadaires · 12 dernières semaines`);
 }
 
-async function loadMonth(region, regionKey) {
+async function loadMonth(region, regionKey, normals) {
   const today = new Date(); today.setHours(0,0,0,0);
+  const end = addDays(today, -1);
   const startOfYear = new Date(today.getFullYear(), 0, 1);
-  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(startOfYear), toDateStr(today));
+
+  setProgress(92, 'Chargement mois en cours…');
+  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(startOfYear), toDateStr(end));
   const dates = data.daily.time;
   const temps = data.daily.temperature_2m_mean;
 
-  const MONTH_NAMES = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
-  const byMonth = {};
-
+  const MNAMES = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+  const byM = {};
   for (let i = 0; i < dates.length; i++) {
-    const d = new Date(dates[i]); const m = d.getMonth();
-    if (!byMonth[m]) byMonth[m] = { temps: [], norms: [] };
-    if (temps[i] !== null) byMonth[m].temps.push(temps[i]);
-    byMonth[m].norms.push(getDailyNormal(regionKey, getDOY(d)));
+    const m = new Date(dates[i]).getMonth();
+    if (!byM[m]) byM[m] = { t: [], d1: [], d2: [], d3: [] };
+    if (temps[i] !== null) byM[m].t.push(temps[i]);
   }
 
-  const months = Object.keys(byMonth).map(Number).sort((a,b) => a - b);
-  const labels = months.map(m => MONTH_NAMES[m]);
-  const realData = months.map(m => { const t = byMonth[m].temps; return t.length ? parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)) : null; });
-  const normData = months.map(m => parseFloat(getMonthlyNormal(regionKey, m).toFixed(1)));
+  const months = Object.keys(byM).map(Number).sort((a,b) => a-b);
+  const labels = months.map(m => MNAMES[m]);
+  const realData = months.map(m => { const t = byM[m].t; return t.length ? parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)) : null; });
+  const nd1 = months.map(m => { const v = normals.d1.monthly[m]; return v !== null ? parseFloat(v.toFixed(1)) : null; });
+  const nd2 = months.map(m => { const v = normals.d2.monthly[m]; return v !== null ? parseFloat(v.toFixed(1)) : null; });
+  const nd3 = months.map(m => { const v = normals.d3.monthly[m]; return v !== null ? parseFloat(v.toFixed(1)) : null; });
 
   const lastR = [...realData].reverse().find(v => v !== null);
-  const curMonth = MONTH_NAMES[months[months.length - 1]];
-  setMetrics(lastR, normData[months.length - 1], curMonth + ' ' + today.getFullYear(), avg(realData), avg(normData));
-  renderChart(labels, realData, normData, `Températures mensuelles · ${today.getFullYear()}`);
+  const lastM = months[months.length - 1];
+  const lastD3 = nd3[nd3.length - 1];
+  const warming = nd1[nd1.length-1] !== null && lastD3 !== null ? lastD3 - nd1[nd1.length-1] : null;
+  setMetrics(lastR, lastD3, MNAMES[lastM] + ' ' + today.getFullYear(), warming);
+  renderChart(labels, realData, { d1: nd1, d2: nd2, d3: nd3 }, `Températures mensuelles · ${today.getFullYear()}`);
 }
 
-async function loadYear(region, regionKey) {
+async function loadYear(region, regionKey, normals) {
   const today = new Date(); today.setHours(0,0,0,0);
+  const end = addDays(today, -1);
   const startYear = today.getFullYear() - 4;
   const startDate = new Date(startYear, 0, 1);
-  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(startDate), toDateStr(today));
+
+  setProgress(92, 'Chargement années récentes…');
+  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(startDate), toDateStr(end));
   const dates = data.daily.time;
   const temps = data.daily.temperature_2m_mean;
 
-  const byYear = {};
+  const byY = {};
   for (let i = 0; i < dates.length; i++) {
-    const d = new Date(dates[i]); const y = d.getFullYear();
-    if (!byYear[y]) byYear[y] = { temps: [], norms: [] };
-    if (temps[i] !== null) byYear[y].temps.push(temps[i]);
-    byYear[y].norms.push(getDailyNormal(regionKey, getDOY(d)));
+    const y = new Date(dates[i]).getFullYear();
+    if (!byY[y]) byY[y] = { t: [] };
+    if (temps[i] !== null) byY[y].t.push(temps[i]);
   }
 
-  const years = Object.keys(byYear).map(Number).sort((a,b) => a - b);
+  const years = Object.keys(byY).map(Number).sort((a,b) => a-b);
   const labels = years.map(String);
-  const realData = years.map(y => { const t = byYear[y].temps; return t.length ? parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)) : null; });
-  const normData = years.map(y => parseFloat((byYear[y].norms.reduce((a,b)=>a+b)/byYear[y].norms.length).toFixed(1)));
+  const realData = years.map(y => { const t = byY[y].t; return t.length ? parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)) : null; });
+
+  // Normales annuelles = moyenne des 12 mois
+  function annualNorm(dec) {
+    const m = dec.monthly;
+    const v = m.filter(x => x !== null);
+    return v.length ? parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)) : null;
+  }
+  const an1 = annualNorm(normals.d1);
+  const an2 = annualNorm(normals.d2);
+  const an3 = annualNorm(normals.d3);
+  const nd1 = years.map(() => an1);
+  const nd2 = years.map(() => an2);
+  const nd3 = years.map(() => an3);
 
   const lastR = [...realData].reverse().find(v => v !== null);
-  setMetrics(lastR, normData[normData.length - 1], String(today.getFullYear()), avg(realData), avg(normData));
-  renderChart(labels, realData, normData, `Températures annuelles · ${startYear}–${today.getFullYear()}`);
+  const warming = an1 !== null && an3 !== null ? an3 - an1 : null;
+  setMetrics(lastR, an3, String(today.getFullYear()), warming);
+  renderChart(labels, realData, { d1: nd1, d2: nd2, d3: nd3 }, `Températures annuelles · ${startYear}–${today.getFullYear()}`);
 }
 
-// ─── Dispatcher ───────────────────────────────────────────────────────────────
+// ─── Dispatcher principal ─────────────────────────────────────────────────────
 async function loadData() {
   const region = REGIONS[currentRegion];
   setStatus(`Chargement pour ${region.name}…`, false);
+
+  // Normales déjà en mémoire ?
+  let normals = normalsCache[currentRegion] || null;
+
+  if (!normals) {
+    showProgress();
+    setProgress(0, 'Calcul des normales ERA5…', 'Chargement des données historiques 1991–2020 (30 ans)');
+    try {
+      normals = await loadDecadeNormals(region.lat, region.lon, currentRegion, (pct, msg) => {
+        setProgress(pct, msg);
+      });
+      normalsCache[currentRegion] = normals;
+    } catch(e) {
+      setError(e.message);
+      return;
+    }
+  }
+
   try {
-    if      (currentPeriod === 'day')   await loadDay(region, currentRegion);
-    else if (currentPeriod === 'week')  await loadWeek(region, currentRegion);
-    else if (currentPeriod === 'month') await loadMonth(region, currentRegion);
-    else                                await loadYear(region, currentRegion);
-    setStatus(`Open-Meteo ERA5 · Normales Météo-France 1991–2020 · ${region.name}`, true);
+    setProgress(95, 'Chargement données récentes…');
+    if      (currentPeriod === 'day')   await loadDay(region, currentRegion, normals);
+    else if (currentPeriod === 'week')  await loadWeek(region, currentRegion, normals);
+    else if (currentPeriod === 'month') await loadMonth(region, currentRegion, normals);
+    else                                await loadYear(region, currentRegion, normals);
+
+    hideProgress();
+    const fromCache = cacheGet(`normals_${currentRegion}`) !== null;
+    setStatus(`ERA5 · Normales calculées sur données réelles · ${region.name}${fromCache ? ' · cache 24h' : ''}`, true);
   } catch(e) {
     setError(e.message);
   }
