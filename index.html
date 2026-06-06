@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Températures France — ERA5</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -57,7 +59,25 @@
     .status-bar{display:flex;align-items:center;gap:8px;font-size:11px;font-family:var(--mono);color:var(--text-3);padding:5px 0;}
     .status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
     footer{margin-top:2.5rem;padding-top:1.25rem;border-top:1px solid var(--border);font-size:10px;color:var(--text-3);font-family:var(--mono);display:flex;gap:1.5rem;flex-wrap:wrap;}
-    footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px;}
+footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px;}
+    .section-sep{border:none;border-top:1px solid var(--border);margin:2.5rem 0;}
+    .section-title{font-size:19px;font-weight:500;letter-spacing:-.3px;margin-bottom:.25rem;}
+    .section-sub{font-size:11px;color:var(--text-3);font-family:var(--mono);margin-bottom:1.25rem;}
+    .period-note{font-size:11px;color:var(--text-3);font-family:var(--mono);margin-bottom:.75rem;}
+    /* Map */
+    .map-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;position:relative;margin-bottom:1rem;}
+    .map-card-title{font-size:11px;font-weight:500;color:var(--text-2);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+    .map-loading{font-size:10px;color:var(--text-3);}
+    #world-map{width:100%;display:block;cursor:pointer;}
+    .map-tooltip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:11px;font-family:var(--mono);box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:10;display:none;white-space:nowrap;}
+    .map-legend{display:flex;align-items:center;gap:6px;margin-top:6px;}
+    .leg-grad{flex:1;height:4px;border-radius:3px;background:linear-gradient(to right,#2471a3,#e8e4dc,#c0392b);}
+    .leg-txt{font-size:9px;color:var(--text-3);font-family:var(--mono);}
+    .zone-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+    .zone-pill{padding:4px 10px;font-size:11px;font-family:var(--font);border:1px solid var(--border);background:var(--surface2);color:var(--text-2);border-radius:20px;cursor:pointer;transition:all .12s;}
+    .zone-pill:hover,.zone-pill.active{background:var(--text);color:#fff;border-color:var(--text);}
+    /* Error band on chart */
+    .err-band-note{font-size:10px;color:var(--text-3);font-family:var(--mono);margin-top:4px;}
   </style>
 </head>
 <body>
@@ -181,6 +201,140 @@
     <div class="status-dot" id="wo-status-dot" style="background:#f39c12"></div>
     <span id="wo-status-txt">Sélectionnez un continent</span>
   </div>
+  <hr class="section-sep">
+
+  <!-- ═══ PÉRIODE COMPLÈTE 1991–2026 ═══ -->
+  <h2 class="section-title">📈 Période complète 1991–2026</h2>
+  <p class="section-sub">Température annuelle réelle vs normales décennales · France & Monde</p>
+
+  <div class="controls-row" style="margin-bottom:.75rem;">
+    <span class="ctrl-label">Zone</span>
+    <select id="period-zone-sel">
+      <option value="france">🇫🇷 France entière</option>
+      <option value="idf">Île-de-France</option>
+      <option value="aura">Auvergne-Rhône-Alpes</option>
+      <option value="paca">Provence-Alpes-Côte d'Azur</option>
+      <option value="occ">Occitanie</option>
+      <option value="na">Nouvelle-Aquitaine</option>
+      <option value="bre">Bretagne</option>
+      <option value="pdl">Pays de la Loire</option>
+      <option value="nor">Normandie</option>
+      <option value="hdf">Hauts-de-France</option>
+      <option value="ges">Grand Est</option>
+      <option value="bfc">Bourgogne-Franche-Comté</option>
+      <option value="cvl">Centre-Val de Loire</option>
+      <option value="cor">Corse</option>
+      <option value="europe">Europe</option>
+      <option value="africa">Afrique</option>
+      <option value="namerica">Amér. du Nord</option>
+      <option value="samerica">Amér. du Sud</option>
+      <option value="asia">Asie</option>
+      <option value="oceania">Océanie</option>
+      <option value="planet">🌍 Monde (moy. globale)</option>
+    </select>
+    <button class="nav-btn" id="period-load-btn" style="font-size:12px;">Charger 1991–2026</button>
+  </div>
+
+  <div class="metrics" id="period-metrics">
+    <div class="metric r"><div class="metric-label">Moy. période</div><div class="metric-val hot" id="pm-real">—</div><span class="metric-err" id="pm-real-err"></span><div class="metric-delta neu" id="pm-real-sub">—</div></div>
+    <div class="metric d1"><div class="metric-label">1991–2000</div><div class="metric-val" style="color:#27ae60" id="pm-d1">—</div><span class="metric-err" id="pm-d1-err"></span><div class="metric-delta" id="pm-d1-d">—</div></div>
+    <div class="metric d2"><div class="metric-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="pm-d2">—</div><span class="metric-err" id="pm-d2-err"></span><div class="metric-delta" id="pm-d2-d">—</div></div>
+    <div class="metric d3"><div class="metric-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="pm-d3">—</div><span class="metric-err" id="pm-d3-err"></span><div class="metric-delta" id="pm-d3-d">—</div></div>
+    <div class="metric d4"><div class="metric-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="pm-d4">—</div><span class="metric-err" id="pm-d4-err"></span><div class="metric-delta" id="pm-d4-d">—</div></div>
+  </div>
+
+  <div class="chart-card" id="period-chart-card">
+    <div class="chart-header">
+      <div>
+        <span class="chart-title" id="period-chart-title">—</span>
+        <div class="err-band-note">Bandes colorées = marges d'erreur ERA5 par décennie</div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="leg-line" style="background:#c0392b"></div>Réelle</div>
+        <div class="legend-item"><div class="leg-line" style="background:#e67e22"></div>2021–</div>
+        <div class="legend-item"><div class="leg-line" style="background:#8e44ad"></div>2011–20</div>
+        <div class="legend-item"><div class="leg-line" style="background:#2471a3"></div>2001–10</div>
+        <div class="legend-item"><div class="leg-line" style="background:#27ae60"></div>1991–00</div>
+      </div>
+    </div>
+    <div class="chart-wrap" style="height:320px;"><canvas id="period-chart" role="img" aria-label="Températures annuelles 1991-2026"></canvas></div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-dot" id="period-status-dot" style="background:#9b9b96"></div>
+    <span id="period-status-txt">Cliquez sur "Charger 1991–2026" pour afficher la période complète (~10s)</span>
+  </div>
+
+  <hr class="section-sep">
+
+  <!-- ═══ CARTE MONDE ═══ -->
+  <h2 class="section-title">🌍 Carte mondiale</h2>
+  <p class="section-sub">Anomalie thermique par rapport à la décennie de référence · Cliquez sur un pays</p>
+
+  <div class="controls-row" style="margin-bottom:.875rem;">
+    <span class="ctrl-label">Référence</span>
+    <select id="map-ref-sel">
+      <option value="d1">vs 1991–2000</option>
+      <option value="d2">vs 2001–2010</option>
+      <option value="d3">vs 2011–2020</option>
+      <option value="d4">vs depuis 2021</option>
+    </select>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:14px;align-items:start;">
+
+    <div class="map-card">
+      <div class="map-card-title">
+        <span>Anomalie thermique (J−7)</span>
+        <span class="map-loading" id="map-loading"></span>
+      </div>
+      <svg id="world-map"></svg>
+      <div class="map-legend">
+        <span class="leg-txt">−3°C</span>
+        <div class="leg-grad"></div>
+        <span class="leg-txt">+3°C</span>
+      </div>
+      <div class="zone-pills" id="zone-pills">
+        <button class="zone-pill active" data-key="planet">🌍 Monde</button>
+        <button class="zone-pill" data-key="europe">Europe</button>
+        <button class="zone-pill" data-key="africa">Afrique</button>
+        <button class="zone-pill" data-key="namerica">Amér. Nord</button>
+        <button class="zone-pill" data-key="samerica">Amér. Sud</button>
+        <button class="zone-pill" data-key="asia">Asie</button>
+        <button class="zone-pill" data-key="oceania">Océanie</button>
+      </div>
+      <div class="map-tooltip" id="map-tooltip"></div>
+    </div>
+
+    <div>
+      <div class="section-sub" style="margin-bottom:.5rem;">Sélection : <strong id="map-sel-name">Monde</strong></div>
+      <div class="metrics" id="map-metrics" style="grid-template-columns:repeat(3,1fr);">
+        <div class="metric r"><div class="metric-label">Réel</div><div class="metric-val hot" id="mm-real">—</div><span class="metric-err" id="mm-real-err"></span><div class="metric-delta neu" id="mm-real-sub">—</div></div>
+        <div class="metric d1"><div class="metric-label">1991–2000</div><div class="metric-val" style="color:#27ae60" id="mm-d1">—</div><span class="metric-err" id="mm-d1-err"></span><div class="metric-delta" id="mm-d1-d">—</div></div>
+        <div class="metric d2"><div class="metric-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="mm-d2">—</div><span class="metric-err" id="mm-d2-err"></span><div class="metric-delta" id="mm-d2-d">—</div></div>
+        <div class="metric d3"><div class="metric-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="mm-d3">—</div><span class="metric-err" id="mm-d3-err"></span><div class="metric-delta" id="mm-d3-d">—</div></div>
+        <div class="metric d4"><div class="metric-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="mm-d4">—</div><span class="metric-err" id="mm-d4-err"></span><div class="metric-delta" id="mm-d4-d">—</div></div>
+      </div>
+      <div class="chart-card" style="margin-top:10px;">
+        <div class="chart-header">
+          <span class="chart-title" id="map-chart-title">—</span>
+          <div class="legend">
+            <div class="legend-item"><div class="leg-line" style="background:#c0392b"></div>Réelle</div>
+            <div class="legend-item"><div class="leg-line" style="background:#e67e22"></div>2021–</div>
+            <div class="legend-item"><div class="leg-line" style="background:#8e44ad"></div>2011–20</div>
+            <div class="legend-item"><div class="leg-line" style="background:#2471a3"></div>2001–10</div>
+            <div class="legend-item"><div class="leg-line" style="background:#27ae60"></div>1991–00</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:200px;"><canvas id="map-chart" role="img" aria-label="Températures zone sélectionnée"></canvas></div>
+      </div>
+      <div class="status-bar">
+        <div class="status-dot" id="map-status-dot" style="background:#9b9b96"></div>
+        <span id="map-status-txt">Cliquez sur la carte ou un continent</span>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <span>Données : <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> · Réanalyse ERA5 (ECMWF)</span>
     <span>Normales précalculées ERA5 · Données récentes : 3 derniers mois</span>
@@ -704,6 +858,337 @@ document.querySelectorAll('#wo-tabs .tab').forEach(t=>{
 document.getElementById('wo-region-sel').onchange=e=>{woRegion=e.target.value;loadWo();};
 buildWoNav();
 loadWo();
+
+
+// ── Grille planète (moyenne pondérée ERA5) ───────────────────────────────────
+const PLANET_GRID=[
+  {lat:80,lon:0,w:0.03},{lat:70,lon:-40,w:0.04},{lat:65,lon:100,w:0.04},
+  {lat:50,lon:-100,w:0.07},{lat:50,lon:10,w:0.06},{lat:45,lon:90,w:0.07},
+  {lat:25,lon:-80,w:0.07},{lat:20,lon:30,w:0.07},{lat:10,lon:105,w:0.07},
+  {lat:0,lon:-50,w:0.07},{lat:0,lon:160,w:0.06},
+  {lat:-20,lon:25,w:0.08},{lat:-30,lon:-60,w:0.07},
+  {lat:-55,lon:0,w:0.06},{lat:-80,lon:0,w:0.04},
+];
+
+// Pays → numeric ID GeoJSON
+const ID_MAP={
+  250:'france',276:'germany',826:'uk',724:'spain',380:'italy',
+  620:'portugal',528:'netherlands',56:'belgium',756:'switzerland',
+  40:'austria',616:'poland',752:'sweden',578:'norway',643:'russia',
+  792:'turkey',840:'usa',124:'canada',484:'mexico',76:'brazil',
+  32:'argentina',156:'china',356:'india',392:'japan',36:'australia',
+  710:'southafrica',566:'nigeria',818:'egypt',504:'morocco',12:'algeria',
+};
+
+// Coordonnées pays supplémentaires (non dans LOCS)
+const COUNTRY_LOCS={
+  germany:{name:'Allemagne',lat:51.5,lon:10.5},
+  uk:{name:'Royaume-Uni',lat:54,lon:-2},
+  spain:{name:'Espagne',lat:40.4,lon:-3.7},
+  italy:{name:'Italie',lat:42.5,lon:12.5},
+  portugal:{name:'Portugal',lat:39.5,lon:-8},
+  netherlands:{name:'Pays-Bas',lat:52.3,lon:5.3},
+  belgium:{name:'Belgique',lat:50.8,lon:4.4},
+  switzerland:{name:'Suisse',lat:46.8,lon:8.2},
+  austria:{name:'Autriche',lat:47.8,lon:13},
+  poland:{name:'Pologne',lat:52,lon:20},
+  sweden:{name:'Suède',lat:63,lon:16},
+  norway:{name:'Norvège',lat:65,lon:14},
+  russia:{name:'Russie',lat:60,lon:60},
+  turkey:{name:'Turquie',lat:39,lon:35},
+  usa:{name:'États-Unis',lat:39.5,lon:-98},
+  canada:{name:'Canada',lat:56,lon:-96},
+  mexico:{name:'Mexique',lat:23,lon:-102},
+  brazil:{name:'Brésil',lat:-10,lon:-53},
+  argentina:{name:'Argentine',lat:-34,lon:-64},
+  china:{name:'Chine',lat:35,lon:105},
+  india:{name:'Inde',lat:20,lon:77},
+  japan:{name:'Japon',lat:36,lon:138},
+  australia:{name:'Australie',lat:-25,lon:133},
+  southafrica:{name:'Afrique du Sud',lat:-29,lon:25},
+  nigeria:{name:'Nigeria',lat:9,lon:8},
+  egypt:{name:'Égypte',lat:26,lon:30},
+  morocco:{name:'Maroc',lat:32,lon:-5},
+  algeria:{name:'Algérie',lat:28,lon:2},
+};
+
+function getLoc(key){
+  return LOCS[key]||COUNTRY_LOCS[key]||null;
+}
+
+function anomColor(d){
+  if(d===null||d===undefined)return'#ddd';
+  const t=Math.max(-1,Math.min(1,d/3));
+  if(t<0){const r=Math.round(36-t*(-148)),g=Math.round(113+t*77),b=Math.round(163+t*127);return`rgb(${r},${g},${b})`;}
+  return`rgb(${Math.round(184+t*8)},${Math.round(36+t*21)},${Math.round(36+t*7)})`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PÉRIODE COMPLÈTE 1991–2026
+// ══════════════════════════════════════════════════════════════════════════════
+let periodChart=null, periodLoading=false;
+
+async function fetchPlanetYear(year){
+  // Moyenne pondérée sur la grille planète pour une année
+  const start=`${year}-01-01`;
+  const end=year===today.getFullYear()?toDS(era5End):`${year}-12-31`;
+  const results=[];
+  for(const pt of PLANET_GRID){
+    const d=await fetchData(pt.lat,pt.lon,start,end);
+    results.push(d);
+    await new Promise(r=>setTimeout(r,80));
+  }
+  const allTemps=results.map(r=>r.daily.temperature_2m_mean);
+  const nDays=allTemps[0].length;
+  let sum=0,cnt=0;
+  for(let i=0;i<nDays;i++){
+    let ws=0,wt=0;
+    results.forEach((r,gi)=>{const v=allTemps[gi][i];if(v!==null){ws+=v*PLANET_GRID[gi].w;wt+=PLANET_GRID[gi].w;}});
+    if(wt>0){sum+=ws/wt;cnt++;}
+  }
+  return cnt>0?Math.round(sum/cnt*10)/10:null;
+}
+
+async function loadPeriod(){
+  if(periodLoading)return;
+  periodLoading=true;
+  const zoneKey=document.getElementById('period-zone-sel').value;
+  const loc=getLoc(zoneKey);
+  if(!loc){periodLoading=false;return;}
+  const normals=getNormals(zoneKey)||getNormals('france');
+
+  document.getElementById('period-status-dot').style.background='#f39c12';
+  document.getElementById('period-status-txt').textContent=`Chargement 1991–${today.getFullYear()} pour ${loc.name}… (~30s)`;
+  document.getElementById('period-chart-card').style.opacity='.4';
+
+  try{
+    const years=[];
+    const realData=[];
+    const isPlanet=zoneKey==='planet';
+    const startYear=1991;
+    const endYear=today.getFullYear();
+
+    for(let y=startYear;y<=endYear;y++){
+      years.push(y);
+      document.getElementById('period-status-txt').textContent=`Chargement ${y}/${endYear}…`;
+      const start=`${y}-01-01`;
+      const end=y===endYear?toDS(era5End):`${y}-12-31`;
+      let annualAvg=null;
+      if(isPlanet){
+        annualAvg=await fetchPlanetYear(y);
+      } else {
+        const d=await fetchData(loc.lat,loc.lon,start,end);
+        const temps=d.daily.temperature_2m_mean.filter(v=>v!==null);
+        annualAvg=temps.length?Math.round(temps.reduce((a,b)=>a+b,0)/temps.length*10)/10:null;
+      }
+      realData.push(annualAvg);
+      await new Promise(r=>setTimeout(r,200));
+    }
+
+    // Normales annuelles (moyenne des 12 mois)
+    function annNorm(dk){
+      if(!normals||!normals[dk])return null;
+      const v=normals[dk].monthly.filter(x=>x!==null);
+      return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*10)/10:null;
+    }
+    const nd={d1:years.map(()=>annNorm('d1')),d2:years.map(()=>annNorm('d2')),d3:years.map(()=>annNorm('d3')),d4:years.map(()=>annNorm('d4'))};
+
+    // Métriques
+    const validReal=realData.filter(v=>v!==null);
+    const periodAvg=validReal.length?Math.round(validReal.reduce((a,b)=>a+b,0)/validReal.length*10)/10:null;
+    document.getElementById('pm-real').textContent=periodAvg!==null?periodAvg.toFixed(1)+'°C':'—';
+    document.getElementById('pm-real-err').textContent=periodAvg!==null?'±0.2°C':'';
+    document.getElementById('pm-real-sub').textContent='moy. 1991–'+endYear;
+    ['d1','d2','d3','d4'].forEach(k=>{
+      const n=annNorm(k);
+      document.getElementById(`pm-${k}`).textContent=n!==null?n.toFixed(1)+'°C':'—';
+      document.getElementById(`pm-${k}-err`).textContent=n!==null?`±${UNC[k]}°C`:'';
+      const el=document.getElementById(`pm-${k}-d`);
+      if(periodAvg!==null&&n!==null){const d=periodAvg-n;el.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs moy.';el.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');}
+      else{el.textContent='—';el.className='metric-delta neu';}
+    });
+
+    // Graphe avec barres d'erreur visuelles (points colorés)
+    if(periodChart){periodChart.destroy();periodChart=null;}
+    document.getElementById('period-chart-title').textContent=`${loc.name} · Températures annuelles 1991–${endYear}`;
+    // Créer zones d'erreur comme datasets area
+    const decadeColors={d1:'#27ae60',d2:'#2471a3',d3:'#8e44ad',d4:'#e67e22'};
+    const decadeUnc={d1:0.35,d2:0.25,d3:0.15,d4:0.10};
+    const datasets=[
+      {label:'Réelle',data:realData,borderColor:'#c0392b',backgroundColor:'rgba(192,57,43,.15)',borderWidth:2,pointRadius:3,pointHoverRadius:5,pointBackgroundColor:'#c0392b',tension:0.3,fill:false,order:1},
+      {label:'2021–',data:nd.d4,borderColor:'#e67e22',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0,fill:false,order:2},
+      {label:'2011–2020',data:nd.d3,borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0,fill:false,order:3},
+      {label:'2001–2010',data:nd.d2,borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0,fill:false,order:4},
+      {label:'1991–2000',data:nd.d1,borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0,fill:false,order:5},
+    ];
+    // Ajouter zones d'erreur autour de chaque courbe de normale
+    ['d1','d2','d3','d4'].forEach((k,i)=>{
+      const u=decadeUnc[k];const c=decadeColors[k];
+      datasets.push({label:`${k}_hi`,data:nd[k].map(v=>v!==null?v+u:null),borderColor:'transparent',backgroundColor:c+'18',fill:'+1',pointRadius:0,tension:0,order:10+i});
+      datasets.push({label:`${k}_lo`,data:nd[k].map(v=>v!==null?v-u:null),borderColor:'transparent',backgroundColor:c+'18',fill:false,pointRadius:0,tension:0,order:10+i});
+    });
+
+    periodChart=new Chart(document.getElementById('period-chart'),{type:'line',data:{labels:years.map(String),datasets},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+        plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:8,
+          filter:item=>!item.dataset.label.endsWith('_hi')&&!item.dataset.label.endsWith('_lo'),
+          callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null)return null;const lbl=ctx.dataset.label;if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)}°C`;const dk={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1'}[lbl];if(!dk)return null;const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];if(rv!=null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${decadeUnc[dk]}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}return`  ${lbl} : ${v.toFixed(1)} ±${decadeUnc[dk]}°C`;}}}},
+        scales:{x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:18}},
+          y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}}}});
+
+    document.getElementById('period-chart-card').style.opacity='1';
+    document.getElementById('period-status-dot').style.background='#27ae60';
+    document.getElementById('period-status-txt').textContent=`ERA5 · ${loc.name} · 1991–${endYear}`;
+  }catch(e){
+    document.getElementById('period-status-dot').style.background='#c0392b';
+    document.getElementById('period-status-txt').textContent='Erreur : '+e.message;
+    document.getElementById('period-chart-card').style.opacity='1';
+  }
+  periodLoading=false;
+}
+
+document.getElementById('period-load-btn').onclick=loadPeriod;
+document.getElementById('period-zone-sel').onchange=()=>{
+  // Reset chart si on change de zone
+  if(periodChart){periodChart.destroy();periodChart=null;}
+  document.getElementById('period-chart-title').textContent='—';
+  document.getElementById('period-status-dot').style.background='#9b9b96';
+  document.getElementById('period-status-txt').textContent='Cliquez sur "Charger 1991–'+today.getFullYear()+'" pour afficher la période complète';
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CARTE MONDE
+// ══════════════════════════════════════════════════════════════════════════════
+let svgMap=null, pathFn=null, mapChart=null, mapRef='d1';
+const mapAnomalies={};
+const PRELOAD_MAP=['planet','europe','africa','namerica','samerica','asia','oceania'];
+
+async function initMap(){
+  const cont=document.getElementById('world-map').parentElement;
+  const W=Math.min(cont.clientWidth-32,520);const H=Math.round(W*0.54);
+  const svg=d3.select('#world-map').attr('viewBox',`0 0 ${W} ${H}`).attr('width','100%');
+  svgMap=svg;
+  const proj=d3.geoNaturalEarth1().scale(W/6.3).translate([W/2,H/2]);
+  pathFn=d3.geoPath(proj);
+  const world=await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+  const features=topojson.feature(world,world.objects.countries).features;
+  svg.selectAll('path.land').data(features).join('path').attr('class','land')
+    .attr('d',pathFn).attr('fill','#ddd').attr('stroke','#fff').attr('stroke-width',.4)
+    .style('cursor','pointer')
+    .on('mouseover',function(ev,d){
+      const ck=ID_MAP[+d.id];const loc=ck?getLoc(ck):null;if(!loc)return;
+      d3.select(this).attr('fill',d3.color(d3.select(this).attr('fill')).darker(.2));
+      const tt=document.getElementById('map-tooltip');
+      const anom=mapAnomalies[ck];
+      tt.innerHTML=`<strong>${loc.name}</strong><br>Anomalie : ${anom!=null?(anom>=0?'+':'')+anom.toFixed(1)+'°C':'non chargé'}`;
+      tt.style.display='block';tt.style.left=(ev.offsetX+14)+'px';tt.style.top=(ev.offsetY+10)+'px';
+    })
+    .on('mousemove',ev=>{const tt=document.getElementById('map-tooltip');tt.style.left=(ev.offsetX+14)+'px';tt.style.top=(ev.offsetY+10)+'px';})
+    .on('mouseout',function(ev,d){
+      const ck=ID_MAP[+d.id];
+      d3.select(this).attr('fill',ck&&mapAnomalies[ck]!==undefined?anomColor(mapAnomalies[ck]):'#ddd');
+      document.getElementById('map-tooltip').style.display='none';
+    })
+    .on('click',(_,d)=>{const ck=ID_MAP[+d.id];if(ck)selectMapZone(ck);});
+  svg.append('path').datum(topojson.mesh(world,world.objects.countries))
+    .attr('fill','none').attr('stroke','#fff').attr('stroke-width',.5).attr('d',pathFn);
+  // Précharger les continents + planète
+  preloadMapZones();
+}
+
+async function preloadMapZones(){
+  const lbl=document.getElementById('map-loading');
+  let n=0;
+  for(const key of PRELOAD_MAP){
+    try{
+      const loc=getLoc(key);if(!loc)continue;
+      const end=clamp(new Date(era5End));const start=addDays(end,-6);
+      const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
+      const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
+      const real=temps.length?avg(temps):null;
+      const normals=getNormals(key)||getNormals('france');
+      const normVal=normals['d1'].daily[getDOY(end)];
+      if(real!==null&&normVal!==null){mapAnomalies[key]=Math.round((real-normVal)*10)/10;}
+      n++;if(lbl)lbl.textContent=`${n}/${PRELOAD_MAP.length} zones`;
+      await new Promise(r=>setTimeout(r,300));
+    }catch(e){}
+  }
+  if(lbl)lbl.textContent='';
+}
+
+function paintMap(key,delta){
+  if(!svgMap)return;
+  const numId=Object.entries(ID_MAP).find(([,v])=>v===key)?.[0];
+  if(numId)svgMap.selectAll('path.land').filter(d=>+d.id===+numId).attr('fill',anomColor(delta));
+}
+function highlightMap(key){
+  if(!svgMap)return;
+  svgMap.selectAll('path.land').attr('stroke','#fff').attr('stroke-width',.4);
+  const numId=Object.entries(ID_MAP).find(([,v])=>v===key)?.[0];
+  if(numId)svgMap.selectAll('path.land').filter(d=>+d.id===+numId).attr('stroke','#c0392b').attr('stroke-width',1.8);
+}
+
+function setMapCards(real,normals,label){
+  document.getElementById('mm-real').textContent=real!==null?real.toFixed(1)+'°C':'—';
+  document.getElementById('mm-real-err').textContent=real!==null?`±${UNC.real}°C`:'';
+  document.getElementById('mm-real-sub').textContent=label||'';
+  ['d1','d2','d3','d4'].forEach(k=>{
+    const n=normals[k];
+    document.getElementById(`mm-${k}`).textContent=n!==null?n.toFixed(1)+'°C':'—';
+    document.getElementById(`mm-${k}-err`).textContent=n!==null?`±${UNC[k]}°C`:'';
+    const el=document.getElementById(`mm-${k}-d`);
+    if(real!==null&&n!==null){const d=real-n;el.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';el.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');}
+    else{el.textContent='—';el.className='metric-delta neu';}
+  });
+}
+
+async function selectMapZone(key){
+  const loc=getLoc(key);if(!loc)return;
+  document.querySelectorAll('.zone-pill').forEach(p=>p.classList.toggle('active',p.dataset.key===key));
+  highlightMap(key==='france'||LOCS[key]?key:key);
+  document.getElementById('map-sel-name').textContent=loc.name;
+  document.getElementById('map-status-dot').style.background='#f39c12';
+  document.getElementById('map-status-txt').textContent=`Chargement ${loc.name}…`;
+  try{
+    const normals=getNormals(key)||getNormals('france');
+    const end=clamp(new Date(era5End));const start=addDays(end,-29);
+    const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
+    const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
+    const nd=normForDates(dates,normals);
+    const li=[...temps].map((v,i)=>v!==null?i:-1).filter(i=>i>=0).pop()??temps.length-1;
+    const real=temps[li];
+    const nv={};['d1','d2','d3','d4'].forEach(k=>{nv[k]=nd[k][li];});
+    setMapCards(real,nv,fmtShort(new Date(dates[li]+'T00:00:00')));
+    // Anomalie pour colorer la carte
+    if(real!==null&&nv[mapRef]!==null){
+      mapAnomalies[key]=Math.round((real-nv[mapRef])*10)/10;
+      paintMap(key,mapAnomalies[key]);
+    }
+    // Graphe 30j
+    if(mapChart){mapChart.destroy();mapChart=null;}
+    document.getElementById('map-chart-title').textContent=`${loc.name} · 30 derniers jours`;
+    mapChart=new Chart(document.getElementById('map-chart'),{type:'line',data:{labels:dates.map(d=>fmtShort(new Date(d))),datasets:[
+      {label:'Réelle',data:temps,borderColor:'#c0392b',borderWidth:2,pointRadius:2,pointHoverRadius:4,pointBackgroundColor:'#c0392b',tension:0.35,fill:false},
+      {label:'2021–',data:nd.d4,borderColor:'#e67e22',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false},
+      {label:'2011–2020',data:nd.d3,borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false},
+      {label:'2001–2010',data:nd.d2,borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false},
+      {label:'1991–2000',data:nd.d1,borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false},
+    ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:6,
+        callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null)return null;return`  ${ctx.dataset.label} : ${v.toFixed(1)}°C`;}}}},
+      scales:{x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:9,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:10}},
+        y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:9,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}}}});
+    document.getElementById('map-status-dot').style.background='#27ae60';
+    document.getElementById('map-status-txt').textContent=`ERA5 · ${loc.name}`;
+  }catch(e){
+    document.getElementById('map-status-dot').style.background='#c0392b';
+    document.getElementById('map-status-txt').textContent='Erreur : '+e.message;
+  }
+}
+
+document.querySelectorAll('.zone-pill').forEach(p=>{p.onclick=()=>selectMapZone(p.dataset.key);});
+document.getElementById('map-ref-sel').onchange=e=>{mapRef=e.target.value;};
+initMap().then(()=>selectMapZone('planet'));
 
 </script>
 </body>
