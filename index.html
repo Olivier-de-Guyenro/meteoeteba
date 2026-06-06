@@ -390,7 +390,7 @@ const today=new Date(); today.setHours(0,0,0,0);
 const era5End=addDays(today,-7); // ERA5 lag garanti à J-7
 
 // Vider le cache si la version a changé
-const CACHE_VERSION='v7';
+const CACHE_VERSION='v8';
 if(localStorage.getItem('e5_version')!==CACHE_VERSION){
   Object.keys(localStorage).filter(k=>k.startsWith('e5_')).forEach(k=>localStorage.removeItem(k));
   localStorage.setItem('e5_version',CACHE_VERSION);
@@ -734,43 +734,52 @@ function setError(pfx,msg){document.getElementById(`${pfx}-status-dot`).style.ba
 // ══════════════════════════════════════════════════════════════════════════════
 // FRANCE DISPATCHER
 // ══════════════════════════════════════════════════════════════════════════════
+let frLoadId=0;
 async function loadFrance(){
-  const loc=LOCS[frKey];setStatus('fr',`Chargement ${loc.name}…`,false);
-  let normals=normalsCache[frKey];
+  const myId=++frLoadId;
+  const key=frKey, period=frPeriod;
+  const loc=LOCS[key];setStatus('fr',`Chargement ${loc.name}…`,false);
+  let normals=normalsCache[key];
   if(!normals){showProgress('fr');setProgress('fr',0,`Normales ERA5 · ${loc.name}`,'Calcul 4 décennies…');
-    try{normals=await getNormals(frKey,'fr');}catch(e){setError('fr',e.message);return;}}
+    try{normals=await getNormals(key,'fr');}catch(e){setError('fr',e.message);return;}}
+  if(myId!==frLoadId)return; // annulé par un appel plus récent
   try{
     setProgress('fr',92,'Données récentes…','');
-    if     (frPeriod==='day')  await loadDay('fr',frKey,frPeriod,frNav,normals,frChartRef);
-    else if(frPeriod==='week') await loadWeek('fr',frKey,frNav,normals,frChartRef);
-    else if(frPeriod==='month')await loadMonth('fr',frKey,frNav,normals,frChartRef);
-    else                       await loadYear('fr',frKey,frNav,normals,frChartRef);
+    if     (period==='day')  await loadDay('fr',key,period,frNav,normals,frChartRef);
+    else if(period==='week') await loadWeek('fr',key,frNav,normals,frChartRef);
+    else if(period==='month')await loadMonth('fr',key,frNav,normals,frChartRef);
+    else                     await loadYear('fr',key,frNav,normals,frChartRef);
+    if(myId!==frLoadId)return;
     hideProgress('fr');setStatus('fr',`ERA5 · ${loc.name} · cache 24h`,true);
-  }catch(e){setError('fr',e.message);}
+  }catch(e){if(myId===frLoadId)setError('fr',e.message);}
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 // MONDE DISPATCHER
 // ══════════════════════════════════════════════════════════════════════════════
+let woLoadId=0;
 async function loadWorld(){
-  const loc=woKey==='planet'?{name:'Planète'}:LOCS[woKey];if(!loc)return;
+  const myId=++woLoadId;
+  const key=woKey, period=woPeriod;
+  const loc=key==='planet'?{name:'Planète'}:LOCS[key];if(!loc)return;
   document.getElementById('wo-sel-name').textContent=loc.name;
   setStatus('wo',`Chargement ${loc.name}…`,false);
-  let normals=normalsCache[woKey];
+  let normals=normalsCache[key];
   if(!normals){showProgress('wo');setProgress('wo',0,`Normales ERA5 · ${loc.name}`,'Calcul 4 décennies…');
-    try{normals=await getNormals(woKey,'wo');}catch(e){setError('wo',e.message);return;}}
+    try{normals=await getNormals(key,'wo');}catch(e){setError('wo',e.message);return;}}
+  if(myId!==woLoadId)return;
   try{
     setProgress('wo',92,'Données récentes…','');
     let real;
-    if     (woPeriod==='day')  real=await loadDay('wo',woKey,woPeriod,woNav,normals,woChartRef);
-    else if(woPeriod==='week') real=await loadWeek('wo',woKey,woNav,normals,woChartRef);
-    else if(woPeriod==='month')real=await loadMonth('wo',woKey,woNav,normals,woChartRef);
-    else                       real=await loadYear('wo',woKey,woNav,normals,woChartRef);
+    if     (period==='day')  real=await loadDay('wo',key,period,woNav,normals,woChartRef);
+    else if(period==='week') real=await loadWeek('wo',key,woNav,normals,woChartRef);
+    else if(period==='month')real=await loadMonth('wo',key,woNav,normals,woChartRef);
+    else                     real=await loadYear('wo',key,woNav,normals,woChartRef);
+    if(myId!==woLoadId)return;
     hideProgress('wo');setStatus('wo',`ERA5 · ${loc.name} · cache 24h`,true);
-    // Mettre à jour anomalie et couleur carte
-    const nd=normalsCache[woKey];
-    if(nd&&real!==null){const normVal=nd['d1'].daily[getDOY(clamp(new Date(woNav.day)))];if(normVal!==null){anomalyCache[woKey]=real-normVal;paintMap(woKey,anomalyCache[woKey]);}}
-  }catch(e){setError('wo',e.message);}
+    const nd=normalsCache[key];
+    if(nd&&real!==null){const normVal=nd['d1'].daily[getDOY(clamp(new Date(woNav.day)))];if(normVal!==null){anomalyCache[key]=real-normVal;paintMap(key,anomalyCache[key]);}}
+  }catch(e){if(myId===woLoadId)setError('wo',e.message);}
 }
 
 function selectWorldKey(key){
@@ -810,7 +819,7 @@ document.querySelectorAll('#fr-tabs .tab').forEach(t=>{
     document.querySelectorAll('#fr-tabs .tab').forEach(x=>x.classList.remove('active'));
     t.classList.add('active');
     frPeriod=t.dataset.period;
-    buildNav('fr',frPeriod,frNav,()=>{ frPeriod=t.dataset.period; loadFrance(); });
+    buildNav('fr',frPeriod,frNav,loadFrance);
     loadFrance();
   };
 });
@@ -822,7 +831,7 @@ document.querySelectorAll('#wo-tabs .tab').forEach(t=>{
     document.querySelectorAll('#wo-tabs .tab').forEach(x=>x.classList.remove('active'));
     t.classList.add('active');
     woPeriod=t.dataset.period;
-    buildNav('wo',woPeriod,woNav,()=>{ woPeriod=t.dataset.period; loadWorld(); });
+    buildNav('wo',woPeriod,woNav,loadWorld);
     loadWorld();
   };
 });
