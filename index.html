@@ -201,22 +201,6 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
     <div class="metric d5"><div class="metric-label">1991–2026</div><div class="metric-val" style="color:#7f8c8d" id="wo-m-d5">—</div><span class="metric-err" id="wo-m-d5-err"></span><div class="metric-delta" id="wo-m-d5-d">—</div></div>
   </div>
 
-  <!-- Graphe -->
-  <div class="chart-card" id="wo-chart-card">
-    <div class="chart-header">
-      <span class="chart-title" id="wo-chart-title">—</span>
-      <div class="legend">
-        <div class="legend-item"><div class="leg-line" style="background:#c0392b"></div>Réelle</div>
-        <div class="legend-item"><div class="leg-line" style="background:#e67e22"></div>2021–</div>
-        <div class="legend-item"><div class="leg-line" style="background:#8e44ad"></div>2011–20</div>
-        <div class="legend-item"><div class="leg-line" style="background:#2471a3"></div>2001–10</div>
-        <div class="legend-item"><div class="leg-line" style="background:#27ae60"></div>1991–00</div>
-        <div class="legend-item"><div class="leg-line" style="background:#7f8c8d"></div>1991–26</div>
-      </div>
-    </div>
-    <div class="chart-wrap"><canvas id="wo-chart" role="img" aria-label="Températures monde vs normales ERA5"></canvas></div>
-  </div>
-
   <!-- Planisphère -->
   <div class="map-card" style="margin-top:1.25rem;">
     <div class="map-card-title">
@@ -839,7 +823,6 @@ async function loadWo(){
       const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
       nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
       setWoCards(real,nv,`${woNav.year} · moy. annuelle`,'année');
-      renderWoChart(months.map(mo=>MSHORT[mo]),realData,ndY,`${loc.name} · ${woNav.year}`);
       nd=ndY;
     }
 
@@ -867,29 +850,21 @@ async function loadWo(){
 function paintZone(key,delta){
   if(!svgMap)return;
   const color=anomColor(delta);
-  // Continent → colorer les pays couverts par ce continent (approximation via zone géographique)
-  const CONTINENT_COUNTRIES={
-    europe:['276','826','724','380','620','528','56','756','40','616','752','578','643','792'],
-    namerica:['840','124','484'],
-    samerica:['76','32'],
-    africa:['566','818','504','710','12'],
-    asia:['156','356','392'],
-    oceania:['36'],
-  };
+  // Reset tous les pays en gris
+  svgMap.selectAll('path.land').attr('fill','#ddd');
   if(key==='planet'){
-    // Colorer tous les continents
+    // Colorer chaque continent avec son anomalie en cache
     CONTINENTS.forEach(c=>{
-      const delta_c=anomCache[c]??null;
-      const col=anomColor(delta_c);
+      const dc=anomCache[c]??null;
+      if(dc===null)return;
       const ids=CONTINENT_COUNTRIES[c]||[];
-      svgMap.selectAll('path.land').filter(d=>ids.includes(String(d.id))).attr('fill',col);
+      svgMap.selectAll('path.land').filter(d=>ids.includes(String(d.id))).attr('fill',anomColor(dc));
     });
     return;
   }
   if(CONTINENT_COUNTRIES[key]){
-    // Continent : colorer ses pays
-    const ids=CONTINENT_COUNTRIES[key];
-    svgMap.selectAll('path.land').filter(d=>ids.includes(String(d.id))).attr('fill',color);
+    // Colorer tous les pays de ce continent
+    svgMap.selectAll('path.land').filter(d=>CONTINENT_COUNTRIES[key].includes(String(d.id))).attr('fill',color);
     return;
   }
   // Pays individuel
@@ -905,16 +880,12 @@ function resetMap(){
 function highlightSelected(key){
   if(!svgMap)return;
   svgMap.selectAll('path.land').attr('stroke','#fff').attr('stroke-width',.4);
-  const CONTINENT_COUNTRIES={
-    europe:['276','826','724','380','620','528','56','756','40','616','752','578','643','792'],
-    namerica:['840','124','484'],samerica:['76','32'],
-    africa:['566','818','504','710','12'],asia:['156','356','392'],oceania:['36'],
-  };
+  const CC2=CONTINENT_COUNTRIES;
   if(key==='planet'){
     svgMap.selectAll('path.land').attr('stroke','rgba(192,57,43,.4)').attr('stroke-width',.8);
     return;
   }
-  const ids=CONTINENT_COUNTRIES[key]||[];
+  const ids=CC2[key]||[];
   if(ids.length){
     svgMap.selectAll('path.land').filter(d=>ids.includes(String(d.id))).attr('stroke','#c0392b').attr('stroke-width',1.5);
     return;
