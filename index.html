@@ -389,7 +389,7 @@ const today=new Date(); today.setHours(0,0,0,0);
 const era5End=addDays(today,-7); // ERA5 lag garanti à J-7
 
 // Vider le cache si la version a changé
-const CACHE_VERSION='v5';
+const CACHE_VERSION='v6';
 if(localStorage.getItem('e5_version')!==CACHE_VERSION){
   Object.keys(localStorage).filter(k=>k.startsWith('e5_')).forEach(k=>localStorage.removeItem(k));
   localStorage.setItem('e5_version',CACHE_VERSION);
@@ -622,33 +622,7 @@ function renderChart(canvasId,chartRef,labels,realData,nd,title,titleId,locKey){
   if(chartRef.instance){chartRef.instance.destroy();chartRef.instance=null;}
   const ptR=realData.length>60?0:3;
   const unc=getUncertainty(locKey||'');
-
-  // Génère les bandes ±erreur pour chaque décennie
-  function bandDataset(data, u, color, label){
-    return [
-      { label:`${label} +err`, data:data.map(v=>v!==null?parseFloat((v+u).toFixed(2)):null),
-        borderColor:'transparent', backgroundColor:color+'22', fill:'+1',
-        pointRadius:0, tension:0.35, order:10 },
-      { label:`${label} -err`, data:data.map(v=>v!==null?parseFloat((v-u).toFixed(2)):null),
-        borderColor:'transparent', backgroundColor:color+'22', fill:false,
-        pointRadius:0, tension:0.35, order:11 },
-    ];
-  }
-
   chartRef.instance=new Chart(canvas,{type:'line',data:{labels,datasets:[
-    // Bandes d'incertitude (derrière)
-    ...bandDataset(nd.d1, unc.d1, '#27ae60', '1991–2000'),
-    ...bandDataset(nd.d2, unc.d2, '#2471a3', '2001–2010'),
-    ...bandDataset(nd.d3, unc.d3, '#8e44ad', '2011–2020'),
-    ...bandDataset(nd.d4, unc.d4, '#e67e22', '2021–'),
-    // Courbe réelle avec sa bande
-    { label:'Réelle +err', data:realData.map(v=>v!==null?parseFloat((v+unc.real).toFixed(2)):null),
-      borderColor:'transparent', backgroundColor:'#c0392b18', fill:'+1',
-      pointRadius:0, tension:0.35, order:8 },
-    { label:'Réelle -err', data:realData.map(v=>v!==null?parseFloat((v-unc.real).toFixed(2)):null),
-      borderColor:'transparent', backgroundColor:'#c0392b18', fill:false,
-      pointRadius:0, tension:0.35, order:9 },
-    // Courbes principales (devant)
     {label:'Réelle',    data:realData, borderColor:'#c0392b', borderWidth:2.5, pointRadius:ptR, pointHoverRadius:5, pointBackgroundColor:'#c0392b', tension:0.35, fill:false, order:1},
     {label:'2021–',     data:nd.d4,   borderColor:'#e67e22', borderWidth:1.5, borderDash:[6,4], pointRadius:0, tension:0.35, fill:false, order:2},
     {label:'2011–2020', data:nd.d3,   borderColor:'#8e44ad', borderWidth:1.5, borderDash:[6,4], pointRadius:0, tension:0.35, fill:false, order:3},
@@ -656,16 +630,15 @@ function renderChart(canvasId,chartRef,labels,realData,nd,title,titleId,locKey){
     {label:'1991–2000', data:nd.d1,   borderColor:'#27ae60', borderWidth:1.5, borderDash:[6,4], pointRadius:0, tension:0.35, fill:false, order:5},
   ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
     plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:8,
-      filter: item => !item.dataset.label.includes('+err') && !item.dataset.label.includes('-err'),
       callbacks:{label:ctx=>{
         const v=ctx.parsed.y;if(v===null)return null;
         const lbl=ctx.dataset.label;
-        if(lbl==='Réelle'){const u=unc.real;return`  Réelle : ${v.toFixed(1)} ±${u}°C`;}
+        if(lbl==='Réelle'){return`  Réelle : ${v.toFixed(1)} ±${unc.real}°C`;}
         const decKey={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1'}[lbl];
         if(!decKey)return null;
         const u=unc[decKey];
         const rv=ctx.chart.data.datasets.find(d=>d.label==='Réelle')?.data[ctx.dataIndex];
-        if(rv!==null&&rv!==undefined){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${u}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}
+        if(rv!=null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${u}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}
         return`  ${lbl} : ${v.toFixed(1)} ±${u}°C`;
       }}}},
     scales:{
