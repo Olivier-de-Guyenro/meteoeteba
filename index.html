@@ -449,7 +449,7 @@ const today=new Date(); today.setHours(0,0,0,0);
 const era5End=addDays(today,-7); // ERA5 lag garanti à J-7
 
 // Vider le cache si la version a changé
-const CACHE_VERSION='v13';
+const CACHE_VERSION='v14';
 if(localStorage.getItem('e5_version')!==CACHE_VERSION){
   Object.keys(localStorage).filter(k=>k.startsWith('e5_')).forEach(k=>localStorage.removeItem(k));
   localStorage.setItem('e5_version',CACHE_VERSION);
@@ -511,8 +511,8 @@ async function fetchOpenMeteo(lat, lon, startStr, endStr){
   const end   = new Date(endStr   + 'T00:00:00');
   // Nombre de jours depuis start jusqu'à aujourd'hui
   const pastDays = Math.ceil((today - start) / 86400000) + 1;
-  if(pastDays > 366){
-    throw new Error(`Données non disponibles : ${startStr} est trop ancien (max 1 an)`);
+  if(pastDays > 400){
+    throw new Error(`Données non disponibles : ${startStr} est trop ancien (max ~13 mois). Données historiques disponibles via l'outil de calcul.`);
   }
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_mean&timezone=auto&past_days=${pastDays}&forecast_days=1`;
   const r = await fetch(url);
@@ -849,7 +849,23 @@ function setProgress(pfx,pct,lbl,det){
 function showProgress(pfx){document.getElementById(`${pfx}-progress`).classList.add('visible');document.getElementById(`${pfx}-chart-card`).style.opacity='0.4';}
 function hideProgress(pfx){document.getElementById(`${pfx}-progress`).classList.remove('visible');document.getElementById(`${pfx}-chart-card`).style.opacity='1';}
 function setStatus(pfx,msg,ok){document.getElementById(`${pfx}-status-dot`).style.background=ok?'#27ae60':'#f39c12';document.getElementById(`${pfx}-status-txt`).textContent=msg;}
-function setError(pfx,msg){document.getElementById(`${pfx}-status-dot`).style.background='#c0392b';document.getElementById(`${pfx}-status-txt`).textContent='Erreur : '+msg;hideProgress(pfx);}
+function setError(pfx,msg){
+  document.getElementById(`${pfx}-status-dot`).style.background='#c0392b';
+  document.getElementById(`${pfx}-status-txt`).textContent='Erreur : '+msg;
+  hideProgress(pfx);
+  // Vider les cartes pour éviter d'afficher des données périmées
+  document.getElementById(`${pfx}-m-real`).textContent='—';
+  document.getElementById(`${pfx}-m-real-sub`).textContent=msg.length>60?msg.slice(0,60)+'…':msg;
+  ['d1','d2','d3','d4'].forEach(k=>{
+    const el=document.getElementById(`${pfx}-m-${k}`);if(el)el.textContent='—';
+    const ed=document.getElementById(`${pfx}-m-${k}-d`);if(ed){ed.textContent='—';ed.className='dc-delta neu';}
+    const ee=document.getElementById(`${pfx}-m-${k}-err`);if(ee)ee.textContent='';
+  });
+  // Vider le graphe
+  const tid=document.getElementById(`${pfx}-chart-title`);if(tid)tid.textContent='—';
+  const pfxRef=pfx==='fr'?frChartRef:woChartRef;
+  if(pfxRef&&pfxRef.instance){pfxRef.instance.destroy();pfxRef.instance=null;}
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // FRANCE DISPATCHER
