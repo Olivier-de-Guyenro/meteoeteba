@@ -3,125 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Températures — France & Monde · ERA5</title>
+  <title>Températures France — ERA5</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
       --bg:#f5f4f0;--surface:#fff;--surface2:#f0ede8;
-      --border:rgba(0,0,0,.08);--border-strong:rgba(0,0,0,.14);
-      --text:#1a1a18;--text-2:#6b6b66;--text-3:#9b9b96;
+      --border:rgba(0,0,0,.08);--text:#1a1a18;--text-2:#6b6b66;--text-3:#9b9b96;
       --font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
       --radius:10px;--radius-lg:16px;
     }
     body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
     .page{max-width:1060px;margin:0 auto;padding:2rem 1.5rem 4rem;}
-
-    /* ── Section header ── */
-    .section-header{display:flex;align-items:baseline;gap:12px;margin-bottom:1.25rem;}
-    .section-title{font-size:18px;font-weight:500;letter-spacing:-.3px;}
-    .section-sub{font-size:11px;color:var(--text-3);font-family:var(--mono);}
-    .section-divider{border:none;border-top:1px solid var(--border);margin:2.5rem 0;}
-
-    /* ── Controls ── */
+    .site-header{margin-bottom:1.75rem;}
+    .site-title{font-size:21px;font-weight:500;letter-spacing:-.3px;}
+    .site-title span{color:var(--text-2);font-weight:300;}
+    .site-sub{font-size:11px;color:var(--text-3);margin-top:3px;font-family:var(--mono);}
     .controls-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:.875rem;}
     .tab-group{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:3px;gap:2px;}
-    .tab{padding:5px 14px;font-size:13px;font-family:var(--font);border:none;background:transparent;color:var(--text-2);border-radius:7px;cursor:pointer;transition:all .15s;}
+    .tab{padding:6px 16px;font-size:13px;font-family:var(--font);border:none;background:transparent;color:var(--text-2);border-radius:7px;cursor:pointer;transition:all .15s;}
     .tab:hover{color:var(--text);background:var(--surface2);}
     .tab.active{background:var(--text);color:#fff;font-weight:500;}
     .ctrl-label{font-size:12px;color:var(--text-3);font-family:var(--mono);}
     select{font-family:var(--font);font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);cursor:pointer;outline:none;}
-
-    /* ── Nav row ── */
     .nav-row{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:9px 14px;margin-bottom:1.25rem;flex-wrap:wrap;}
-    .nav-btn{padding:4px 10px;font-size:12px;font-family:var(--font);border:1px solid var(--border);background:var(--surface2);color:var(--text-2);border-radius:6px;cursor:pointer;transition:all .12s;}
+    .nav-btn{padding:5px 12px;font-size:13px;font-family:var(--font);border:1px solid var(--border);background:var(--surface2);color:var(--text-2);border-radius:7px;cursor:pointer;transition:all .12s;}
     .nav-btn:hover{background:var(--text);color:#fff;border-color:var(--text);}
-    .nav-current{font-size:12px;font-weight:500;color:var(--text);min-width:160px;text-align:center;}
-
-    /* ── 5 decade cards ── */
-    .decade-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:1.25rem;}
-    @media(max-width:700px){.decade-cards{grid-template-columns:repeat(3,1fr);}}
-    .dc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-top:3px solid transparent;}
-    .dc.is-real{border-top-color:#c0392b}.dc.is-d1{border-top-color:#27ae60}.dc.is-d2{border-top-color:#2471a3}.dc.is-d3{border-top-color:#8e44ad}.dc.is-d4{border-top-color:#e67e22}
-    .dc-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);font-family:var(--mono);margin-bottom:5px;}
-    .dc-val{font-size:22px;font-weight:500;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
-    .dc-delta{font-size:11px;font-weight:500;font-family:var(--mono);margin-top:3px;}
-    .dc-err{display:block;font-size:10px;color:var(--text);font-family:var(--mono);font-weight:500;margin-top:1px;opacity:.7;}
+    .nav-current{font-size:13px;font-weight:500;color:var(--text);min-width:160px;text-align:center;}
+    .metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:1.25rem;}
+    @media(max-width:700px){.metrics{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:420px){.metrics{grid-template-columns:repeat(2,1fr);}}
+    .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-top:3px solid transparent;}
+    .metric.r{border-top-color:#c0392b}.metric.d1{border-top-color:#27ae60}.metric.d2{border-top-color:#2471a3}.metric.d3{border-top-color:#8e44ad}.metric.d4{border-top-color:#e67e22}
+    .metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);font-family:var(--mono);margin-bottom:6px;}
+    .metric-val{font-size:24px;font-weight:500;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
+    .metric-err{display:block;font-size:10px;color:var(--text-2);font-family:var(--mono);margin-top:1px;}
+    .metric-delta{font-size:11px;font-weight:500;font-family:var(--mono);margin-top:3px;}
     .hot{color:#c0392b}.cold{color:#2471a3}.neu{color:var(--text-2)}
-
-    /* ── Chart card ── */
-    .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:.5rem;}
+    .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:.75rem;}
     .chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;gap:8px;flex-wrap:wrap;}
     .chart-title{font-size:13px;font-weight:500;}
     .legend{display:flex;flex-wrap:wrap;gap:8px;}
-    .legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-2);font-family:var(--mono);}
+    .legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-2);font-family:var(--mono);}
     .leg-line{width:14px;height:2px;border-radius:1px;flex-shrink:0;}
-    .chart-container{position:relative;width:100%;height:260px;}
-
-    /* ── Progress ── */
-    .progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1rem;text-align:center;display:none;}
-    .progress-wrap.visible{display:block;}
+    .chart-wrap{position:relative;width:100%;height:280px;}
+    .progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:.75rem;text-align:center;display:none;}
+    .progress-wrap.on{display:block;}
     .progress-bar-outer{background:var(--surface2);border-radius:4px;height:5px;margin:.75rem auto;max-width:340px;overflow:hidden;}
     .progress-bar-inner{height:100%;background:var(--text);border-radius:4px;transition:width .35s;width:0%;}
     .progress-label{font-size:13px;color:var(--text-2);}
     .progress-detail{font-size:10px;color:var(--text-3);font-family:var(--mono);margin-top:3px;}
-
-    /* ── Status ── */
-    .status-bar{display:flex;align-items:center;gap:8px;font-size:11px;font-family:var(--mono);color:var(--text-3);padding:5px 0;margin-bottom:.25rem;}
+    .status-bar{display:flex;align-items:center;gap:8px;font-size:11px;font-family:var(--mono);color:var(--text-3);padding:5px 0;}
     .status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-
-    /* ══ MONDE BLOC ══ */
-    .world-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
-    @media(max-width:700px){.world-grid{grid-template-columns:1fr;}}
-
-    /* Map */
-    .map-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;position:relative;}
-    .map-card-title{font-size:11px;font-weight:500;color:var(--text-2);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
-    .map-loading-txt{font-size:10px;color:var(--text-3);font-weight:400;}
-    #world-map{width:100%;display:block;cursor:pointer;}
-    .map-tooltip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:11px;font-family:var(--mono);box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:10;display:none;white-space:nowrap;}
-    .map-legend{display:flex;align-items:center;gap:6px;margin-top:6px;}
-    .leg-grad{flex:1;height:4px;border-radius:3px;background:linear-gradient(to right,#2471a3,#e8e4dc,#c0392b);}
-    .leg-txt{font-size:9px;color:var(--text-3);font-family:var(--mono);}
-
-    /* Zone selector pills */
-    .zone-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;}
-    .zone-pill{padding:4px 10px;font-size:11px;font-family:var(--font);border:1px solid var(--border);background:var(--surface2);color:var(--text-2);border-radius:20px;cursor:pointer;transition:all .12s;}
-    .zone-pill:hover,.zone-pill.active{background:var(--text);color:#fff;border-color:var(--text);}
-
-    /* World dashboard (right column) */
-    .world-dash .decade-cards{margin-bottom:.875rem;}
-    .world-dash .dc-val{font-size:19px;}
-    .world-sel-label{font-size:12px;color:var(--text-3);font-family:var(--mono);margin-bottom:.75rem;}
-    .world-sel-name{font-weight:500;color:var(--text);}
-
-    footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid var(--border);font-size:10px;color:var(--text-3);font-family:var(--mono);display:flex;gap:1.5rem;flex-wrap:wrap;}
+    footer{margin-top:2.5rem;padding-top:1.25rem;border-top:1px solid var(--border);font-size:10px;color:var(--text-3);font-family:var(--mono);display:flex;gap:1.5rem;flex-wrap:wrap;}
     footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px;}
   </style>
 </head>
 <body>
 <div class="page">
-
-  <!-- ════════════════════════════════════════════════════
-       BLOC 1 — FRANCE
-  ════════════════════════════════════════════════════ -->
-  <div class="section-header">
-    <h1 class="section-title">🇫🇷 France</h1>
-    <span class="section-sub">ERA5 · Réelles vs normales décennales</span>
-  </div>
+  <header class="site-header">
+    <h1 class="site-title">🇫🇷 Températures France <span id="yr"></span></h1>
+    <p class="site-sub">Réelles vs normales ERA5 décennales · Open-Meteo</p>
+  </header>
 
   <div class="controls-row">
-    <div class="tab-group" id="fr-tabs">
-      <button class="tab active" data-period="day">Jour</button>
-      <button class="tab" data-period="week">Semaine</button>
-      <button class="tab" data-period="month">Mois</button>
-      <button class="tab" data-period="year">Année</button>
+    <div class="tab-group" id="tabs">
+      <button class="tab active" data-p="day">Jour</button>
+      <button class="tab" data-p="week">Semaine</button>
+      <button class="tab" data-p="month">Mois</button>
+      <button class="tab" data-p="year">Année</button>
     </div>
     <span class="ctrl-label">Région</span>
-    <select id="fr-region">
+    <select id="region-sel">
       <option value="france">France entière</option>
       <option value="idf">Île-de-France</option>
       <option value="aura">Auvergne-Rhône-Alpes</option>
@@ -139,19 +93,25 @@
     </select>
   </div>
 
-  <div class="nav-row" id="fr-nav"></div>
+  <div class="nav-row" id="nav-row"></div>
 
-  <div class="decade-cards">
-    <div class="dc is-real"><div class="dc-label">Réel</div><div class="dc-val hot" id="fr-m-real">—</div><span class="dc-err" id="fr-m-real-err"></span><div class="dc-delta neu" id="fr-m-real-sub">—</div></div>
-    <div class="dc is-d1"><div class="dc-label">1991–2000</div><div class="dc-val" style="color:#27ae60" id="fr-m-d1">—</div><span class="dc-err" id="fr-m-d1-err"></span><div class="dc-delta" id="fr-m-d1-d">—</div></div>
-    <div class="dc is-d2"><div class="dc-label">2001–2010</div><div class="dc-val" style="color:#2471a3" id="fr-m-d2">—</div><span class="dc-err" id="fr-m-d2-err"></span><div class="dc-delta" id="fr-m-d2-d">—</div></div>
-    <div class="dc is-d3"><div class="dc-label">2011–2020</div><div class="dc-val" style="color:#8e44ad" id="fr-m-d3">—</div><span class="dc-err" id="fr-m-d3-err"></span><div class="dc-delta" id="fr-m-d3-d">—</div></div>
-    <div class="dc is-d4"><div class="dc-label">Depuis 2021</div><div class="dc-val" style="color:#e67e22" id="fr-m-d4">—</div><span class="dc-err" id="fr-m-d4-err"></span><div class="dc-delta" id="fr-m-d4-d">—</div></div>
+  <div class="metrics">
+    <div class="metric r"><div class="metric-label">Réel</div><div class="metric-val hot" id="m-real">—</div><span class="metric-err" id="m-real-err"></span><div class="metric-delta neu" id="m-real-sub">—</div></div>
+    <div class="metric d1"><div class="metric-label">1991–2000</div><div class="metric-val" style="color:#27ae60" id="m-d1">—</div><span class="metric-err" id="m-d1-err"></span><div class="metric-delta" id="m-d1-d">—</div></div>
+    <div class="metric d2"><div class="metric-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="m-d2">—</div><span class="metric-err" id="m-d2-err"></span><div class="metric-delta" id="m-d2-d">—</div></div>
+    <div class="metric d3"><div class="metric-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="m-d3">—</div><span class="metric-err" id="m-d3-err"></span><div class="metric-delta" id="m-d3-d">—</div></div>
+    <div class="metric d4"><div class="metric-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="m-d4">—</div><span class="metric-err" id="m-d4-err"></span><div class="metric-delta" id="m-d4-d">—</div></div>
   </div>
 
-  <div class="chart-card" id="fr-chart-card">
+  <div class="progress-wrap" id="progress">
+    <div class="progress-label" id="prog-lbl">Chargement…</div>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="prog-bar"></div></div>
+    <div class="progress-detail" id="prog-det"></div>
+  </div>
+
+  <div class="chart-card" id="chart-card">
     <div class="chart-header">
-      <span class="chart-title" id="fr-chart-title">—</span>
+      <span class="chart-title" id="chart-title">—</span>
       <div class="legend">
         <div class="legend-item"><div class="leg-line" style="background:#c0392b"></div>Réelle</div>
         <div class="legend-item"><div class="leg-line" style="background:#e67e22"></div>2021–</div>
@@ -160,831 +120,348 @@
         <div class="legend-item"><div class="leg-line" style="background:#27ae60"></div>1991–00</div>
       </div>
     </div>
-    <div class="chart-container"><canvas id="fr-chart" role="img" aria-label="Températures France vs normales ERA5"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart" role="img" aria-label="Températures France vs normales ERA5"></canvas></div>
   </div>
 
-  <div class="progress-wrap" id="fr-progress">
-    <div class="progress-label" id="fr-prog-label">Chargement…</div>
-    <div class="progress-bar-outer"><div class="progress-bar-inner" id="fr-prog-bar"></div></div>
-    <div class="progress-detail" id="fr-prog-detail"></div>
-  </div>
   <div class="status-bar">
-    <div class="status-dot" id="fr-status-dot" style="background:#f39c12"></div>
-    <span id="fr-status-txt">Initialisation…</span>
-  </div>
-
-  <hr class="section-divider">
-
-  <!-- ════════════════════════════════════════════════════
-       BLOC 2 — MONDE
-  ════════════════════════════════════════════════════ -->
-  <div class="section-header">
-    <h2 class="section-title">🌍 Monde</h2>
-    <span class="section-sub">Cliquez sur un pays ou choisissez une zone</span>
-  </div>
-
-  <div class="world-grid">
-
-    <!-- Carte -->
-    <div class="map-card">
-      <div class="map-card-title">
-        <span>Anomalie thermique</span>
-        <span class="map-loading-txt" id="map-loading-txt"></span>
-      </div>
-      <svg id="world-map"></svg>
-      <div class="map-legend">
-        <span class="leg-txt">−3°C</span>
-        <div class="leg-grad"></div>
-        <span class="leg-txt">+3°C</span>
-      </div>
-      <div class="zone-pills" id="zone-pills">
-        <button class="zone-pill active" data-key="planet">🌍 Planète</button>
-        <button class="zone-pill" data-key="europe">Europe</button>
-        <button class="zone-pill" data-key="asia">Asie</button>
-        <button class="zone-pill" data-key="namerica">Amér. Nord</button>
-        <button class="zone-pill" data-key="samerica">Amér. Sud</button>
-        <button class="zone-pill" data-key="africa">Afrique</button>
-        <button class="zone-pill" data-key="oceania">Océanie</button>
-      </div>
-      <div class="map-tooltip" id="map-tooltip"></div>
-    </div>
-
-    <!-- Dashboard monde -->
-    <div class="world-dash">
-      <div class="world-sel-label">Sélection : <span class="world-sel-name" id="wo-sel-name">Planète</span></div>
-
-      <div class="controls-row" style="margin-bottom:.75rem;">
-        <div class="tab-group" id="wo-tabs">
-          <button class="tab active" data-period="day">Jour</button>
-          <button class="tab" data-period="week">Semaine</button>
-          <button class="tab" data-period="month">Mois</button>
-          <button class="tab" data-period="year">Année</button>
-        </div>
-      </div>
-      <div class="nav-row" id="wo-nav"></div>
-
-      <div class="decade-cards world-dash">
-        <div class="dc is-real"><div class="dc-label">Réel</div><div class="dc-val hot" id="wo-m-real">—</div><span class="dc-err" id="wo-m-real-err"></span><div class="dc-delta neu" id="wo-m-real-sub">—</div></div>
-        <div class="dc is-d1"><div class="dc-label">1991–2000</div><div class="dc-val" style="color:#27ae60" id="wo-m-d1">—</div><span class="dc-err" id="wo-m-d1-err"></span><div class="dc-delta" id="wo-m-d1-d">—</div></div>
-        <div class="dc is-d2"><div class="dc-label">2001–2010</div><div class="dc-val" style="color:#2471a3" id="wo-m-d2">—</div><span class="dc-err" id="wo-m-d2-err"></span><div class="dc-delta" id="wo-m-d2-d">—</div></div>
-        <div class="dc is-d3"><div class="dc-label">2011–2020</div><div class="dc-val" style="color:#8e44ad" id="wo-m-d3">—</div><span class="dc-err" id="wo-m-d3-err"></span><div class="dc-delta" id="wo-m-d3-d">—</div></div>
-        <div class="dc is-d4"><div class="dc-label">Depuis 2021</div><div class="dc-val" style="color:#e67e22" id="wo-m-d4">—</div><span class="dc-err" id="wo-m-d4-err"></span><div class="dc-delta" id="wo-m-d4-d">—</div></div>
-      </div>
-
-      <div class="chart-card" id="wo-chart-card">
-        <div class="chart-header">
-          <span class="chart-title" id="wo-chart-title">—</span>
-          <div class="legend">
-            <div class="legend-item"><div class="leg-line" style="background:#c0392b"></div>Réelle</div>
-            <div class="legend-item"><div class="leg-line" style="background:#e67e22"></div>2021–</div>
-            <div class="legend-item"><div class="leg-line" style="background:#8e44ad"></div>2011–20</div>
-            <div class="legend-item"><div class="leg-line" style="background:#2471a3"></div>2001–10</div>
-            <div class="legend-item"><div class="leg-line" style="background:#27ae60"></div>1991–00</div>
-          </div>
-        </div>
-        <div class="chart-container" style="height:200px;"><canvas id="wo-chart" role="img" aria-label="Températures monde vs normales ERA5"></canvas></div>
-      </div>
-
-      <div class="progress-wrap" id="wo-progress">
-        <div class="progress-label" id="wo-prog-label">Chargement…</div>
-        <div class="progress-bar-outer"><div class="progress-bar-inner" id="wo-prog-bar"></div></div>
-        <div class="progress-detail" id="wo-prog-detail"></div>
-      </div>
-      <div class="status-bar">
-        <div class="status-dot" id="wo-status-dot" style="background:#f39c12"></div>
-        <span id="wo-status-txt">Sélectionnez une zone</span>
-      </div>
-    </div>
+    <div class="status-dot" id="status-dot" style="background:#f39c12"></div>
+    <span id="status-txt">Initialisation…</span>
   </div>
 
   <footer>
     <span>Données : <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> · Réanalyse ERA5 (ECMWF)</span>
-    <span>Normales calculées sur données ERA5 brutes · Cache 24h</span>
-    <span>Données jusqu'à J−7 environ</span>
-    <span>Marges d'erreur ERA5 : ±0.10°C (2021–) · ±0.15°C (2011–20) · ±0.25°C (2001–10) · ±0.35°C (1991–00) · Source : ECMWF</span>
-    <span>Planète = moyenne pondérée de 15 points ERA5 répartis sur tous les continents et océans</span>
+    <span>Normales précalculées ERA5 · Données récentes : 3 derniers mois</span>
+    <span>Marges d'erreur : ±0.10°C (2021–) · ±0.15°C (2011–20) · ±0.25°C (2001–10) · ±0.35°C (1991–00)</span>
   </footer>
 </div>
-
 <script>
 // ══════════════════════════════════════════════════════════════════════════════
-// DONNÉES
+// NORMALES PRÉCALCULÉES ERA5 (températures mensuelles moyennes °C)
 // ══════════════════════════════════════════════════════════════════════════════
+const NORMALS = {
+  france:  {d1:[3.9,4.4,7.3,9,13.6,16.3,18.9,19.7,15.3,11.3,6.7,4.7],d2:[3.4,3.9,6.7,9.9,13.6,17.8,19.3,18.9,15.4,12.4,7,3.2],d3:[4.3,4.3,7.4,10.7,13.6,17.6,20.1,20,16.6,12.7,8.3,5.7],d4:[3.9,6.5,8.1,10.1,14,19.4,19.8,20.3,16.7,13.9,8.2,5.6]},
+  idf:     {d1:[4.3,4.6,7.7,9.7,14,16.5,19,19.5,15.7,11.5,7.1,4.9],d2:[4,4.8,7.2,10.7,14.2,17.9,19.7,19.2,16,12.6,7.8,3.7],d3:[4.7,4.8,7.6,11.1,14.2,17.8,20.2,20,16.8,12.9,8.4,6],d4:[4.4,6.4,8.3,10.6,14.6,19.3,20.2,20.2,16.9,13.5,8.3,6.2]},
+  aura:    {d1:[3.4,4.4,7.9,10.3,15.2,18,20.7,21.5,16.7,12.1,6.9,4.4],d2:[3.1,4.2,7.6,11.5,15.5,19.9,21.8,20.9,16.8,13.3,7.6,3.3],d3:[4.1,4.3,8.2,12.1,15.4,19.9,22.3,22,18.1,13.4,8.2,5.2],d4:[3.6,6.2,8.7,11.3,15.8,21.5,22.4,22.7,18,14.2,8,4.9]},
+  paca:    {d1:[2.2,3.1,6.7,8.9,13.9,17.4,20.6,20.9,15.9,11.2,5.8,2.8],d2:[2.1,3.3,6.6,10,14.6,19.4,21.7,21,16.6,12.4,6.6,2.4],d3:[3.3,3.7,7.4,11.1,14.6,19.6,22.7,22.4,18,13.1,7.6,3.9],d4:[3.5,5.8,7.9,10.9,14.8,20.9,23.8,23.2,17.6,13.8,7.1,3.9]},
+  occ:     {d1:[5.9,7,9.6,11.4,16,18.6,21.4,22.1,18.1,13.9,9.1,7.1],d2:[5.6,6.1,9.3,12.2,15.7,20.4,22.3,22,18.6,15.2,9.2,5.4],d3:[6,6.3,9.5,12.8,15.9,20,22.8,23,19.8,15.4,10.4,7.4],d4:[5.3,8.2,10.2,12.4,16.2,21.7,23,23.7,19.2,16.2,10.1,7.6]},
+  na:      {d1:[6.3,7.3,10,11.8,16.3,18.7,21,21.9,17.9,14.1,9.5,7.5],d2:[6.2,6.6,9.6,12.5,15.9,20.2,21.4,21.4,18.5,15.2,9.7,5.9],d3:[6.9,6.9,9.9,13,16,19.5,21.9,21.8,19.4,15.2,10.7,8.1],d4:[6.3,8.6,10.5,12.9,16.2,20.8,21.7,22.3,18.8,15.9,10.6,8]},
+  bre:     {d1:[5.7,6,8.4,9.8,13.8,16.1,18.3,18.8,15.8,12.2,8.3,6.3],d2:[5.5,5.8,7.9,10.6,13.8,17.3,18.5,18.3,16,13,8.9,4.9],d3:[6.1,6.1,8.2,10.9,13.7,16.9,19,18.6,16.5,13.2,9.4,7.5],d4:[5.4,7.1,8.8,10.9,14.2,18.2,19.1,19.3,16.8,13.8,9.5,7.1]},
+  pdl:     {d1:[5.9,6.3,8.8,10.3,14.3,16.8,19.1,19.8,16.5,12.8,8.7,6.7],d2:[5.8,6,8.3,11,14.2,18.1,19.3,19.1,16.8,13.7,9.2,5.3],d3:[6.7,6.5,8.8,11.6,14.5,17.7,20,19.6,17.4,13.8,10,7.9],d4:[6.1,7.8,9.4,11.7,15,19.3,20,20.4,17.6,14.6,10.1,7.6]},
+  nor:     {d1:[4.3,4.6,7.2,8.7,12.6,14.9,17.2,17.7,14.5,10.9,7,4.9],d2:[4,4.5,6.6,9.4,12.6,16,17.6,17.4,14.9,11.9,7.6,3.6],d3:[4.8,4.7,6.9,9.8,12.6,15.9,17.9,17.8,15.3,12.1,8.2,6.1],d4:[4.3,6.1,7.7,9.3,12.8,16.7,17.9,18,15.9,12.9,8.4,6.1]},
+  hdf:     {d1:[3.9,4.4,7.2,9.2,13.1,15.4,17.9,18.1,15,10.8,6.8,4.4],d2:[3.8,4.4,6.6,9.9,13.3,16.4,18.4,17.9,15.2,11.9,7.8,3.5],d3:[4.3,4.5,6.8,10.2,13.4,16.6,18.5,18.5,15.6,12.3,8,5.9],d4:[3.9,6,7.7,9.6,13.6,17.8,18.7,18.9,16.4,12.9,8.1,5.8]},
+  ges:     {d1:[2,2.8,6.4,9.5,14.2,16.9,19.2,19.7,15.2,10.4,5.3,2.8],d2:[1.7,2.9,5.9,10.3,14.6,18.3,20.1,19.3,15.2,11.4,6.2,2],d3:[2.8,2.9,6.7,11.2,14.8,18.9,20.9,20.6,16.6,11.8,6.7,4.2],d4:[3,5.2,7.4,10.3,15.3,20.8,20.9,20.7,16.9,12.6,6.6,3.9]},
+  bfc:     {d1:[2.9,3.5,6.9,9.4,14.1,16.8,19.5,20.2,15.6,11,5.9,3.7],d2:[2.3,3.4,6.5,10.3,14.4,18.3,20.1,19.4,15.6,12,6.6,2.6],d3:[3.2,3.4,7.1,11,14.1,18.5,20.8,20.6,16.8,12.2,7.1,4.5],d4:[2.9,5.2,7.5,9.8,14.3,19.9,20.3,20.7,16.6,12.8,6.8,4.2]},
+  cvl:     {d1:[4.4,4.7,7.9,9.8,14.1,16.8,19.3,20,15.9,11.8,7.3,5.2],d2:[4.1,4.8,7.3,10.8,14.3,18.2,19.9,19.5,16.3,12.9,7.8,3.8],d3:[4.9,4.9,8,11.3,14.4,18,20.5,20.3,17.1,13.1,8.6,6.1],d4:[4.5,6.4,8.4,10.8,14.6,19.6,20.2,20.2,17,13.6,8.2,6.1]},
+  cor:     {d1:[3.5,3.8,6.1,7.9,13.2,16.6,19.8,20.6,15.9,11.8,7.3,4.5],d2:[3.2,3.3,5.9,8.8,13.6,18,20.8,20.3,15.9,12.7,7.8,4],d3:[3.6,3.6,5.9,9.5,12.4,17.4,20.4,20.9,16.5,12.7,8.1,4.7],d4:[3.6,5.3,5.9,8.3,12.6,19.2,21.6,20.7,16.4,12.9,7.7,5]},
+};
+
 const LOCS = {
-  // France + régions
-  france:{ name:'France',              lat:46.5,  lon:2.3   },
-  idf:   { name:'Île-de-France',       lat:48.85, lon:2.35  },
-  aura:  { name:'Auv.-Rhône-Alpes',    lat:45.75, lon:4.85  },
-  paca:  { name:'PACA',                lat:43.93, lon:6.07  },
-  occ:   { name:'Occitanie',           lat:43.60, lon:1.44  },
-  na:    { name:'Nouvelle-Aquitaine',  lat:44.84, lon:-0.58 },
-  bre:   { name:'Bretagne',            lat:48.11, lon:-1.68 },
-  pdl:   { name:'Pays de la Loire',    lat:47.22, lon:-1.55 },
-  nor:   { name:'Normandie',           lat:49.18, lon:0.35  },
-  hdf:   { name:'Hauts-de-France',     lat:50.63, lon:3.06  },
-  ges:   { name:'Grand Est',           lat:48.57, lon:7.75  },
-  bfc:   { name:'Bourgogne-FC',        lat:47.28, lon:5.00  },
-  cvl:   { name:'Centre-Val de Loire', lat:47.90, lon:1.90  },
-  cor:   { name:'Corse',               lat:42.00, lon:9.00  },
-  // Monde — planet est une grille de points, géré séparément
-  europe:   { name:'Europe',            lat:54,    lon:15   },
-  asia:     { name:'Asie',              lat:34,    lon:100  },
-  namerica: { name:'Amér. du Nord',     lat:45,    lon:-100 },
-  samerica: { name:'Amér. du Sud',      lat:-15,   lon:-60  },
-  africa:   { name:'Afrique',           lat:0,     lon:20   },
-  oceania:  { name:'Océanie',           lat:-25,   lon:135  },
-  // Pays
-  germany:    { name:'Allemagne',       lat:51.5,  lon:10.5 },
-  uk:         { name:'Royaume-Uni',     lat:54.0,  lon:-2.0 },
-  spain:      { name:'Espagne',         lat:40.4,  lon:-3.7 },
-  italy:      { name:'Italie',          lat:42.5,  lon:12.5 },
-  portugal:   { name:'Portugal',        lat:39.5,  lon:-8.0 },
-  netherlands:{ name:'Pays-Bas',        lat:52.3,  lon:5.3  },
-  belgium:    { name:'Belgique',        lat:50.8,  lon:4.4  },
-  switzerland:{ name:'Suisse',          lat:46.8,  lon:8.2  },
-  austria:    { name:'Autriche',        lat:47.8,  lon:13.0 },
-  poland:     { name:'Pologne',         lat:52.0,  lon:20.0 },
-  sweden:     { name:'Suède',           lat:63.0,  lon:16.0 },
-  norway:     { name:'Norvège',         lat:65.0,  lon:14.0 },
-  russia:     { name:'Russie',          lat:60.0,  lon:60.0 },
-  turkey:     { name:'Turquie',         lat:39.0,  lon:35.0 },
-  usa:        { name:'États-Unis',      lat:39.5,  lon:-98.0},
-  canada:     { name:'Canada',          lat:56.0,  lon:-96.0},
-  mexico:     { name:'Mexique',         lat:23.0,  lon:-102.0},
-  brazil:     { name:'Brésil',          lat:-10.0, lon:-53.0},
-  argentina:  { name:'Argentine',       lat:-34.0, lon:-64.0},
-  china:      { name:'Chine',           lat:35.0,  lon:105.0},
-  india:      { name:'Inde',            lat:20.0,  lon:77.0 },
-  japan:      { name:'Japon',           lat:36.0,  lon:138.0},
-  australia:  { name:'Australie',       lat:-25.0, lon:133.0},
-  southafrica:{ name:'Afrique du Sud',  lat:-29.0, lon:25.0 },
-  nigeria:    { name:'Nigeria',         lat:9.0,   lon:8.0  },
-  egypt:      { name:'Égypte',          lat:26.0,  lon:30.0 },
-  morocco:    { name:'Maroc',           lat:32.0,  lon:-5.0 },
+  france:{name:'France entière',lat:46.5,lon:2.3},
+  idf:{name:'Île-de-France',lat:48.85,lon:2.35},
+  aura:{name:'Auvergne-Rhône-Alpes',lat:45.75,lon:4.85},
+  paca:{name:"Provence-Alpes-Côte d'Azur",lat:43.93,lon:6.07},
+  occ:{name:'Occitanie',lat:43.60,lon:1.44},
+  na:{name:'Nouvelle-Aquitaine',lat:44.84,lon:-0.58},
+  bre:{name:'Bretagne',lat:48.11,lon:-1.68},
+  pdl:{name:'Pays de la Loire',lat:47.22,lon:-1.55},
+  nor:{name:'Normandie',lat:49.18,lon:0.35},
+  hdf:{name:'Hauts-de-France',lat:50.63,lon:3.06},
+  ges:{name:'Grand Est',lat:48.57,lon:7.75},
+  bfc:{name:'Bourgogne-Franche-Comté',lat:47.28,lon:5.00},
+  cvl:{name:'Centre-Val de Loire',lat:47.90,lon:1.90},
+  cor:{name:'Corse',lat:42.00,lon:9.00},
 };
 
-const ID_MAP = {
-  250:'france',276:'germany',826:'uk',724:'spain',380:'italy',
-  620:'portugal',528:'netherlands',56:'belgium',756:'switzerland',
-  40:'austria',616:'poland',752:'sweden',578:'norway',643:'russia',
-  792:'turkey',840:'usa',124:'canada',484:'mexico',76:'brazil',
-  32:'argentina',156:'china',356:'india',392:'japan',36:'australia',
-  710:'southafrica',566:'nigeria',818:'egypt',504:'morocco',
-};
-
-const DECADES=[
-  {key:'d1',label:'1991–2000',start:'1991-01-01',end:'2000-12-31',color:'#27ae60'},
-  {key:'d2',label:'2001–2010',start:'2001-01-01',end:'2010-12-31',color:'#2471a3'},
-  {key:'d3',label:'2011–2020',start:'2011-01-01',end:'2020-12-31',color:'#8e44ad'},
-  {key:'d4',label:'2021–',    start:'2021-01-01',end:null,        color:'#e67e22'},
-];
+const UNC = {d1:0.35,d2:0.25,d3:0.15,d4:0.10,real:0.10};
 const MNAMES=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 const MSHORT=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
-const PRELOAD_WORLD=['planet','europe','asia','namerica','samerica','africa','oceania'];
 
-// ── Grille planète : 14 points pondérés par surface (source ECMWF/ERA5) ──────
-// Chaque point représente une zone climatique majeure avec son poids relatif
-const PLANET_GRID = [
-  // Arctique et hautes latitudes Nord
-  {lat:80,  lon:0,   w:0.03, label:'Arctique'},
-  {lat:70,  lon:-40, w:0.04, label:'Groenland/N.Atlantique'},
-  {lat:65,  lon:100, w:0.04, label:'Sibérie'},
-  // Latitudes tempérées Nord
-  {lat:50,  lon:-100,w:0.07, label:'Amérique Nord tempérée'},
-  {lat:50,  lon:10,  w:0.06, label:'Europe'},
-  {lat:45,  lon:90,  w:0.07, label:'Asie centrale'},
-  // Subtropiques et tropiques
-  {lat:25,  lon:-80, w:0.07, label:'Caraïbes/Mexique'},
-  {lat:20,  lon:30,  w:0.07, label:'Afrique Nord/Sahel'},
-  {lat:10,  lon:105, w:0.07, label:'Asie du Sud-Est'},
-  {lat:0,   lon:-50, w:0.07, label:'Amazonie'},
-  {lat:0,   lon:160, w:0.06, label:'Pacifique tropical'},
-  // Hémisphère Sud
-  {lat:-20, lon:25,  w:0.08, label:'Afrique australe'},
-  {lat:-30, lon:-60, w:0.07, label:'Amérique du Sud australe'},
-  {lat:-55, lon:0,   w:0.06, label:'Océan Austral'},
-  // Antarctique
-  {lat:-80, lon:0,   w:0.04, label:'Antarctique'},
-];
-// Vérification : somme des poids = 1.0
-// 0.03+0.04+0.04+0.07+0.06+0.07+0.07+0.07+0.07+0.07+0.06+0.08+0.07+0.06+0.04 = 1.00 ✓
-
-// ── Marges d'erreur ERA5 par décennie (source ECMWF documentation) ───────────
-// Ces valeurs sont des estimations publiées, pas calculées dynamiquement
-const ERA5_UNCERTAINTY = {
-  d1: 0.35,  // 1991–2000 : réseau stations incomplet, ±0.35°C
-  d2: 0.25,  // 2001–2010 : couverture satellite améliorée, ±0.25°C
-  d3: 0.15,  // 2011–2020 : bonne couverture, ±0.15°C
-  d4: 0.10,  // 2021–présent : couverture optimale, ±0.10°C
-  real: 0.10,// Données récentes ERA5, ±0.10°C
-};
-// Pour la planète, les marges sont plus larges (interpolation spatiale)
-const ERA5_UNCERTAINTY_PLANET = {
-  d1: 0.5, d2: 0.35, d3: 0.20, d4: 0.15, real: 0.15,
-};
-
-
-// ══════════════════════════════════════════════════════════════════════════════
-// NORMALES PRÉCALCULÉES (ERA5, calculées depuis navigateur résidentiel)
-// Moyenne mensuelle °C par décennie · Mise à jour : juin 2026
-// ══════════════════════════════════════════════════════════════════════════════
-const PRECOMPUTED_NORMALS = {
-  france:   {d1:[3.9,4.4,7.3,9,13.6,16.3,18.9,19.7,15.3,11.3,6.7,4.7],d2:[3.4,3.9,6.7,9.9,13.6,17.8,19.3,18.9,15.4,12.4,7,3.2],d3:[4.3,4.3,7.4,10.7,13.6,17.6,20.1,20,16.6,12.7,8.3,5.7],d4:[3.9,6.5,8.1,10.1,14,19.4,19.8,20.3,16.7,13.9,8.2,5.6]},
-  idf:      {d1:[4.3,4.6,7.7,9.7,14,16.5,19,19.5,15.7,11.5,7.1,4.9],d2:[4,4.8,7.2,10.7,14.2,17.9,19.7,19.2,16,12.6,7.8,3.7],d3:[4.7,4.8,7.6,11.1,14.2,17.8,20.2,20,16.8,12.9,8.4,6],d4:[4.4,6.4,8.3,10.6,14.6,19.3,20.2,20.2,16.9,13.5,8.3,6.2]},
-  aura:     {d1:[3.4,4.4,7.9,10.3,15.2,18,20.7,21.5,16.7,12.1,6.9,4.4],d2:[3.1,4.2,7.6,11.5,15.5,19.9,21.8,20.9,16.8,13.3,7.6,3.3],d3:[4.1,4.3,8.2,12.1,15.4,19.9,22.3,22,18.1,13.4,8.2,5.2],d4:[3.6,6.2,8.7,11.3,15.8,21.5,22.4,22.7,18,14.2,8,4.9]},
-  paca:     {d1:[2.2,3.1,6.7,8.9,13.9,17.4,20.6,20.9,15.9,11.2,5.8,2.8],d2:[2.1,3.3,6.6,10,14.6,19.4,21.7,21,16.6,12.4,6.6,2.4],d3:[3.3,3.7,7.4,11.1,14.6,19.6,22.7,22.4,18,13.1,7.6,3.9],d4:[3.5,5.8,7.9,10.9,14.8,20.9,23.8,23.2,17.6,13.8,7.1,3.9]},
-  occ:      {d1:[5.9,7,9.6,11.4,16,18.6,21.4,22.1,18.1,13.9,9.1,7.1],d2:[5.6,6.1,9.3,12.2,15.7,20.4,22.3,22,18.6,15.2,9.2,5.4],d3:[6,6.3,9.5,12.8,15.9,20,22.8,23,19.8,15.4,10.4,7.4],d4:[5.3,8.2,10.2,12.4,16.2,21.7,23,23.7,19.2,16.2,10.1,7.6]},
-  na:       {d1:[6.3,7.3,10,11.8,16.3,18.7,21,21.9,17.9,14.1,9.5,7.5],d2:[6.2,6.6,9.6,12.5,15.9,20.2,21.4,21.4,18.5,15.2,9.7,5.9],d3:[6.9,6.9,9.9,13,16,19.5,21.9,21.8,19.4,15.2,10.7,8.1],d4:[6.3,8.6,10.5,12.9,16.2,20.8,21.7,22.3,18.8,15.9,10.6,8]},
-  bre:      {d1:[5.7,6,8.4,9.8,13.8,16.1,18.3,18.8,15.8,12.2,8.3,6.3],d2:[5.5,5.8,7.9,10.6,13.8,17.3,18.5,18.3,16,13,8.9,4.9],d3:[6.1,6.1,8.2,10.9,13.7,16.9,19,18.6,16.5,13.2,9.4,7.5],d4:[5.4,7.1,8.8,10.9,14.2,18.2,19.1,19.3,16.8,13.8,9.5,7.1]},
-  pdl:      {d1:[5.9,6.3,8.8,10.3,14.3,16.8,19.1,19.8,16.5,12.8,8.7,6.7],d2:[5.8,6,8.3,11,14.2,18.1,19.3,19.1,16.8,13.7,9.2,5.3],d3:[6.7,6.5,8.8,11.6,14.5,17.7,20,19.6,17.4,13.8,10,7.9],d4:[6.1,7.8,9.4,11.7,15,19.3,20,20.4,17.6,14.6,10.1,7.6]},
-  nor:      {d1:[4.3,4.6,7.2,8.7,12.6,14.9,17.2,17.7,14.5,10.9,7,4.9],d2:[4,4.5,6.6,9.4,12.6,16,17.6,17.4,14.9,11.9,7.6,3.6],d3:[4.8,4.7,6.9,9.8,12.6,15.9,17.9,17.8,15.3,12.1,8.2,6.1],d4:[4.3,6.1,7.7,9.3,12.8,16.7,17.9,18,15.9,12.9,8.4,6.1]},
-  hdf:      {d1:[3.9,4.4,7.2,9.2,13.1,15.4,17.9,18.1,15,10.8,6.8,4.4],d2:[3.8,4.4,6.6,9.9,13.3,16.4,18.4,17.9,15.2,11.9,7.8,3.5],d3:[4.3,4.5,6.8,10.2,13.4,16.6,18.5,18.5,15.6,12.3,8,5.9],d4:[3.9,6,7.7,9.6,13.6,17.8,18.7,18.9,16.4,12.9,8.1,5.8]},
-  ges:      {d1:[2,2.8,6.4,9.5,14.2,16.9,19.2,19.7,15.2,10.4,5.3,2.8],d2:[1.7,2.9,5.9,10.3,14.6,18.3,20.1,19.3,15.2,11.4,6.2,2],d3:[2.8,2.9,6.7,11.2,14.8,18.9,20.9,20.6,16.6,11.8,6.7,4.2],d4:[3,5.2,7.4,10.3,15.3,20.8,20.9,20.7,16.9,12.6,6.6,3.9]},
-  bfc:      {d1:[2.9,3.5,6.9,9.4,14.1,16.8,19.5,20.2,15.6,11,5.9,3.7],d2:[2.3,3.4,6.5,10.3,14.4,18.3,20.1,19.4,15.6,12,6.6,2.6],d3:[3.2,3.4,7.1,11,14.1,18.5,20.8,20.6,16.8,12.2,7.1,4.5],d4:[2.9,5.2,7.5,9.8,14.3,19.9,20.3,20.7,16.6,12.8,6.8,4.2]},
-  cvl:      {d1:[4.4,4.7,7.9,9.8,14.1,16.8,19.3,20,15.9,11.8,7.3,5.2],d2:[4.1,4.8,7.3,10.8,14.3,18.2,19.9,19.5,16.3,12.9,7.8,3.8],d3:[4.9,4.9,8,11.3,14.4,18,20.5,20.3,17.1,13.1,8.6,6.1],d4:[4.5,6.4,8.4,10.8,14.6,19.6,20.2,20.2,17,13.6,8.2,6.1]},
-  cor:      {d1:[3.5,3.8,6.1,7.9,13.2,16.6,19.8,20.6,15.9,11.8,7.3,4.5],d2:[3.2,3.3,5.9,8.8,13.6,18,20.8,20.3,15.9,12.7,7.8,4],d3:[3.6,3.6,5.9,9.5,12.4,17.4,20.4,20.9,16.5,12.7,8.1,4.7],d4:[3.6,5.3,5.9,8.3,12.6,19.2,21.6,20.7,16.4,12.9,7.7,5]},
-  europe:   {d1:[1.1,1.4,3.5,7.7,11.9,15.3,17.8,18,14.1,9.7,4.4,1.6],d2:[0.3,0.9,3.2,7.8,12.2,15.7,18.9,18.5,14.9,9.9,5.8,1.6],d3:[1,1.3,3.7,8.3,12.9,16.7,18.3,18.8,15.2,10.8,6.3,3.5],d4:[2.3,2.6,5,7.6,12.6,17.3,18.8,18.5,15.9,11.3,5.7,2.6]},
-  asia:     {d1:[-18.7,-16.4,-12.7,-7.4,0.5,4.4,6.2,5.9,2.7,-4.6,-13,-18.3],d2:[-16.5,-15.1,-11.2,-4,0.5,3.9,6.8,6.2,3.5,-3.8,-11.1,-15.5],d3:[-18.2,-14.7,-11.6,-6.5,-0.7,4.4,6.6,6.5,2.8,-5.5,-12.5,-16.9],d4:[-12.7,-11.2,-6.5,-2.8,0.8,4.4,7,7.2,4,-1.9,-7.7,-10.8]},
-  namerica: {d1:[-10.2,-4.6,-0.6,6,14,18.8,21.8,22.1,16.6,9.1,-1.3,-6.6],d2:[-7.6,-6.9,-0.4,7.6,13.5,19.2,24.1,22.7,17.1,8.6,1.6,-6],d3:[-8.5,-7.4,0.2,6.2,13.5,20.5,23.9,22,17.7,8.5,0.8,-5.9],d4:[-7,-6.5,0.4,5.9,14.3,21.1,23.4,22.3,19,10.6,1.1,-5]},
-  samerica: {d1:[26,25.8,25.6,25,24,23.3,22.9,24.8,26.1,26.6,25.8,26],d2:[26,25.6,25.9,25.4,23.7,23.6,23.7,25.4,26.5,26.8,26.3,26.1],d3:[26.2,25.7,26,25.5,24.4,23.8,23.9,25.3,27.3,27.2,26.5,26.2],d4:[26.3,26.1,26,25.8,24.6,23.8,24.1,25.5,27.8,27.4,26.9,26.5]},
-  africa:   {d1:[25.7,26.1,25.9,25.5,25.4,25.1,24.6,24.3,24.4,24.3,24.5,25.1],d2:[26.1,26.4,26.1,25.8,25.8,25.2,25.2,24.8,24.7,24.8,24.9,25.5],d3:[26.4,26.5,26.2,26,25.9,25.7,25.2,24.9,24.8,24.9,25.1,25.5],d4:[25.8,26.7,26.4,26.2,26.2,25.5,24.9,24.6,24.6,24.8,24.4,25]},
-  oceania:  {d1:[32,30.9,28.6,23,17.8,14.5,13.8,16.5,22,24.6,28.2,30],d2:[32.9,31.3,28.1,24.5,18.4,13.9,13.8,16.6,22,25.3,28.5,30.7],d3:[32.9,31.3,28.2,23.7,18,13.9,13.9,16.8,21.7,26.1,29.5,31.6],d4:[32.8,31.2,29.1,22.2,17.1,14.4,13.9,17.7,21.3,26,27.4,31.3]},
-};
-
-// Convertit les normales mensuelles en normales journalières par interpolation
-function monthlyToDaily(monthly){
-  const midDOY=[15,46,74,105,135,166,196,227,258,288,319,349];
-  const result=new Array(367).fill(null);
+// ── Normales journalières par interpolation ───────────────────────────────────
+function normDaily(key){
+  const m=NORMALS[key];
+  const mid=[15,46,74,105,135,166,196,227,258,288,319,349];
+  const r=new Array(367).fill(null);
   for(let doy=1;doy<=366;doy++){
     let m1=0;
-    for(let i=0;i<12;i++){if(doy<=midDOY[i]){m1=i;break;}if(i===11)m1=0;}
+    for(let i=0;i<12;i++){if(doy<=mid[i]){m1=i;break;}if(i===11)m1=0;}
     const m0=m1===0?11:m1-1;
-    const d0=m0<m1?midDOY[m0]:midDOY[m0]-365;
-    const d1=midDOY[m1];
-    const t=d1===d0?0:Math.max(0,Math.min(1,(doy-d0)/(d1-d0)));
-    const v=monthly[m0]+t*(monthly[m1]-monthly[m0]);
-    result[doy]=Math.round(v*10)/10;
+    const d0=m0<m1?mid[m0]:mid[m0]-365;
+    const t=mid[m1]===d0?0:Math.max(0,Math.min(1,(doy-d0)/(mid[m1]-d0)));
+    r[doy]=Math.round((m[d1][m0]+t*(m[d1][m1]-m[d1][m0]))*10)/10;
   }
-  return result;
+  return r;
 }
 
-// Construit les normales complètes (daily+monthly) depuis les données précalculées
-function getNormalsFromPrecomputed(key){
-  const data=PRECOMPUTED_NORMALS[key];
-  if(!data)return null;
+function getNormals(key){
+  const m=NORMALS[key];
+  if(!m) return null;
   const result={};
   ['d1','d2','d3','d4'].forEach(dk=>{
-    result[dk]={
-      monthly:data[dk],
-      daily:monthlyToDaily(data[dk])
-    };
+    const mid=[15,46,74,105,135,166,196,227,258,288,319,349];
+    const daily=new Array(367).fill(null);
+    for(let doy=1;doy<=366;doy++){
+      let m1=0;
+      for(let i=0;i<12;i++){if(doy<=mid[i]){m1=i;break;}if(i===11)m1=0;}
+      const m0=m1===0?11:m1-1;
+      const d0=m0<m1?mid[m0]:mid[m0]-365;
+      const t=mid[m1]===d0?0:Math.max(0,Math.min(1,(doy-d0)/(mid[m1]-d0)));
+      daily[doy]=Math.round((m[dk][m0]+t*(m[dk][m1]-m[dk][m0]))*10)/10;
+    }
+    result[dk]={monthly:m[dk],daily};
   });
   return result;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════════════════════════════
-const today=new Date(); today.setHours(0,0,0,0);
-const era5End=addDays(today,-7); // ERA5 lag garanti à J-7
+// ── State ─────────────────────────────────────────────────────────────────────
+const today=new Date();today.setHours(0,0,0,0);
+// ERA5 lag ~5 jours
+const era5End=(()=>{const d=new Date(today);d.setDate(d.getDate()-5);return d;})();
 
-// Vider le cache si la version a changé
-const CACHE_VERSION='v14';
-if(localStorage.getItem('e5_version')!==CACHE_VERSION){
-  Object.keys(localStorage).filter(k=>k.startsWith('e5_')).forEach(k=>localStorage.removeItem(k));
-  localStorage.setItem('e5_version',CACHE_VERSION);
-}
+let period='day', regionKey='france';
+let loadId=0, chartInst=null;
+const nav={
+  day:new Date(era5End),
+  week:(()=>{const d=new Date(era5End);const dow=d.getDay()===0?6:d.getDay()-1;d.setDate(d.getDate()-dow);return d;})(),
+  month:{y:era5End.getFullYear(),m:era5End.getMonth()},
+  year:era5End.getFullYear()
+};
 
-// France state
-let frKey='france', frPeriod='day';
-let frNav={day:new Date(era5End),week:getMondayOf(era5End),month:{y:era5End.getFullYear(),m:era5End.getMonth()},year:era5End.getFullYear()};
-let frChart=null;
-
-// Monde state
-let woKey='planet', woPeriod='day';
-let woNav={day:new Date(era5End),week:getMondayOf(era5End),month:{y:era5End.getFullYear(),m:era5End.getMonth()},year:era5End.getFullYear()};
-let woChart=null;
-
-// Shared
-let normalsCache={}, anomalyCache={};
-
-// ══════════════════════════════════════════════════════════════════════════════
-// CACHE
-// ══════════════════════════════════════════════════════════════════════════════
-const TTL=24*60*60*1000;
-function cGet(k){try{const r=localStorage.getItem('e5_'+k);if(!r)return null;const{ts,data}=JSON.parse(r);if(Date.now()-ts>TTL){localStorage.removeItem('e5_'+k);return null;}return data;}catch(e){return null;}}
-function cSet(k,data){try{localStorage.setItem('e5_'+k,JSON.stringify({ts:Date.now(),data}));}catch(e){}}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════════════════════════════════════════════
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function toDS(d){return d.toISOString().slice(0,10);}
 function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
-function avg(arr){const v=arr.filter(x=>x!==null&&!isNaN(x));return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;}
+function avg(a){const v=a.filter(x=>x!==null&&!isNaN(x));return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;}
 function getDOY(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000);}
 function clamp(d){return d>era5End?new Date(era5End):new Date(d);}
-function getMondayOf(d){const r=new Date(d);const dow=r.getDay()===0?6:r.getDay()-1;r.setDate(r.getDate()-dow);return r;}
-function getWeekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const dn=dt.getUTCDay()||7;dt.setUTCDate(dt.getUTCDate()+4-dn);const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7);}
 function fmtShort(d){return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
 function fmtFull(d){return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
-function fmtWeekRange(mon){return`Sem. du ${fmtShort(mon)} au ${fmtShort(addDays(mon,6))}`;}
-function fmtT(v){return v!==null?v.toFixed(1)+'°C':'—';}
-function dStr(r,n){if(r===null||n===null)return'—';const d=r-n;return(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';}
-function dCls(r,n){if(r===null||n===null)return'neu';const d=r-n;return d>0.5?'hot':d<-0.5?'cold':'neu';}
-function anomColor(delta){
-  if(delta===null||delta===undefined)return'#ddd';
-  const t=Math.max(-1,Math.min(1,delta/3));
-  if(t<0)return`rgb(${Math.round(36-t*(-148))},${Math.round(113+t*77)},${Math.round(163+t*127)})`;
-  return`rgb(${Math.round(184+t*8)},${Math.round(36+t*21)},${Math.round(36+t*7)})`;
-}
+function fmtWeek(mon){return`Sem. du ${fmtShort(mon)} au ${fmtShort(addDays(mon,6))}`;}
+function getWeekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const dn=dt.getUTCDay()||7;dt.setUTCDate(dt.getUTCDate()+4-dn);const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7);}
+function getMon(d){const r=new Date(d);const dow=r.getDay()===0?6:r.getDay()-1;r.setDate(r.getDate()-dow);return r;}
 
-// ══════════════════════════════════════════════════════════════════════════════
-// ERA5 API + NORMALES
-// ══════════════════════════════════════════════════════════════════════════════
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-
-// ── Fetch via API Open-Meteo forecast (past_days) ────────────────────────────
-// Seul endpoint fonctionnel depuis Netlify. Limite ~365 jours en arrière.
-async function fetchOpenMeteo(lat, lon, startStr, endStr){
-  const today = new Date(); today.setHours(0,0,0,0);
-  const start = new Date(startStr + 'T00:00:00');
-  const end   = new Date(endStr   + 'T00:00:00');
-  // Nombre de jours depuis start jusqu'à aujourd'hui
-  const pastDays = Math.ceil((today - start) / 86400000) + 1;
-  if(pastDays > 400){
-    throw new Error(`Données non disponibles : ${startStr} est trop ancien (max ~13 mois). Données historiques disponibles via l'outil de calcul.`);
+// ── API ───────────────────────────────────────────────────────────────────────
+async function fetchData(lat,lon,startStr,endStr){
+  const start=new Date(startStr+'T00:00:00');
+  const pastDays=Math.ceil((today-start)/86400000);
+  if(pastDays>92){
+    // Essai archive ERA5
+    const url=`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startStr}&end_date=${endStr}&daily=temperature_2m_mean&timezone=auto`;
+    const r=await fetch(url);
+    if(!r.ok)throw new Error(`Données non disponibles pour cette période (${r.status}). Open-Meteo limite les accès historiques depuis les serveurs CDN. Essayez les 3 derniers mois.`);
+    const d=await r.json();
+    if(d.error)throw new Error(d.reason||'Erreur API');
+    return d;
   }
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_mean&timezone=auto&past_days=${pastDays}&forecast_days=1`;
-  const r = await fetch(url);
-  if(!r.ok) throw new Error(`Open-Meteo HTTP ${r.status}`);
-  const d = await r.json();
-  if(d.error) throw new Error(d.reason || 'Erreur API');
-  if(!d.daily || !d.daily.time) throw new Error('Pas de données');
-  // Filtrer sur la fenêtre demandée
-  const times = d.daily.time;
-  const temps = d.daily.temperature_2m_mean;
-  let i0 = -1, i1 = -1;
-  for(let i = 0; i < times.length; i++){
-    if(times[i] >= startStr && i0 === -1) i0 = i;
-    if(times[i] <= endStr) i1 = i;
-  }
-  if(i0 === -1 || i1 === -1 || i0 > i1){
-    throw new Error('Aucune donnée dans la plage ' + startStr + ' → ' + endStr);
-  }
-  return { daily:{ time: times.slice(i0, i1+1), temperature_2m_mean: temps.slice(i0, i1+1) }};
+  // API forecast — fonctionne partout sans limite
+  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_mean&timezone=auto&past_days=${pastDays}&forecast_days=1`;
+  const r=await fetch(url);
+  if(!r.ok)throw new Error(`Open-Meteo HTTP ${r.status}`);
+  const d=await r.json();
+  if(d.error)throw new Error(d.reason||'Erreur API');
+  const times=d.daily.time,temps=d.daily.temperature_2m_mean;
+  let i0=-1,i1=-1;
+  for(let i=0;i<times.length;i++){if(times[i]>=startStr&&i0===-1)i0=i;if(times[i]<=endStr)i1=i;}
+  if(i0===-1||i1===-1)throw new Error('Données hors plage');
+  return{daily:{time:times.slice(i0,i1+1),temperature_2m_mean:temps.slice(i0,i1+1)}};
 }
 
-async function fetchERA5(lat, lon, start, end){
-  return fetchOpenMeteo(lat, lon, start, end);
+// ── UI ────────────────────────────────────────────────────────────────────────
+function setStatus(msg,ok){
+  document.getElementById('status-dot').style.background=ok?'#27ae60':'#f39c12';
+  document.getElementById('status-txt').textContent=msg;
 }
-
-// Fetch ERA5 pour plusieurs points et renvoie la moyenne pondérée jour par jour
-async function fetchERA5Grid(grid, start, end){
-  // Séquentiel pour éviter le rate limiting (pas de Promise.all)
-  const results = [];
-  for(const pt of grid){
-    results.push(await fetchERA5(pt.lat, pt.lon, start, end));
-    await sleep(300);
-  }
-  const totalW = grid.reduce((s,pt)=>s+pt.w, 0);
-  const dates = results[0].daily.time;
-  const temps = dates.map((_,i) => {
-    let sum=0, wsum=0;
-    results.forEach((r,gi) => {
-      const v = r.daily.temperature_2m_mean[i];
-      if(v !== null){ sum += v * grid[gi].w; wsum += grid[gi].w; }
-    });
-    return wsum > 0 ? sum/wsum : null;
-  });
-  return { daily: { time: dates, temperature_2m_mean: temps } };
-}
-
-function buildDaily(dates,temps){
-  const acc=Array.from({length:367},()=>({s:0,n:0}));
-  for(let i=0;i<dates.length;i++){if(temps[i]===null)continue;const doy=getDOY(new Date(dates[i]));if(doy>=1&&doy<=366){acc[doy].s+=temps[i];acc[doy].n++;}}
-  const raw=acc.map(a=>a.n>0?a.s/a.n:null);
-  const sm=new Array(367).fill(null);
-  for(let doy=1;doy<=366;doy++){const vals=[];for(let d=-7;d<=7;d++){let idx=doy+d;if(idx<1)idx+=365;if(idx>366)idx-=365;if(raw[idx]!==null)vals.push(raw[idx]);}sm[doy]=vals.length?avg(vals):null;}
-  return sm;
-}
-function buildMonthly(dates,temps){
-  const acc=Array.from({length:12},()=>({s:0,n:0}));
-  for(let i=0;i<dates.length;i++){if(temps[i]===null)continue;const m=new Date(dates[i]).getMonth();acc[m].s+=temps[i];acc[m].n++;}
-  return acc.map(a=>a.n>0?a.s/a.n:null);
-}
-
-async function getNormals(key,pfx){
-  if(normalsCache[key])return normalsCache[key];
-  // Utiliser les normales précalculées en priorité (pas de requête réseau)
-  const precomputed=getNormalsFromPrecomputed(key);
-  if(precomputed){
-    normalsCache[key]=precomputed;
-    if(pfx)setProgress(pfx,100,'Normales chargées','données précalculées ERA5');
-    return precomputed;
-  }
-  // Fallback ERA5 pour les pays non précalculés
-  const isPlanet=key==='planet';
-  const loc=isPlanet?null:LOCS[key];
-  if(!isPlanet&&!loc)throw new Error('Lieu inconnu: '+key);
-  const result={};
-  const d4end=toDS(era5End);
-  for(let i=0;i<DECADES.length;i++){
-    const dec=DECADES[i];const endDate=dec.end||d4end;
-    const label=isPlanet?`Planète · ${dec.label}`:`${loc.name} · ${dec.label}`;
-    if(pfx)setProgress(pfx,Math.round(10+(i/DECADES.length)*78),`Normales ERA5 · ${label}`,`${dec.start}→${endDate}`);
-    const data=isPlanet
-      ?await fetchERA5Grid(PLANET_GRID,dec.start,endDate)
-      :await fetchERA5(loc.lat,loc.lon,dec.start,endDate);
-    result[dec.key]={daily:buildDaily(data.daily.time,data.daily.temperature_2m_mean),monthly:buildMonthly(data.daily.time,data.daily.temperature_2m_mean)};
-    if(i<DECADES.length-1)await sleep(800);
-  }
-  cSet(ck,result);normalsCache[key]=result;return result;
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// CARTE D3
-// ══════════════════════════════════════════════════════════════════════════════
-let svgMap=null,pathFn=null;
-
-async function initMap(){
-  const cont=document.getElementById('world-map').parentElement;
-  const W=cont.clientWidth-32||440;const H=Math.round(W*0.54);
-  const svg=d3.select('#world-map').attr('viewBox',`0 0 ${W} ${H}`).attr('width','100%');
-  svgMap=svg;
-  const proj=d3.geoNaturalEarth1().scale(W/6.3).translate([W/2,H/2]);
-  pathFn=d3.geoPath(proj);
-  const world=await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
-  const features=topojson.feature(world,world.objects.countries).features;
-  svg.selectAll('path.land').data(features).join('path').attr('class','land')
-    .attr('d',pathFn).attr('fill','#ddd').attr('stroke','#fff').attr('stroke-width',.4).style('cursor','pointer')
-    .on('mouseover',function(ev,d){
-      const ck=ID_MAP[+d.id];const name=ck?LOCS[ck]?.name:null;if(!name)return;
-      d3.select(this).attr('fill',d3.color(d3.select(this).attr('fill')).darker(.2));
-      const tt=document.getElementById('map-tooltip');
-      const anom=anomalyCache[ck];const anomStr=anom!=null?(anom>=0?'+':'')+anom.toFixed(1)+'°C':'—';
-      tt.innerHTML=`<strong>${name}</strong><br>Anomalie : ${anomStr}`;
-      tt.style.display='block';tt.style.left=(ev.offsetX+14)+'px';tt.style.top=(ev.offsetY+10)+'px';
-    })
-    .on('mousemove',function(ev){const tt=document.getElementById('map-tooltip');tt.style.left=(ev.offsetX+14)+'px';tt.style.top=(ev.offsetY+10)+'px';})
-    .on('mouseout',function(ev,d){
-      const ck=ID_MAP[+d.id];
-      d3.select(this).attr('fill',ck&&anomalyCache[ck]!==undefined?anomColor(anomalyCache[ck]):'#ddd');
-      document.getElementById('map-tooltip').style.display='none';
-    })
-    .on('click',function(ev,d){
-      const ck=ID_MAP[+d.id];if(!ck)return;
-      selectWorldKey(ck);
-    });
-  svg.append('path').datum(topojson.mesh(world,world.objects.countries)).attr('fill','none').attr('stroke','#fff').attr('stroke-width',.5).attr('d',pathFn);
-}
-
-function paintMap(key,delta){
-  if(!svgMap)return;
-  const numId=Object.entries(ID_MAP).find(([,v])=>v===key)?.[0];
-  if(!numId)return;
-  svgMap.selectAll('path.land').filter(d=>+d.id===+numId).attr('fill',anomColor(delta));
-}
-function highlightMap(key){
-  if(!svgMap)return;
-  svgMap.selectAll('path.land').attr('stroke','#fff').attr('stroke-width',.4);
-  const numId=Object.entries(ID_MAP).find(([,v])=>v===key)?.[0];
-  if(numId) svgMap.selectAll('path.land').filter(d=>+d.id===+numId).attr('stroke','#c0392b').attr('stroke-width',1.8);
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// NAV ROW (générique)
-// ══════════════════════════════════════════════════════════════════════════════
-function buildNav(pfx, period, nav, onChange){
-  const row=document.getElementById(`${pfx}-nav`);row.innerHTML='';
-  if(period==='day'){
-    row.innerHTML=`<button class="nav-btn" id="${pfx}-np">←</button><input type="date" id="${pfx}-nd" style="font-family:var(--mono);font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;"><button class="nav-btn" id="${pfx}-nn">→</button><span id="${pfx}-nl" class="nav-current"></span><button class="nav-btn" id="${pfx}-nt" style="margin-left:auto;font-size:11px;">Dernier</button>`;
-    const inp=document.getElementById(`${pfx}-nd`);
-    inp.max=toDS(era5End);inp.min='1991-01-02';inp.value=toDS(nav.day);
-    updateNavLabel(pfx,period,nav);
-    inp.onchange=()=>{const v=new Date(inp.value+'T00:00:00');if(!isNaN(v)){nav.day=v;updateNavLabel(pfx,period,nav);onChange();}};
-    document.getElementById(`${pfx}-np`).onclick=()=>{nav.day=addDays(nav.day,-1);if(nav.day<new Date('1991-01-02'))nav.day=new Date('1991-01-02');inp.value=toDS(nav.day);updateNavLabel(pfx,period,nav);onChange();};
-    document.getElementById(`${pfx}-nn`).onclick=()=>{nav.day=addDays(nav.day,1);if(nav.day>era5End)nav.day=new Date(era5End);inp.value=toDS(nav.day);updateNavLabel(pfx,period,nav);onChange();};
-    document.getElementById(`${pfx}-nt`).onclick=()=>{nav.day=new Date(era5End);inp.value=toDS(nav.day);updateNavLabel(pfx,period,nav);onChange();};
-  } else if(period==='week'){
-    row.innerHTML=`<button class="nav-btn" id="${pfx}-np">←</button><span id="${pfx}-nl" class="nav-current"></span><button class="nav-btn" id="${pfx}-nn">→</button><button class="nav-btn" id="${pfx}-nt" style="margin-left:auto;font-size:11px;">Cette sem.</button>`;
-    updateNavLabel(pfx,period,nav);
-    document.getElementById(`${pfx}-np`).onclick=()=>{nav.week=addDays(nav.week,-7);updateNavLabel(pfx,period,nav);onChange();};
-    document.getElementById(`${pfx}-nn`).onclick=()=>{const n=addDays(nav.week,7);if(n<=era5End){nav.week=n;updateNavLabel(pfx,period,nav);onChange();}};
-    document.getElementById(`${pfx}-nt`).onclick=()=>{nav.week=getMondayOf(era5End);updateNavLabel(pfx,period,nav);onChange();};
-  } else if(period==='month'){
-    let mo=MNAMES.map((n,i)=>`<option value="${i}"${i===nav.month.m?' selected':''}>${n}</option>`).join('');
-    let yo='';for(let y=today.getFullYear();y>=1991;y--)yo+=`<option value="${y}"${y===nav.month.y?' selected':''}>${y}</option>`;
-    row.innerHTML=`<span class="ctrl-label">Mois</span><select id="${pfx}-nms">${mo}</select><span class="ctrl-label">Année</span><select id="${pfx}-nys">${yo}</select><button class="nav-btn" id="${pfx}-np" style="margin-left:4px;">← Préc.</button><button class="nav-btn" id="${pfx}-nn">Suiv. →</button><button class="nav-btn" id="${pfx}-nt" style="margin-left:auto;font-size:11px;">Ce mois</button>`;
-    const sync=()=>{document.getElementById(`${pfx}-nms`).value=nav.month.m;document.getElementById(`${pfx}-nys`).value=nav.month.y;};
-    document.getElementById(`${pfx}-nms`).onchange=e=>{nav.month.m=+e.target.value;onChange();};
-    document.getElementById(`${pfx}-nys`).onchange=e=>{nav.month.y=+e.target.value;onChange();};
-    document.getElementById(`${pfx}-np`).onclick=()=>{nav.month.m--;if(nav.month.m<0){nav.month.m=11;nav.month.y--;}if(nav.month.y<1991){nav.month.y=1991;nav.month.m=0;}sync();onChange();};
-    document.getElementById(`${pfx}-nn`).onclick=()=>{nav.month.m++;if(nav.month.m>11){nav.month.m=0;nav.month.y++;}const my=era5End.getFullYear(),mm=era5End.getMonth();if(nav.month.y>my||(nav.month.y===my&&nav.month.m>mm)){nav.month.y=my;nav.month.m=mm;}sync();onChange();};
-    document.getElementById(`${pfx}-nt`).onclick=()=>{nav.month={y:era5End.getFullYear(),m:era5End.getMonth()};sync();onChange();};
-  } else {
-    let yo='';for(let y=today.getFullYear();y>=1991;y--)yo+=`<option value="${y}"${y===nav.year?' selected':''}>${y}</option>`;
-    row.innerHTML=`<span class="ctrl-label">Année</span><select id="${pfx}-nys">${yo}</select><button class="nav-btn" id="${pfx}-np" style="margin-left:4px;">← Préc.</button><button class="nav-btn" id="${pfx}-nn">Suiv. →</button><button class="nav-btn" id="${pfx}-nt" style="margin-left:auto;font-size:11px;">Cette année</button>`;
-    document.getElementById(`${pfx}-nys`).onchange=e=>{nav.year=+e.target.value;onChange();};
-    document.getElementById(`${pfx}-np`).onclick=()=>{if(nav.year>1991){nav.year--;document.getElementById(`${pfx}-nys`).value=nav.year;onChange();}};
-    document.getElementById(`${pfx}-nn`).onclick=()=>{if(nav.year<era5End.getFullYear()){nav.year++;document.getElementById(`${pfx}-nys`).value=nav.year;onChange();}};
-    document.getElementById(`${pfx}-nt`).onclick=()=>{nav.year=era5End.getFullYear();document.getElementById(`${pfx}-nys`).value=nav.year;onChange();};
-  }
-}
-function updateNavLabel(pfx,period,nav){
-  const el=document.getElementById(`${pfx}-nl`);if(!el)return;
-  if(period==='day')el.textContent=fmtFull(nav.day);
-  else if(period==='week')el.textContent=`S${getWeekNum(nav.week)} · ${fmtWeekRange(nav.week)}`;
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// METRICS + CHART (générique)
-// ══════════════════════════════════════════════════════════════════════════════
-function getUncertainty(key){ return key==='planet' ? ERA5_UNCERTAINTY_PLANET : ERA5_UNCERTAINTY; }
-
-function setCards(pfx,real,normals,label,locKey){
-  const unc=getUncertainty(locKey||'');
-  // Température seule dans dc-val, marge d'erreur dans dc-err séparé
-  function setCardVal(elId, errElId, v, u){
-    const el=document.getElementById(elId);
-    if(el) el.textContent=v!==null?v.toFixed(1)+'°C':'—';
-    const errEl=document.getElementById(errElId);
-    if(errEl) errEl.textContent=v!==null?`±${u}°C`:'';
-  }
-  setCardVal(`${pfx}-m-real`,`${pfx}-m-real-err`,real,unc.real);
-  document.getElementById(`${pfx}-m-real-sub`).textContent=label||'';
+function setError(msg){
+  document.getElementById('status-dot').style.background='#c0392b';
+  document.getElementById('status-txt').textContent='⚠ '+msg;
+  hideProgress();
+  document.getElementById('m-real').textContent='—';
+  document.getElementById('m-real-sub').textContent='—';
   ['d1','d2','d3','d4'].forEach(k=>{
-    setCardVal(`${pfx}-m-${k}`,`${pfx}-m-${k}-err`,normals[k],unc[k]);
-    const el=document.getElementById(`${pfx}-m-${k}-d`);
-    el.textContent=dStr(real,normals[k]);el.className='dc-delta '+dCls(real,normals[k]);
+    const v=document.getElementById(`m-${k}`);if(v)v.textContent='—';
+    const dd=document.getElementById(`m-${k}-d`);if(dd){dd.textContent='—';dd.className='metric-delta neu';}
   });
+  document.getElementById('chart-title').textContent='—';
+  if(chartInst){chartInst.destroy();chartInst=null;}
+}
+function showProgress(){document.getElementById('progress').classList.add('on');document.getElementById('chart-card').style.opacity='.4';}
+function hideProgress(){document.getElementById('progress').classList.remove('on');document.getElementById('chart-card').style.opacity='1';}
+function setProgress(pct,lbl,det){
+  document.getElementById('prog-bar').style.width=pct+'%';
+  if(lbl!==undefined)document.getElementById('prog-lbl').textContent=lbl;
+  if(det!==undefined)document.getElementById('prog-det').textContent=det;
+}
+
+function setCards(real,normals,label){
+  document.getElementById('m-real').textContent=real!==null?real.toFixed(1)+'°C':'—';
+  document.getElementById('m-real-err').textContent=real!==null?`±${UNC.real}°C`:'';
+  document.getElementById('m-real-sub').textContent=label||'';
+  ['d1','d2','d3','d4'].forEach(k=>{
+    const n=normals[k];
+    document.getElementById(`m-${k}`).textContent=n!==null?n.toFixed(1)+'°C':'—';
+    document.getElementById(`m-${k}-err`).textContent=n!==null?`±${UNC[k]}°C`:'';
+    const el=document.getElementById(`m-${k}-d`);
+    if(real!==null&&n!==null){
+      const d=real-n;
+      el.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';
+      el.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');
+    } else {el.textContent='—';el.className='metric-delta neu';}
+  });
+}
+
+function renderChart(labels,realData,nd,title){
+  document.getElementById('chart-title').textContent=title;
+  const canvas=document.getElementById('chart');
+  if(chartInst){chartInst.destroy();chartInst=null;}
+  const ptR=realData.length>60?0:3;
+  chartInst=new Chart(canvas,{type:'line',data:{labels,datasets:[
+    {label:'Réelle',data:realData,borderColor:'#c0392b',borderWidth:2.5,pointRadius:ptR,pointHoverRadius:5,pointBackgroundColor:'#c0392b',tension:0.35,fill:false,order:1},
+    {label:'2021–', data:nd.d4,borderColor:'#e67e22',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:2},
+    {label:'2011–2020',data:nd.d3,borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:3},
+    {label:'2001–2010',data:nd.d2,borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:4},
+    {label:'1991–2000',data:nd.d1,borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:5},
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:8,
+      callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null)return null;const lbl=ctx.dataset.label;if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)} ±${UNC.real}°C`;const dk={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1'}[lbl];if(!dk)return null;const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];if(rv!=null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}return`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`;}}}},
+    scales:{x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:14}},
+      y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}}}});
 }
 
 function normForDates(dates,normals){
   const out={d1:[],d2:[],d3:[],d4:[]};
-  dates.forEach(d=>{const doy=getDOY(new Date(d));['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].daily[doy];out[k].push(v!==null?parseFloat(v.toFixed(1)):null);});});
+  dates.forEach(d=>{const doy=getDOY(new Date(d));['d1','d2','d3','d4'].forEach(k=>{out[k].push(normals[k].daily[doy]??null);});});
   return out;
 }
 
-function renderChart(canvasId,chartRef,labels,realData,nd,title,titleId,locKey){
-  document.getElementById(titleId).textContent=title;
-  const canvas=document.getElementById(canvasId);
-  if(chartRef.instance){chartRef.instance.destroy();chartRef.instance=null;}
-  const ptR=realData.length>60?0:3;
-  const unc=getUncertainty(locKey||'');
-  chartRef.instance=new Chart(canvas,{type:'line',data:{labels,datasets:[
-    {label:'Réelle',    data:realData, borderColor:'#c0392b', borderWidth:2.5, pointRadius:ptR, pointHoverRadius:5, pointBackgroundColor:'#c0392b', tension:0.35, fill:false, order:1},
-    {label:'2021–',     data:nd.d4,   borderColor:'#e67e22', borderWidth:1.5, borderDash:[6,4], pointRadius:0, tension:0.35, fill:false, order:2},
-    {label:'2011–2020', data:nd.d3,   borderColor:'#8e44ad', borderWidth:1.5, borderDash:[6,4], pointRadius:0, tension:0.35, fill:false, order:3},
-    {label:'2001–2010', data:nd.d2,   borderColor:'#2471a3', borderWidth:1.5, borderDash:[6,4], pointRadius:0, tension:0.35, fill:false, order:4},
-    {label:'1991–2000', data:nd.d1,   borderColor:'#27ae60', borderWidth:1.5, borderDash:[6,4], pointRadius:0, tension:0.35, fill:false, order:5},
-  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-    plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:8,
-      callbacks:{label:ctx=>{
-        const v=ctx.parsed.y;if(v===null)return null;
-        const lbl=ctx.dataset.label;
-        if(lbl==='Réelle'){return`  Réelle : ${v.toFixed(1)} ±${unc.real}°C`;}
-        const decKey={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1'}[lbl];
-        if(!decKey)return null;
-        const u=unc[decKey];
-        const rv=ctx.chart.data.datasets.find(d=>d.label==='Réelle')?.data[ctx.dataIndex];
-        if(rv!=null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${u}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}
-        return`  ${lbl} : ${v.toFixed(1)} ±${u}°C`;
-      }}}},
-    scales:{
-      x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:12}},
-      y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}
-    }
-  }});
-}
-const frChartRef={instance:null};
-const woChartRef={instance:null};
-
-// ══════════════════════════════════════════════════════════════════════════════
-// LOADERS GÉNÉRIQUES
-// ══════════════════════════════════════════════════════════════════════════════
-async function fetchRecent(key, start, end){
-  const startStr = toDS(new Date(start));
-  const endStr = toDS(new Date(end));
-  if(key === 'planet'){
-    const results = [];
-    for(const pt of PLANET_GRID){
-      results.push(await fetchOpenMeteo(pt.lat, pt.lon, startStr, endStr));
-      await sleep(100);
-    }
-    const dates = results[0].daily.time;
-    const temps = dates.map((_,i) => {
-      let sum=0, wsum=0;
-      results.forEach((r,gi) => {
-        const v = r.daily.temperature_2m_mean[i];
-        if(v !== null){ sum += v * PLANET_GRID[gi].w; wsum += PLANET_GRID[gi].w; }
-      });
-      return wsum > 0 ? Math.round(sum/wsum*10)/10 : null;
-    });
-    return { daily:{ time:dates, temperature_2m_mean:temps }};
-  }
-  const loc = LOCS[key];
-  if(!loc) throw new Error('Lieu inconnu: ' + key);
-  return fetchOpenMeteo(loc.lat, loc.lon, startStr, endStr);
-}
-function locName(key){return key==='planet'?'Planète':LOCS[key]?.name||key;}
-
-async function loadDay(pfx,key,period,nav,normals,chartRef){
+// ── Loaders ───────────────────────────────────────────────────────────────────
+async function loadDay(loc,normals){
   const end=clamp(new Date(nav.day));const start=addDays(end,-29);
-  const data=await fetchRecent(key,start,end);
+  const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
   const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
   const nd=normForDates(dates,normals);
-  const lastValidIdx=[...temps].map((v,i)=>v!==null?i:-1).filter(i=>i>=0).pop()??temps.length-1;
-  const real=temps[lastValidIdx];
-  const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=nd[k][lastValidIdx];});
-  const displayDate=new Date(dates[lastValidIdx]+'T00:00:00');
-  setCards(pfx,real,normVals,fmtFull(displayDate),key);
-  renderChart(`${pfx}-chart`,chartRef,dates.map(d=>fmtShort(new Date(d))),temps,nd,`${locName(key)} · ${displayDate.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`,`${pfx}-chart-title`,key);
-  return real;
+  const li=[...temps].map((v,i)=>v!==null?i:-1).filter(i=>i>=0).pop()??temps.length-1;
+  const real=temps[li];
+  const nv={};['d1','d2','d3','d4'].forEach(k=>{nv[k]=nd[k][li];});
+  const dd=new Date(dates[li]+'T00:00:00');
+  setCards(real,nv,fmtFull(dd));
+  renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${dd.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`);
 }
-async function loadWeek(pfx,key,nav,normals,chartRef){
+
+async function loadWeek(loc,normals){
   const mon=new Date(nav.week);const sun=clamp(addDays(mon,6));
-  const data=await fetchRecent(key,mon,sun);
+  const data=await fetchData(loc.lat,loc.lon,toDS(mon),toDS(sun));
   const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
   const nd=normForDates(dates,normals);
-  const validTemps=temps.filter(v=>v!==null);
-  const real=validTemps.length?avg(validTemps):null;
-  const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=avg(nd[k].filter((_,i)=>temps[i]!==null));});
+  const vt=temps.filter(v=>v!==null);const real=vt.length?avg(vt):null;
+  const nv={};['d1','d2','d3','d4'].forEach(k=>{nv[k]=avg(nd[k].filter((_,i)=>temps[i]!==null));});
   const wn=getWeekNum(mon);
-  setCards(pfx,real,normVals,`S${wn} · moy. semaine`,key);
-  renderChart(`${pfx}-chart`,chartRef,dates.map(d=>fmtShort(new Date(d))),temps,nd,`${locName(key)} · ${fmtWeekRange(mon)}`,`${pfx}-chart-title`,key);
-  return real;
+  setCards(real,nv,`S${wn} · moy. semaine`);
+  renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${fmtWeek(mon)}`);
 }
-async function loadMonth(pfx,key,nav,normals,chartRef){
+
+async function loadMonth(loc,normals){
   const{y,m}=nav.month;const start=new Date(y,m,1);const end=clamp(new Date(y,m+1,0));
-  const data=await fetchRecent(key,start,end);
+  const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
   const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
   const nd=normForDates(dates,normals);
-  const real=avg(temps.filter(v=>v!==null));const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=normals[k].monthly[m];});
-  setCards(pfx,real,normVals,`${MNAMES[m]} ${y}`,key);
-  renderChart(`${pfx}-chart`,chartRef,dates.map(d=>fmtShort(new Date(d))),temps,nd,`${locName(key)} · ${MNAMES[m]} ${y}`,`${pfx}-chart-title`,key);
-  return real;
+  const real=avg(temps.filter(v=>v!==null));
+  const nv={};['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k].monthly[m];});
+  setCards(real,nv,`${MNAMES[m]} ${y}`);
+  renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${MNAMES[m]} ${y}`);
 }
-async function loadYear(pfx,key,nav,normals,chartRef){
+
+async function loadYear(loc,normals){
   const y=nav.year;const start=new Date(y,0,1);const end=clamp(new Date(y,11,31));
-  const data=await fetchRecent(key,start,end);
+  const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
   const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
   const byM={};for(let i=0;i<dates.length;i++){const mo=new Date(dates[i]).getMonth();if(!byM[mo])byM[mo]=[];if(temps[i]!==null)byM[mo].push(temps[i]);}
   const months=Object.keys(byM).map(Number).sort((a,b)=>a-b);
   const realData=months.map(mo=>{const t=byM[mo];return t.length?parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)):null;});
-  const nd={d1:[],d2:[],d3:[],d4:[]};months.forEach(mo=>{['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly[mo];nd[k].push(v!==null?parseFloat(v.toFixed(1)):null);});});
-  const real=avg(realData);const normVals={};['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly.filter(x=>x!==null);normVals[k]=v.length?parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)):null;});
-  setCards(pfx,real,normVals,`${y} · moy. annuelle`,key);
-  renderChart(`${pfx}-chart`,chartRef,months.map(mo=>MSHORT[mo]),realData,nd,`${locName(key)} · ${y}`,`${pfx}-chart-title`,key);
-  return real;
+  const nd={d1:[],d2:[],d3:[],d4:[]};months.forEach(mo=>{['d1','d2','d3','d4'].forEach(k=>{nd[k].push(normals[k].monthly[mo]??null);});});
+  const real=avg(realData);
+  const nv={};['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly.filter(x=>x!==null);nv[k]=v.length?parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)):null;});
+  setCards(real,nv,`${y} · moy. annuelle`);
+  renderChart(months.map(mo=>MSHORT[mo]),realData,nd,`${loc.name} · ${y}`);
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// PROGRESS / STATUS
-// ══════════════════════════════════════════════════════════════════════════════
-function setProgress(pfx,pct,lbl,det){
-  const bar=document.getElementById(`${pfx}-prog-bar`);if(bar)bar.style.width=pct+'%';
-  const l=document.getElementById(`${pfx}-prog-label`);if(l&&lbl!==undefined)l.textContent=lbl;
-  const d=document.getElementById(`${pfx}-prog-detail`);if(d&&det!==undefined)d.textContent=det;
-}
-function showProgress(pfx){document.getElementById(`${pfx}-progress`).classList.add('visible');document.getElementById(`${pfx}-chart-card`).style.opacity='0.4';}
-function hideProgress(pfx){document.getElementById(`${pfx}-progress`).classList.remove('visible');document.getElementById(`${pfx}-chart-card`).style.opacity='1';}
-function setStatus(pfx,msg,ok){document.getElementById(`${pfx}-status-dot`).style.background=ok?'#27ae60':'#f39c12';document.getElementById(`${pfx}-status-txt`).textContent=msg;}
-function setError(pfx,msg){
-  document.getElementById(`${pfx}-status-dot`).style.background='#c0392b';
-  document.getElementById(`${pfx}-status-txt`).textContent='Erreur : '+msg;
-  hideProgress(pfx);
-  // Vider les cartes pour éviter d'afficher des données périmées
-  document.getElementById(`${pfx}-m-real`).textContent='—';
-  document.getElementById(`${pfx}-m-real-sub`).textContent=msg.length>60?msg.slice(0,60)+'…':msg;
-  ['d1','d2','d3','d4'].forEach(k=>{
-    const el=document.getElementById(`${pfx}-m-${k}`);if(el)el.textContent='—';
-    const ed=document.getElementById(`${pfx}-m-${k}-d`);if(ed){ed.textContent='—';ed.className='dc-delta neu';}
-    const ee=document.getElementById(`${pfx}-m-${k}-err`);if(ee)ee.textContent='';
-  });
-  // Vider le graphe
-  const tid=document.getElementById(`${pfx}-chart-title`);if(tid)tid.textContent='—';
-  const pfxRef=pfx==='fr'?frChartRef:woChartRef;
-  if(pfxRef&&pfxRef.instance){pfxRef.instance.destroy();pfxRef.instance=null;}
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// FRANCE DISPATCHER
-// ══════════════════════════════════════════════════════════════════════════════
-let frLoadId=0;
-async function loadFrance(){
-  const myId=++frLoadId;
-  const key=frKey, period=frPeriod;
-  const loc=LOCS[key];setStatus('fr',`Chargement ${loc.name}…`,false);
-  let normals=normalsCache[key];
-  if(!normals){showProgress('fr');setProgress('fr',0,`Normales ERA5 · ${loc.name}`,'Calcul 4 décennies…');
-    try{normals=await getNormals(key,'fr');}catch(e){setError('fr',e.message);return;}}
-  if(myId!==frLoadId)return; // annulé par un appel plus récent
+// ── Dispatcher ────────────────────────────────────────────────────────────────
+async function load(){
+  const myId=++loadId;
+  const loc=LOCS[regionKey];
+  const normals=getNormals(regionKey);
+  if(!normals){setError('Région inconnue');return;}
+  setStatus(`Chargement ${loc.name}…`,false);
+  showProgress();setProgress(10,'Chargement données…','Open-Meteo');
   try{
-    setProgress('fr',92,'Données récentes…','');
-    if     (period==='day')  await loadDay('fr',key,period,frNav,normals,frChartRef);
-    else if(period==='week') await loadWeek('fr',key,frNav,normals,frChartRef);
-    else if(period==='month')await loadMonth('fr',key,frNav,normals,frChartRef);
-    else                     await loadYear('fr',key,frNav,normals,frChartRef);
-    if(myId!==frLoadId)return;
-    hideProgress('fr');setStatus('fr',`ERA5 · ${loc.name} · cache 24h`,true);
-  }catch(e){if(myId===frLoadId)setError('fr',e.message);}
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// MONDE DISPATCHER
-// ══════════════════════════════════════════════════════════════════════════════
-let woLoadId=0;
-async function loadWorld(){
-  const myId=++woLoadId;
-  const key=woKey, period=woPeriod;
-  const loc=key==='planet'?{name:'Planète'}:LOCS[key];if(!loc)return;
-  document.getElementById('wo-sel-name').textContent=loc.name;
-  setStatus('wo',`Chargement ${loc.name}…`,false);
-  let normals=normalsCache[key];
-  if(!normals){showProgress('wo');setProgress('wo',0,`Normales ERA5 · ${loc.name}`,'Calcul 4 décennies…');
-    try{normals=await getNormals(key,'wo');}catch(e){setError('wo',e.message);return;}}
-  if(myId!==woLoadId)return;
-  try{
-    setProgress('wo',92,'Données récentes…','');
-    let real;
-    if     (period==='day')  real=await loadDay('wo',key,period,woNav,normals,woChartRef);
-    else if(period==='week') real=await loadWeek('wo',key,woNav,normals,woChartRef);
-    else if(period==='month')real=await loadMonth('wo',key,woNav,normals,woChartRef);
-    else                     real=await loadYear('wo',key,woNav,normals,woChartRef);
-    if(myId!==woLoadId)return;
-    hideProgress('wo');setStatus('wo',`ERA5 · ${loc.name} · cache 24h`,true);
-    const nd=normalsCache[key];
-    if(nd&&real!==null){const normVal=nd['d1'].daily[getDOY(clamp(new Date(woNav.day)))];if(normVal!==null){anomalyCache[key]=real-normVal;paintMap(key,anomalyCache[key]);}}
-  }catch(e){if(myId===woLoadId)setError('wo',e.message);}
-}
-
-function selectWorldKey(key){
-  woKey=key;
-  document.querySelectorAll('.zone-pill').forEach(p=>p.classList.toggle('active',p.dataset.key===key));
-  highlightMap(key);
-  loadWorld();
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// PRELOAD MONDE (silencieux)
-// ══════════════════════════════════════════════════════════════════════════════
-async function preloadWorld(){
-  const lbl=document.getElementById('map-loading-txt');
-  let n=0;
-  for(const key of PRELOAD_WORLD){
-    try{
-      const normals=await getNormals(key,null);
-      const loc=key==='planet'?{name:'Planète',lat:0,lon:0}:LOCS[key];
-      const end=clamp(new Date(woNav.day));const start=addDays(end,-6);
-      const data=await fetchERA5(loc.lat,loc.lon,toDS(start),toDS(end));
-      const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
-      const real=avg(temps);const normVal=normals['d1'].daily[getDOY(end)];
-      if(real!==null&&normVal!==null){anomalyCache[key]=real-normVal;paintMap(key,anomalyCache[key]);}
-      n++;if(lbl)lbl.textContent=`${n}/${PRELOAD_WORLD.length} zones`;
-    }catch(e){}
+    if(period==='day')     await loadDay(loc,normals);
+    else if(period==='week')  await loadWeek(loc,normals);
+    else if(period==='month') await loadMonth(loc,normals);
+    else                      await loadYear(loc,normals);
+    if(myId!==loadId)return;
+    hideProgress();
+    setStatus(`ERA5 · ${loc.name}`,true);
+  }catch(e){
+    if(myId!==loadId)return;
+    setError(e.message);
   }
-  if(lbl)lbl.textContent='';
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// EVENTS & INIT
-// ══════════════════════════════════════════════════════════════════════════════
-// France tabs
-document.querySelectorAll('#fr-tabs .tab').forEach(t=>{
+// ── Nav row ───────────────────────────────────────────────────────────────────
+function buildNav(){
+  const row=document.getElementById('nav-row');row.innerHTML='';
+  if(period==='day'){
+    row.innerHTML=`<button class="nav-btn" id="np">←</button><input type="date" id="nd" style="font-family:var(--mono);font-size:12px;padding:5px 9px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;"><button class="nav-btn" id="nn">→</button><span id="nl" class="nav-current"></span><button class="nav-btn" id="nt" style="margin-left:auto;font-size:11px;">Dernier</button>`;
+    const inp=document.getElementById('nd');
+    inp.max=toDS(era5End);inp.min='2024-01-01';inp.value=toDS(nav.day);
+    updateLabel();
+    inp.onchange=()=>{const v=new Date(inp.value+'T00:00:00');if(!isNaN(v)){nav.day=v;updateLabel();load();}};
+    document.getElementById('np').onclick=()=>{nav.day=addDays(nav.day,-1);if(nav.day<new Date('2024-01-01'))nav.day=new Date('2024-01-01');inp.value=toDS(nav.day);updateLabel();load();};
+    document.getElementById('nn').onclick=()=>{nav.day=addDays(nav.day,1);if(nav.day>era5End)nav.day=new Date(era5End);inp.value=toDS(nav.day);updateLabel();load();};
+    document.getElementById('nt').onclick=()=>{nav.day=new Date(era5End);inp.value=toDS(nav.day);updateLabel();load();};
+  } else if(period==='week'){
+    row.innerHTML=`<button class="nav-btn" id="np">←</button><span id="nl" class="nav-current"></span><button class="nav-btn" id="nn">→</button><button class="nav-btn" id="nt" style="margin-left:auto;font-size:11px;">Cette sem.</button>`;
+    updateLabel();
+    document.getElementById('np').onclick=()=>{nav.week=addDays(nav.week,-7);updateLabel();load();};
+    document.getElementById('nn').onclick=()=>{const n=addDays(nav.week,7);if(n<=era5End){nav.week=n;updateLabel();load();}};
+    document.getElementById('nt').onclick=()=>{nav.week=getMon(era5End);updateLabel();load();};
+  } else if(period==='month'){
+    const mo=MNAMES.map((n,i)=>`<option value="${i}"${i===nav.month.m?' selected':''}>${n}</option>`).join('');
+    let yo='';for(let y=today.getFullYear();y>=2024;y--)yo+=`<option value="${y}"${y===nav.month.y?' selected':''}>${y}</option>`;
+    row.innerHTML=`<span class="ctrl-label">Mois</span><select id="nms">${mo}</select><span class="ctrl-label">Année</span><select id="nys">${yo}</select><button class="nav-btn" id="np" style="margin-left:4px;">← Préc.</button><button class="nav-btn" id="nn">Suiv. →</button><button class="nav-btn" id="nt" style="margin-left:auto;font-size:11px;">Ce mois</button>`;
+    const sync=()=>{document.getElementById('nms').value=nav.month.m;document.getElementById('nys').value=nav.month.y;};
+    document.getElementById('nms').onchange=e=>{nav.month.m=+e.target.value;load();};
+    document.getElementById('nys').onchange=e=>{nav.month.y=+e.target.value;load();};
+    document.getElementById('np').onclick=()=>{nav.month.m--;if(nav.month.m<0){nav.month.m=11;nav.month.y--;}if(nav.month.y<2024){nav.month.y=2024;nav.month.m=0;}sync();load();};
+    document.getElementById('nn').onclick=()=>{nav.month.m++;if(nav.month.m>11){nav.month.m=0;nav.month.y++;}const my=era5End.getFullYear(),mm=era5End.getMonth();if(nav.month.y>my||(nav.month.y===my&&nav.month.m>mm)){nav.month.y=my;nav.month.m=mm;}sync();load();};
+    document.getElementById('nt').onclick=()=>{nav.month={y:era5End.getFullYear(),m:era5End.getMonth()};sync();load();};
+  } else {
+    let yo='';for(let y=today.getFullYear();y>=2024;y--)yo+=`<option value="${y}"${y===nav.year?' selected':''}>${y}</option>`;
+    row.innerHTML=`<span class="ctrl-label">Année</span><select id="nys">${yo}</select><button class="nav-btn" id="np" style="margin-left:4px;">← Préc.</button><button class="nav-btn" id="nn">Suiv. →</button><button class="nav-btn" id="nt" style="margin-left:auto;font-size:11px;">Cette année</button>`;
+    document.getElementById('nys').onchange=e=>{nav.year=+e.target.value;load();};
+    document.getElementById('np').onclick=()=>{if(nav.year>2024){nav.year--;document.getElementById('nys').value=nav.year;load();}};
+    document.getElementById('nn').onclick=()=>{if(nav.year<era5End.getFullYear()){nav.year++;document.getElementById('nys').value=nav.year;load();}};
+    document.getElementById('nt').onclick=()=>{nav.year=era5End.getFullYear();document.getElementById('nys').value=nav.year;load();};
+  }
+}
+
+function updateLabel(){
+  const el=document.getElementById('nl');if(!el)return;
+  if(period==='day')el.textContent=fmtFull(nav.day);
+  else if(period==='week'){const wn=getWeekNum(nav.week);el.textContent=`S${wn} · ${fmtWeek(nav.week)}`;}
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(t=>{
   t.onclick=()=>{
-    document.querySelectorAll('#fr-tabs .tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     t.classList.add('active');
-    frPeriod=t.dataset.period;
-    buildNav('fr',frPeriod,frNav,loadFrance);
-    loadFrance();
+    period=t.dataset.p;
+    buildNav();load();
   };
 });
-document.getElementById('fr-region').onchange=e=>{frKey=e.target.value;loadFrance();};
+document.getElementById('region-sel').onchange=e=>{regionKey=e.target.value;load();};
 
-// Monde tabs
-document.querySelectorAll('#wo-tabs .tab').forEach(t=>{
-  t.onclick=()=>{
-    document.querySelectorAll('#wo-tabs .tab').forEach(x=>x.classList.remove('active'));
-    t.classList.add('active');
-    woPeriod=t.dataset.period;
-    buildNav('wo',woPeriod,woNav,loadWorld);
-    loadWorld();
-  };
-});
-
-// Zone pills
-document.querySelectorAll('.zone-pill').forEach(p=>{
-  p.onclick=()=>selectWorldKey(p.dataset.key);
-});
-
-// Init
-buildNav('fr',frPeriod,frNav,loadFrance);
-buildNav('wo',woPeriod,woNav,loadWorld);
-initMap().then(()=>{
-  loadFrance();
-  loadWorld();
-  preloadWorld();
-});
+document.getElementById('yr').textContent=today.getFullYear();
+buildNav();
+load();
 </script>
 </body>
 </html>
