@@ -390,7 +390,7 @@ const today=new Date(); today.setHours(0,0,0,0);
 const era5End=addDays(today,-7); // ERA5 lag garanti à J-7
 
 // Vider le cache si la version a changé
-const CACHE_VERSION='v8';
+const CACHE_VERSION='v9';
 if(localStorage.getItem('e5_version')!==CACHE_VERSION){
   Object.keys(localStorage).filter(k=>k.startsWith('e5_')).forEach(k=>localStorage.removeItem(k));
   localStorage.setItem('e5_version',CACHE_VERSION);
@@ -442,15 +442,32 @@ function anomColor(delta){
 // ══════════════════════════════════════════════════════════════════════════════
 // ERA5 API + NORMALES
 // ══════════════════════════════════════════════════════════════════════════════
-async function fetchERA5(lat,lon,start,end){
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function fetchERA5(lat,lon,start,end,retries=3){
   const url=`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${start}&end_date=${end}&daily=temperature_2m_mean&timezone=auto`;
-  const r=await fetch(url);if(!r.ok)throw new Error(`ERA5 HTTP ${r.status}`);
-  const d=await r.json();if(d.error)throw new Error(d.reason||'Erreur API');return d;
+  for(let attempt=0;attempt<retries;attempt++){
+    const r=await fetch(url);
+    if(r.status===429){
+      // Rate limited — attendre et réessayer
+      const wait=2000*(attempt+1);
+      await sleep(wait);
+      continue;
+    }
+    if(!r.ok)throw new Error(`ERA5 HTTP ${r.status}`);
+    const d=await r.json();if(d.error)throw new Error(d.reason||'Erreur API');return d;
+  }
+  throw new Error('ERA5 : trop de requêtes (429). Réessayez dans quelques secondes.');
 }
 
 // Fetch ERA5 pour plusieurs points et renvoie la moyenne pondérée jour par jour
 async function fetchERA5Grid(grid, start, end){
-  const results = await Promise.all(grid.map(pt => fetchERA5(pt.lat, pt.lon, start, end)));
+  // Séquentiel pour éviter le rate limiting (pas de Promise.all)
+  const results = [];
+  for(const pt of grid){
+    results.push(await fetchERA5(pt.lat, pt.lon, start, end));
+    await sleep(300);
+  }
   const totalW = grid.reduce((s,pt)=>s+pt.w, 0);
   const dates = results[0].daily.time;
   const temps = dates.map((_,i) => {
@@ -495,6 +512,8 @@ async function getNormals(key,pfx){
       ? await fetchERA5Grid(PLANET_GRID, dec.start, endDate)
       : await fetchERA5(loc.lat,loc.lon,dec.start,endDate);
     result[dec.key]={daily:buildDaily(data.daily.time,data.daily.temperature_2m_mean),monthly:buildMonthly(data.daily.time,data.daily.temperature_2m_mean)};
+    // Délai entre chaque décennie pour éviter le rate limiting
+    if(i < DECADES.length-1) await sleep(800);
   }
   cSet(ck,result);normalsCache[key]=result;return result;
 }
