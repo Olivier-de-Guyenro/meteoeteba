@@ -38,7 +38,7 @@
     @media(max-width:420px){.metrics{grid-template-columns:repeat(2,1fr);}}
     .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-top:3px solid transparent;}
     .metric.r{border-top-color:#c0392b}.metric.d1{border-top-color:#27ae60}.metric.d2{border-top-color:#2471a3}.metric.d3{border-top-color:#8e44ad}.metric.d4{border-top-color:#e67e22}
-    .metric.d5{border-top-color:#7f8c8d}
+    .metric.d5{border-top-color:#16a085}
     .metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);font-family:var(--mono);margin-bottom:6px;}
     .metric-val{font-size:20px;font-weight:500;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
     .metric-err{display:block;font-size:10px;color:var(--text-2);font-family:var(--mono);margin-top:1px;}
@@ -123,7 +123,7 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
     <div class="metric d2"><div class="metric-label" id="m-d2-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="m-d2">—</div><span class="metric-err" id="m-d2-err"></span><div class="metric-delta" id="m-d2-d">—</div></div>
     <div class="metric d3"><div class="metric-label" id="m-d3-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="m-d3">—</div><span class="metric-err" id="m-d3-err"></span><div class="metric-delta" id="m-d3-d">—</div></div>
     <div class="metric d4"><div class="metric-label" id="m-d4-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="m-d4">—</div><span class="metric-err" id="m-d4-err"></span><div class="metric-delta" id="m-d4-d">—</div></div>
-    <div class="metric d5"><div class="metric-label" id="m-d5-label">Moy. 1991–2025</div><div class="metric-val" style="color:#7f8c8d" id="m-d5">—</div><span class="metric-err" id="m-d5-err"></span><div class="metric-delta" id="m-d5-d">—</div></div>
+    <div class="metric d5"><div class="metric-label" id="m-d5-label">Moy. 1991–2025</div><div class="metric-val" style="color:#16a085" id="m-d5">—</div><span class="metric-err" id="m-d5-err"></span><div class="metric-delta" id="m-d5-d">—</div></div>
   </div>
 
   <div class="progress-wrap" id="progress">
@@ -141,7 +141,7 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
         <div class="legend-item"><div class="leg-line" style="background:#8e44ad"></div>2011–20</div>
         <div class="legend-item"><div class="leg-line" style="background:#2471a3"></div>2001–10</div>
         <div class="legend-item"><div class="leg-line" style="background:#27ae60"></div>1991–00</div>
-        <div class="legend-item"><div class="leg-line" style="background:#7f8c8d"></div>1991–26</div>
+        <div class="legend-item"><div class="leg-line" style="background:#16a085"></div>1991–26</div>
       </div>
     </div>
     <div class="chart-wrap"><canvas id="chart" role="img" aria-label="Températures France vs normales ERA5"></canvas></div>
@@ -193,7 +193,7 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
     <div class="metric d2"><div class="metric-label" id="wo-m-d2-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="wo-m-d2">—</div><span class="metric-err" id="wo-m-d2-err"></span><div class="metric-delta" id="wo-m-d2-d">—</div></div>
     <div class="metric d3"><div class="metric-label" id="wo-m-d3-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="wo-m-d3">—</div><span class="metric-err" id="wo-m-d3-err"></span><div class="metric-delta" id="wo-m-d3-d">—</div></div>
     <div class="metric d4"><div class="metric-label" id="wo-m-d4-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="wo-m-d4">—</div><span class="metric-err" id="wo-m-d4-err"></span><div class="metric-delta" id="wo-m-d4-d">—</div></div>
-    <div class="metric d5"><div class="metric-label" id="wo-m-d5-label">Moy. 1991–2025</div><div class="metric-val" style="color:#7f8c8d" id="wo-m-d5">—</div><span class="metric-err" id="wo-m-d5-err"></span><div class="metric-delta" id="wo-m-d5-d">—</div></div>
+    <div class="metric d5"><div class="metric-label" id="wo-m-d5-label">Moy. 1991–2025</div><div class="metric-val" style="color:#16a085" id="wo-m-d5">—</div><span class="metric-err" id="wo-m-d5-err"></span><div class="metric-delta" id="wo-m-d5-d">—</div></div>
   </div>
 
   <!-- Planisphère -->
@@ -480,7 +480,7 @@ function renderChart(labels,realData,nd,title){
     {label:'2011–2020',data:nd.d3,borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:3},
     {label:'2001–2010',data:nd.d2,borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:4},
     {label:'1991–2000',data:nd.d1,borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:5},
-    {label:'Moy. 1991–2025',data:nd.d5||[],borderColor:'#7f8c8d',borderWidth:2,borderDash:[2,3],pointRadius:0,tension:0.35,fill:false,order:6},
+    {label:'Moy. 1991–2025',data:nd.d5||[],borderColor:'#16a085',borderWidth:2,borderDash:[2,3],pointRadius:0,tension:0.35,fill:false,order:6},
   ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
     plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:8,
       callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null)return null;const lbl=ctx.dataset.label;if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)} ±${UNC.real}°C`;const dk={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1','Moy. 1991–2025':'d5'}[lbl];if(!dk)return null;const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];if(rv!=null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}return`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`;}}}},
