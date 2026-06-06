@@ -672,7 +672,10 @@ const COUNTRY_LOCS={
 
 const CONTINENTS=['europe','africa','namerica','samerica','asia','oceania'];
 
-function getLoc(key){return LOCS[key]||COUNTRY_LOCS[key]||null;}
+function getLoc(key){
+  if(key==='planet')return{name:'Monde',lat:0,lon:0};
+  return LOCS[key]||COUNTRY_LOCS[key]||null;
+}
 
 function anomColor(delta){
   if(delta===null||delta===undefined)return'#ddd';
@@ -755,9 +758,105 @@ function renderWoChart(labels,realData,nd,title){
 }
 
 // ── Loaders Monde ────────────────────────────────────────────────────────────
+// Charge les 6 continents et affiche la moyenne pondérée pour Planète
+const CONTINENT_WEIGHTS={europe:0.12,namerica:0.16,samerica:0.14,africa:0.20,asia:0.30,oceania:0.08};
+
+async function loadWoPlanet(myId, period){
+  document.getElementById('map-sel-name').textContent='Monde';
+  setWoStatus('Chargement continents…',null);
+
+  const results={};
+  const continentsToLoad=['europe','namerica','samerica','africa','asia','oceania'];
+
+  for(const c of continentsToLoad){
+    if(myId!==woLoadId)return;
+    const loc=getLoc(c);if(!loc)continue;
+    const normals=getNormals(c)||getNormals('europe');if(!normals)continue;
+    setWoStatus(`Chargement ${loc.name}…`,null);
+    try{
+      let real=null,nv={d1:null,d2:null,d3:null,d4:null,d5:null};
+      if(period==='day'){
+        const end=clamp(new Date(woNav.day));const start=addDays(end,-6);
+        const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
+        const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
+        real=temps.length?avg(temps):null;
+        const doy=getDOY(clamp(new Date(woNav.day)));
+        ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k].daily[doy]??null;});
+      } else if(period==='week'){
+        const mon=new Date(woNav.week);const sun=clamp(addDays(mon,6));
+        const data=await fetchData(loc.lat,loc.lon,toDS(mon),toDS(sun));
+        const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
+        real=temps.length?avg(temps):null;
+        const doy=getDOY(clamp(new Date(woNav.week)));
+        ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k].daily[doy]??null;});
+      } else if(period==='month'){
+        const{y,m}=woNav.month;const start=new Date(y,m,1);const end=clamp(new Date(y,m+1,0));
+        const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
+        const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
+        real=temps.length?avg(temps):null;
+        ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k].monthly[m]??null;});
+      } else {
+        const y=woNav.year;const start=new Date(y,0,1);const end=clamp(new Date(y,11,31));
+        const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
+        const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
+        real=temps.length?Math.round(avg(temps)*10)/10:null;
+        const v=normals['d1'].monthly.filter(x=>x!==null);
+        ['d1','d2','d3','d4'].forEach(k=>{const mv=normals[k].monthly.filter(x=>x!==null);nv[k]=mv.length?Math.round(mv.reduce((a,b)=>a+b,0)/mv.length*10)/10:null;});
+      }
+      const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
+      nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
+      results[c]={real,nv};
+      // Anomalie pour la carte
+      const normRef=nv[mapRef];
+      if(real!==null&&normRef!==null){
+        anomCache[c]=Math.round((real-normRef)*10)/10;
+        paintZone(c,anomCache[c]);
+      }
+      // Sauvegarder aussi l'anomalie d1 pour la carte par défaut
+      if(real!==null&&nv.d1!==null) anomCache[c]=Math.round((real-nv.d1)*10)/10;
+    }catch(e){results[c]=null;}
+    await new Promise(r=>setTimeout(r,150));
+  }
+
+  if(myId!==woLoadId)return;
+
+  // Calculer moyenne pondérée planète
+  const weights=CONTINENT_WEIGHTS;
+  let wReal=0,wD={d1:0,d2:0,d3:0,d4:0,d5:0},wSum=0;
+  Object.entries(results).forEach(([c,r])=>{
+    if(!r||r.real===null)return;
+    const w=weights[c]||0.15;
+    wReal+=r.real*w;wSum+=w;
+    ['d1','d2','d3','d4','d5'].forEach(k=>{if(r.nv[k]!==null)wD[k]+=(r.nv[k]*w);});
+  });
+  const planetReal=wSum>0?Math.round(wReal/wSum*10)/10:null;
+  const planetNv={};['d1','d2','d3','d4','d5'].forEach(k=>{planetNv[k]=wSum>0?Math.round(wD[k]/wSum*10)/10:null;});
+
+  // Label période
+  let periodLabel='',label='';
+  if(period==='day'){const dd=clamp(new Date(woNav.day));label=fmtFull(dd);periodLabel=dd.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
+  else if(period==='week'){const wn=getWeekNum(woNav.week);label=`S${wn} · moy. semaine`;periodLabel=`sem. ${wn}`;}
+  else if(period==='month'){label=`${MNAMES[woNav.month.m]} ${woNav.month.y}`;periodLabel=MSHORT[woNav.month.m];}
+  else{label=`${woNav.year} · moy. annuelle`;periodLabel='année';}
+
+  setWoCards(planetReal,planetNv,label,periodLabel);
+  setWoStatus('ERA5 · Monde',true);
+
+  // Peindre la carte planète
+  paintZone('planet',anomCache['planet']??null);
+}
+
+
 async function loadWo(){
   const myId=++woLoadId;
   const key=woKey, period=woPeriod;
+
+  // Pour 'planet' : charger tous les continents et faire la moyenne pondérée
+  if(key==='planet'){
+    await loadWoPlanet(myId, period);
+    return;
+  }
+
   const loc=getLoc(key);
   if(!loc)return;
   const normals=getNormals(key)||getNormals('europe');
