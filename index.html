@@ -855,6 +855,149 @@ async function initMap(){
 }
 
 // ── Navigation temporelle Monde ───────────────────────────────────────────────
+// ── Loaders Monde ─────────────────────────────────────────────────────────────
+const CONTINENT_WEIGHTS={europe:0.12,namerica:0.16,samerica:0.14,africa:0.20,asia:0.30,oceania:0.08};
+
+async function loadWoPlanet(myId,period){
+  document.getElementById('map-sel-name').textContent='Monde';
+  setWoStatus('Chargement continents…',null);
+  const continentsToLoad=['europe','namerica','samerica','africa','asia','oceania'];
+  const W=CONTINENT_WEIGHTS;
+  const results={};
+  for(const c of continentsToLoad){
+    if(myId!==woLoadId)return;
+    const loc=getLoc(c);if(!loc)continue;
+    const normals=getNormals(c);if(!normals)continue;
+    setWoStatus(`Chargement ${loc.name}…`,null);
+    try{
+      let real=null;
+      const nv={d1:null,d2:null,d3:null,d4:null,d5:null};
+      if(period==='day'){
+        const end=clamp(new Date(woNav.day));const start=addDays(end,-6);
+        const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
+        const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
+        real=temps.length?Math.round(avg(temps)*10)/10:null;
+        const doy=getDOY(end);
+        ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k]?.daily[doy]??null;});
+      } else if(period==='week'){
+        const mon=new Date(woNav.week);const sun=clamp(addDays(mon,6));
+        const data=await fetchData(loc.lat,loc.lon,toDS(mon),toDS(sun));
+        const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
+        real=temps.length?Math.round(avg(temps)*10)/10:null;
+        const doy=getDOY(mon);
+        ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k]?.daily[doy]??null;});
+      } else if(period==='month'){
+        const{y,m}=woNav.month;
+        const data=await fetchData(loc.lat,loc.lon,`${y}-${String(m+1).padStart(2,'0')}-01`,toDS(clamp(new Date(y,m+1,0))));
+        const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
+        real=temps.length?Math.round(avg(temps)*10)/10:null;
+        ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k]?.monthly[m]??null;});
+      } else {
+        const y=woNav.year;
+        const data=await fetchData(loc.lat,loc.lon,`${y}-01-01`,toDS(clamp(new Date(y,11,31))));
+        const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
+        real=temps.length?Math.round(avg(temps)*10)/10:null;
+        ['d1','d2','d3','d4'].forEach(k=>{const mv=normals[k]?.monthly.filter(x=>x!==null)||[];nv[k]=mv.length?Math.round(mv.reduce((a,b)=>a+b,0)/mv.length*10)/10:null;});
+      }
+      const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
+      nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
+      results[c]={real,nv};
+      if(real!==null&&nv.d1!==null)anomCache[c]=Math.round((real-nv.d1)*10)/10;
+    }catch(e){console.warn(c,e.message);results[c]=null;}
+    await new Promise(r=>setTimeout(r,200));
+  }
+  if(myId!==woLoadId)return;
+  // Peindre carte
+  if(svgMap){
+    svgMap.selectAll('path.land').attr('fill','#ddd');
+    continentsToLoad.forEach(c=>{
+      if(anomCache[c]==null)return;
+      svgMap.selectAll('path.land').filter(d=>CONTINENT_COUNTRIES[c]?.includes(String(d.id))).attr('fill',anomColor(anomCache[c]));
+    });
+  }
+  // Moyenne pondérée planète
+  let wReal=0,wSum=0;
+  const wD={d1:0,d2:0,d3:0,d4:0,d5:0},wDS={d1:0,d2:0,d3:0,d4:0,d5:0};
+  Object.entries(results).forEach(([c,r])=>{
+    if(!r||r.real===null)return;
+    const w=W[c]||0.15;wReal+=r.real*w;wSum+=w;
+    ['d1','d2','d3','d4','d5'].forEach(k=>{if(r.nv[k]!==null){wD[k]+=r.nv[k]*w;wDS[k]+=w;}});
+  });
+  const planetReal=wSum>0?Math.round(wReal/wSum*10)/10:null;
+  const planetNv={};['d1','d2','d3','d4','d5'].forEach(k=>{planetNv[k]=wDS[k]>0?Math.round(wD[k]/wDS[k]*10)/10:null;});
+  let label='',periodLabel='',year=null;
+  if(period==='day'){const dd=clamp(new Date(woNav.day));label=fmtFull(dd);periodLabel=dd.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});year=dd.getFullYear();}
+  else if(period==='week'){const wn=getWeekNum(woNav.week);label=`S${wn} · moy. semaine`;periodLabel=`sem. ${wn}`;year=woNav.week.getFullYear();}
+  else if(period==='month'){label=`${MNAMES[woNav.month.m]} ${woNav.month.y}`;periodLabel=MSHORT[woNav.month.m];year=woNav.month.y;}
+  else{label=`${woNav.year} · moy. annuelle`;periodLabel='année';year=woNav.year;}
+  setWoCards(planetReal,planetNv,label,periodLabel,year);
+  setWoStatus('ERA5 · Monde',true);
+}
+
+async function loadWo(){
+  const myId=++woLoadId;
+  const key=woKey,period=woPeriod;
+  if(key==='planet'){await loadWoPlanet(myId,period);return;}
+  const loc=getLoc(key);if(!loc)return;
+  const normals=getNormals(key)||getNormals('europe');if(!normals)return;
+  document.getElementById('map-sel-name').textContent=loc.name;
+  setWoStatus(`Chargement ${loc.name}…`,null);
+  try{
+    let real=null,nd={};
+    const nv={d1:null,d2:null,d3:null,d4:null,d5:null};
+    let label='',periodLabel='',year=null;
+    if(period==='day'){
+      const end=clamp(new Date(woNav.day));const start=addDays(end,-29);
+      const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
+      const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
+      nd=normForDates(dates,normals);
+      const li=[...temps].map((v,i)=>v!==null?i:-1).filter(i=>i>=0).pop()??temps.length-1;
+      real=temps[li];
+      ['d1','d2','d3','d4'].forEach(k=>{nv[k]=nd[k][li]??null;});
+      const dd=new Date(dates[li]+'T00:00:00');
+      label=fmtFull(dd);periodLabel=dd.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});year=dd.getFullYear();
+    } else if(period==='week'){
+      const mon=new Date(woNav.week);const sun=clamp(addDays(mon,6));
+      const data=await fetchData(loc.lat,loc.lon,toDS(mon),toDS(sun));
+      const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
+      nd=normForDates(dates,normals);
+      const vt=temps.filter(v=>v!==null);real=vt.length?avg(vt):null;
+      ['d1','d2','d3','d4'].forEach(k=>{nv[k]=avg(nd[k].filter((_,i)=>temps[i]!==null));});
+      const wn=getWeekNum(mon);label=`S${wn} · moy. semaine`;periodLabel=`sem. ${wn}`;year=mon.getFullYear();
+    } else if(period==='month'){
+      const{y,m}=woNav.month;const start=new Date(y,m,1);const end=clamp(new Date(y,m+1,0));
+      const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
+      const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
+      nd=normForDates(dates,normals);
+      real=avg(temps.filter(v=>v!==null));
+      ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k].monthly[m]??null;});
+      label=`${MNAMES[m]} ${y}`;periodLabel=MSHORT[m];year=y;
+    } else {
+      const y=woNav.year;const start=new Date(y,0,1);const end=clamp(new Date(y,11,31));
+      const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
+      const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
+      const byM={};for(let i=0;i<dates.length;i++){const mo=new Date(dates[i]).getMonth();if(!byM[mo])byM[mo]=[];if(temps[i]!==null)byM[mo].push(temps[i]);}
+      const months=Object.keys(byM).map(Number).sort((a,b)=>a-b);
+      const realData=months.map(mo=>{const t=byM[mo];return t.length?parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)):null;});
+      const ndY={d1:[],d2:[],d3:[],d4:[],d5:[]};months.forEach(mo=>{['d1','d2','d3','d4','d5'].forEach(k=>{ndY[k].push(normals[k]?.monthly[mo]??null);});});
+      real=avg(realData);nd=ndY;
+      ['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly.filter(x=>x!==null);nv[k]=v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*10)/10:null;});
+      label=`${y} · moy. annuelle`;periodLabel='année';year=y;
+    }
+    const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
+    nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
+    if(myId!==woLoadId)return;
+    setWoCards(real,nv,label,periodLabel,year);
+    setWoStatus(`ERA5 · ${loc.name}`,true);
+    // Anomalie carte
+    if(real!==null&&nv.d1!==null){anomCache[key]=Math.round((real-nv.d1)*10)/10;paintZone(key,anomCache[key]);}
+  }catch(e){
+    if(myId!==woLoadId)return;
+    setWoStatus(e.message,false);
+    setWoCards(null,{d1:null,d2:null,d3:null,d4:null,d5:null},e.message.slice(0,50));
+  }
+}
+
 function buildWoNav(){
   const row=document.getElementById('wo-nav-row');row.innerHTML='';
   if(woPeriod==='day'){
