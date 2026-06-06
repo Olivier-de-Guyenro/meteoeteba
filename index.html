@@ -347,7 +347,7 @@ const today=new Date(); today.setHours(0,0,0,0);
 const era5End=addDays(today,-7); // ERA5 lag garanti à J-7
 
 // Vider le cache si la version a changé
-const CACHE_VERSION='v3';
+const CACHE_VERSION='v4';
 if(localStorage.getItem('e5_version')!==CACHE_VERSION){
   Object.keys(localStorage).filter(k=>k.startsWith('e5_')).forEach(k=>localStorage.removeItem(k));
   localStorage.setItem('e5_version',CACHE_VERSION);
@@ -719,13 +719,25 @@ async function preloadWorld(){
 // ══════════════════════════════════════════════════════════════════════════════
 // France tabs
 document.querySelectorAll('#fr-tabs .tab').forEach(t=>{
-  t.onclick=()=>{document.querySelectorAll('#fr-tabs .tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');frPeriod=t.dataset.period;buildNav('fr',frPeriod,frNav,loadFrance);loadFrance();};
+  t.onclick=()=>{
+    document.querySelectorAll('#fr-tabs .tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    frPeriod=t.dataset.period;
+    buildNav('fr',frPeriod,frNav,()=>{ frPeriod=t.dataset.period; loadFrance(); });
+    loadFrance();
+  };
 });
 document.getElementById('fr-region').onchange=e=>{frKey=e.target.value;loadFrance();};
 
 // Monde tabs
 document.querySelectorAll('#wo-tabs .tab').forEach(t=>{
-  t.onclick=()=>{document.querySelectorAll('#wo-tabs .tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');woPeriod=t.dataset.period;buildNav('wo',woPeriod,woNav,loadWorld);loadWorld();};
+  t.onclick=()=>{
+    document.querySelectorAll('#wo-tabs .tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    woPeriod=t.dataset.period;
+    buildNav('wo',woPeriod,woNav,()=>{ woPeriod=t.dataset.period; loadWorld(); });
+    loadWorld();
+  };
 });
 
 // Zone pills
