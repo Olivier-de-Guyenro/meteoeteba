@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Températures Monde — Réelles vs Normales ERA5</title>
+  <title>Températures Monde — ERA5</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -23,139 +21,134 @@
     .page{max-width:1100px;margin:0 auto;padding:1.5rem 1.5rem 4rem;}
 
     /* Header */
-    .site-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap;}
+    .site-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;}
     .site-title{font-size:20px;font-weight:500;letter-spacing:-.3px;}
     .site-title span{color:var(--text-2);font-weight:300;}
-    .site-sub{font-size:11px;color:var(--text-3);margin-top:3px;font-family:var(--mono);}
+    .site-sub{font-size:11px;color:var(--text-3);font-family:var(--mono);}
 
-    /* Top 3 summary cards: Planète / Continent / Sélection */
+    /* Summary row — Planète / Continent / Sélection */
     .summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem;}
-    .summary-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;}
-    .summary-card.active{border-color:#c0392b;box-shadow:0 0 0 1px #c0392b20;}
-    .sc-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);font-family:var(--mono);margin-bottom:5px;}
-    .sc-name{font-size:13px;font-weight:500;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .sc-temp{font-size:24px;font-weight:500;font-variant-numeric:tabular-nums;margin-bottom:3px;}
-    .sc-delta{font-size:12px;font-family:var(--mono);font-weight:500;}
-    .sc-sub{font-size:10px;color:var(--text-3);margin-top:2px;}
-    .hot{color:#c0392b} .cold{color:#2471a3} .neu{color:var(--text-2)}
+    .sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;}
+    .sc-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);font-family:var(--mono);margin-bottom:4px;}
+    .sc-name{font-size:13px;font-weight:500;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .sc-temp{font-size:24px;font-weight:500;font-variant-numeric:tabular-nums;}
+    .sc-delta{font-size:12px;font-family:var(--mono);font-weight:500;margin-top:2px;}
+    .sc-ref{font-size:10px;color:var(--text-3);margin-top:2px;}
+    .hot{color:#c0392b}.cold{color:#2471a3}.neu{color:var(--text-2)}
 
     /* Controls */
-    .controls-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:1rem;}
+    .controls-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:.875rem;}
     .tab-group{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:3px;gap:2px;}
     .tab{padding:5px 14px;font-size:13px;font-family:var(--font);border:none;background:transparent;color:var(--text-2);border-radius:7px;cursor:pointer;transition:all .15s;}
     .tab:hover{color:var(--text);background:var(--surface2);}
     .tab.active{background:var(--text);color:#fff;font-weight:500;}
-    .ref-label{font-size:12px;color:var(--text-3);font-family:var(--mono);}
+    .ctrl-label{font-size:12px;color:var(--text-3);font-family:var(--mono);}
     select{font-family:var(--font);font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);cursor:pointer;outline:none;}
 
     /* Nav row */
-    .nav-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 14px;margin-bottom:1.25rem;flex-wrap:wrap;}
-    .nav-btn{padding:5px 11px;font-size:12px;font-family:var(--font);border:1px solid var(--border);background:var(--surface2);color:var(--text-2);border-radius:7px;cursor:pointer;transition:all .15s;}
+    .nav-row{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:9px 14px;margin-bottom:1.25rem;flex-wrap:wrap;}
+    .nav-btn{padding:4px 10px;font-size:12px;font-family:var(--font);border:1px solid var(--border);background:var(--surface2);color:var(--text-2);border-radius:6px;cursor:pointer;transition:all .12s;}
     .nav-btn:hover{background:var(--text);color:#fff;border-color:var(--text);}
-    .nav-current{font-size:13px;font-weight:500;min-width:180px;text-align:center;}
+    .nav-current{font-size:12px;font-weight:500;min-width:160px;text-align:center;color:var(--text);}
 
-    /* Main layout: map left, chart right */
-    .main-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1rem;}
-    @media(max-width:760px){.main-grid{grid-template-columns:1fr;}}
+    /* Main grid */
+    .main-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin-bottom:1rem;}
+    @media(max-width:740px){.main-grid{grid-template-columns:1fr;}}
 
-    /* Map card */
+    /* Map */
     .map-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;position:relative;}
-    .map-card h3{font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;}
-    #world-map{width:100%;display:block;}
-    .map-tooltip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;font-family:var(--mono);box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:10;display:none;max-width:180px;}
-    .map-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10px;color:var(--text-3);font-family:var(--mono);}
-    .legend-grad{width:100px;height:6px;border-radius:3px;background:linear-gradient(to right,#2471a3,#e8e4dc,#c0392b);}
+    .map-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .map-card-title{font-size:11px;font-weight:500;color:var(--text-2);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;}
+    .map-loading{font-size:10px;color:var(--text-3);font-family:var(--mono);}
+    #world-map{width:100%;display:block;cursor:pointer;}
+    .map-tooltip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:11px;font-family:var(--mono);box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:10;display:none;white-space:nowrap;}
+    .map-legend{display:flex;align-items:center;gap:6px;margin-top:6px;}
+    .leg-grad{flex:1;height:5px;border-radius:3px;background:linear-gradient(to right,#2471a3,#e8e4dc,#c0392b);}
+    .leg-txt{font-size:9px;color:var(--text-3);font-family:var(--mono);}
 
-    /* France drill-down panel */
-    .france-panel{display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-top:8px;}
+    /* France panel */
+    .france-panel{display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:9px;margin-top:8px;}
     .france-panel.visible{display:block;}
-    .france-panel h4{font-size:11px;color:var(--text-3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
-    .region-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;}
-    .region-btn{padding:4px 8px;font-size:11px;font-family:var(--font);border:1px solid var(--border);background:var(--surface);color:var(--text-2);border-radius:6px;cursor:pointer;transition:all .12s;text-align:left;}
+    .france-panel-title{font-size:10px;color:var(--text-3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+    .region-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:3px;}
+    .region-btn{padding:4px 7px;font-size:11px;font-family:var(--font);border:1px solid var(--border);background:var(--surface);color:var(--text-2);border-radius:5px;cursor:pointer;transition:all .12s;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .region-btn:hover,.region-btn.active{background:var(--text);color:#fff;border-color:var(--text);}
 
-    /* Chart card */
-    .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;}
-    .chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;gap:10px;flex-wrap:wrap;}
-    .chart-title{font-size:13px;font-weight:500;}
-    .legend{display:flex;flex-wrap:wrap;gap:8px;}
-    .legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-2);font-family:var(--mono);}
-    .leg-line{width:14px;height:2px;border-radius:1px;flex-shrink:0;}
-
-    /* Decade metric cards */
-    .decade-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1rem;}
+    /* Decade cards */
+    .decade-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:.875rem;}
     @media(max-width:700px){.decade-cards{grid-template-columns:repeat(3,1fr);}}
-    .dc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px;border-top:3px solid transparent;}
-    .dc.is-real{border-top-color:#c0392b}
-    .dc.is-d1{border-top-color:#27ae60}
-    .dc.is-d2{border-top-color:#2471a3}
-    .dc.is-d3{border-top-color:#8e44ad}
-    .dc.is-d4{border-top-color:#e67e22}
-    .dc-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);font-family:var(--mono);margin-bottom:4px;}
-    .dc-val{font-size:20px;font-weight:500;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
-    .dc-delta{font-size:11px;font-weight:500;font-family:var(--mono);margin-top:2px;}
-    .chart-container{position:relative;width:100%;height:240px;}
+    .dc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 11px;border-top:3px solid transparent;}
+    .dc.is-real{border-top-color:#c0392b}.dc.is-d1{border-top-color:#27ae60}.dc.is-d2{border-top-color:#2471a3}.dc.is-d3{border-top-color:#8e44ad}.dc.is-d4{border-top-color:#e67e22}
+    .dc-label{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);font-family:var(--mono);margin-bottom:3px;}
+    .dc-val{font-size:19px;font-weight:500;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
+    .dc-delta{font-size:10px;font-weight:500;font-family:var(--mono);margin-top:2px;}
+
+    /* Chart */
+    .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem;}
+    .chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.875rem;gap:8px;flex-wrap:wrap;}
+    .chart-title{font-size:13px;font-weight:500;}
+    .legend{display:flex;flex-wrap:wrap;gap:7px;}
+    .legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-2);font-family:var(--mono);}
+    .leg-line{width:13px;height:2px;border-radius:1px;flex-shrink:0;}
+    .chart-container{position:relative;width:100%;height:230px;}
 
     /* Progress */
-    .progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1rem;text-align:center;display:none;}
+    .progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:.875rem;text-align:center;display:none;}
     .progress-wrap.visible{display:block;}
-    .progress-bar-outer{background:var(--surface2);border-radius:4px;height:5px;margin:.75rem auto;max-width:360px;overflow:hidden;}
-    .progress-bar-inner{height:100%;background:var(--text);border-radius:4px;transition:width .4s;width:0%;}
+    .progress-bar-outer{background:var(--surface2);border-radius:4px;height:5px;margin:.75rem auto;max-width:340px;overflow:hidden;}
+    .progress-bar-inner{height:100%;background:var(--text);border-radius:4px;transition:width .35s;width:0%;}
     .progress-label{font-size:13px;color:var(--text-2);}
-    .progress-detail{font-size:11px;color:var(--text-3);font-family:var(--mono);margin-top:3px;}
+    .progress-detail{font-size:10px;color:var(--text-3);font-family:var(--mono);margin-top:3px;}
 
     .status-bar{display:flex;align-items:center;gap:8px;font-size:11px;font-family:var(--mono);color:var(--text-3);padding:6px 0;}
     .status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-    footer{margin-top:2rem;padding-top:1.25rem;border-top:1px solid var(--border);font-size:11px;color:var(--text-3);font-family:var(--mono);display:flex;gap:1.5rem;flex-wrap:wrap;}
+    footer{margin-top:2rem;padding-top:1.25rem;border-top:1px solid var(--border);font-size:10px;color:var(--text-3);font-family:var(--mono);display:flex;gap:1.5rem;flex-wrap:wrap;}
     footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px;}
-    .cache-badge{display:none;align-items:center;gap:4px;font-size:10px;font-family:var(--mono);color:var(--text-3);background:var(--surface2);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle;}
   </style>
 </head>
 <body>
 <div class="page">
 
   <header class="site-header">
-    <div>
-      <h1 class="site-title">Températures Monde <span id="current-year"></span></h1>
-      <p class="site-sub">Réelles vs normales ERA5 décennales · Open-Meteo · Cliquez sur un pays</p>
-    </div>
+    <h1 class="site-title">Températures Monde <span id="current-year"></span></h1>
+    <p class="site-sub">ERA5 · Cliquez sur un pays pour charger ses données</p>
   </header>
 
-  <!-- Top 3 summary cards -->
+  <!-- 3 summary cards -->
   <div class="summary-row">
-    <div class="summary-card">
+    <div class="sc" id="sc-planet">
       <div class="sc-label">🌍 Planète</div>
-      <div class="sc-name" id="sc-planet-name">Moyenne globale</div>
+      <div class="sc-name">Moyenne globale</div>
       <div class="sc-temp neu" id="sc-planet-temp">—</div>
       <div class="sc-delta" id="sc-planet-delta">—</div>
-      <div class="sc-sub" id="sc-planet-sub">vs 1991–2000</div>
+      <div class="sc-ref" id="sc-planet-ref">chargement…</div>
     </div>
-    <div class="summary-card">
+    <div class="sc" id="sc-cont">
       <div class="sc-label">🗺 Continent</div>
       <div class="sc-name" id="sc-cont-name">—</div>
       <div class="sc-temp neu" id="sc-cont-temp">—</div>
       <div class="sc-delta" id="sc-cont-delta">—</div>
-      <div class="sc-sub" id="sc-cont-sub">vs 1991–2000</div>
+      <div class="sc-ref" id="sc-cont-ref">—</div>
     </div>
-    <div class="summary-card active">
+    <div class="sc" id="sc-sel">
       <div class="sc-label">📍 Sélection</div>
-      <div class="sc-name" id="sc-sel-name">Cliquez sur la carte</div>
+      <div class="sc-name" id="sc-sel-name">France</div>
       <div class="sc-temp neu" id="sc-sel-temp">—</div>
       <div class="sc-delta" id="sc-sel-delta">—</div>
-      <div class="sc-sub" id="sc-sel-sub">vs 1991–2000</div>
+      <div class="sc-ref" id="sc-sel-ref">—</div>
     </div>
   </div>
 
   <!-- Controls -->
   <div class="controls-row">
-    <div class="tab-group" id="period-tabs">
+    <div class="tab-group">
       <button class="tab active" data-period="day">Jour</button>
       <button class="tab" data-period="week">Semaine</button>
       <button class="tab" data-period="month">Mois</button>
       <button class="tab" data-period="year">Année</button>
     </div>
-    <span class="ref-label">Référence</span>
-    <select id="ref-decade-sel">
+    <span class="ctrl-label">Référence</span>
+    <select id="ref-sel">
       <option value="d1">vs 1991–2000</option>
       <option value="d2">vs 2001–2010</option>
       <option value="d3">vs 2011–2020</option>
@@ -163,45 +156,41 @@
     </select>
   </div>
 
-  <!-- Nav row -->
+  <!-- Nav -->
   <div class="nav-row" id="nav-row"></div>
 
-  <!-- Map + Chart -->
+  <!-- Map + Dashboard -->
   <div class="main-grid">
 
-    <!-- Map -->
     <div class="map-card">
-      <h3>Carte mondiale · anomalie thermique</h3>
+      <div class="map-card-header">
+        <span class="map-card-title">Anomalie thermique</span>
+        <span class="map-loading" id="map-loading-txt"></span>
+      </div>
       <svg id="world-map"></svg>
       <div class="map-legend">
-        <span>−3°C</span>
-        <div class="legend-grad"></div>
-        <span>+3°C</span>
-        <span style="margin-left:auto;font-size:9px">vs décennie de référence</span>
+        <span class="leg-txt">−3°C</span>
+        <div class="leg-grad"></div>
+        <span class="leg-txt">+3°C</span>
       </div>
-      <!-- France drill-down -->
       <div class="france-panel" id="france-panel">
-        <h4>🇫🇷 Régions françaises</h4>
+        <div class="france-panel-title">🇫🇷 Régions françaises</div>
         <div class="region-grid" id="region-grid"></div>
       </div>
       <div class="map-tooltip" id="map-tooltip"></div>
     </div>
 
-    <!-- Chart -->
     <div>
       <div class="decade-cards">
-        <div class="dc is-real"><div class="dc-label">Réel</div><div class="dc-val hot" id="m-real">—</div><div class="dc-delta" id="m-real-sub" style="color:var(--text-3)">—</div></div>
-        <div class="dc is-d1"><div class="dc-label">1991–2000</div><div class="dc-val" style="color:#27ae60" id="m-d1">—</div><div class="dc-delta" id="m-d1-delta">—</div></div>
-        <div class="dc is-d2"><div class="dc-label">2001–2010</div><div class="dc-val" style="color:#2471a3" id="m-d2">—</div><div class="dc-delta" id="m-d2-delta">—</div></div>
-        <div class="dc is-d3"><div class="dc-label">2011–2020</div><div class="dc-val" style="color:#8e44ad" id="m-d3">—</div><div class="dc-delta" id="m-d3-delta">—</div></div>
-        <div class="dc is-d4"><div class="dc-label">Depuis 2021</div><div class="dc-val" style="color:#e67e22" id="m-d4">—</div><div class="dc-delta" id="m-d4-delta">—</div></div>
+        <div class="dc is-real"><div class="dc-label">Réel</div><div class="dc-val hot" id="m-real">—</div><div class="dc-delta neu" id="m-real-sub">—</div></div>
+        <div class="dc is-d1"><div class="dc-label">1991–2000</div><div class="dc-val" style="color:#27ae60" id="m-d1">—</div><div class="dc-delta" id="m-d1-d">—</div></div>
+        <div class="dc is-d2"><div class="dc-label">2001–2010</div><div class="dc-val" style="color:#2471a3" id="m-d2">—</div><div class="dc-delta" id="m-d2-d">—</div></div>
+        <div class="dc is-d3"><div class="dc-label">2011–2020</div><div class="dc-val" style="color:#8e44ad" id="m-d3">—</div><div class="dc-delta" id="m-d3-d">—</div></div>
+        <div class="dc is-d4"><div class="dc-label">Depuis 2021</div><div class="dc-val" style="color:#e67e22" id="m-d4">—</div><div class="dc-delta" id="m-d4-d">—</div></div>
       </div>
       <div class="chart-card">
         <div class="chart-header">
-          <div>
-            <span class="chart-title" id="chart-title">—</span>
-            <span class="cache-badge" id="cache-badge">⚡ cache</span>
-          </div>
+          <span class="chart-title" id="chart-title">—</span>
           <div class="legend">
             <div class="legend-item"><div class="leg-line" style="background:#c0392b"></div>Réelle</div>
             <div class="legend-item"><div class="leg-line" style="background:#e67e22"></div>2021–</div>
@@ -218,11 +207,10 @@
 
   </div>
 
-  <!-- Progress -->
   <div class="progress-wrap" id="progress-wrap">
-    <div class="progress-label" id="progress-label">Calcul des normales ERA5…</div>
+    <div class="progress-label" id="progress-label">Chargement…</div>
     <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
-    <div class="progress-detail" id="progress-detail">Chargement données historiques</div>
+    <div class="progress-detail" id="progress-detail"></div>
   </div>
 
   <div class="status-bar">
@@ -232,334 +220,304 @@
 
   <footer>
     <span>Données : <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> · Réanalyse ERA5 (ECMWF)</span>
-    <span>Normales calculées sur données ERA5 brutes · Cache 24h</span>
-    <span>~J−5 · Un point GPS par zone</span>
+    <span>Normales calculées par décennie sur données ERA5 brutes</span>
+    <span>Cache 24h · Données disponibles jusqu'à J−5 environ</span>
   </footer>
 </div>
 
 <script>
 // ══════════════════════════════════════════════════════════════════════════════
-// DONNÉES GÉOGRAPHIQUES
+// CONFIG
 // ══════════════════════════════════════════════════════════════════════════════
 
-const PLANET = { key:'planet', name:'Planète', lat:0, lon:0, continent:'planet' };
-
-const CONTINENTS = {
-  europe:   { key:'europe',   name:'Europe',        lat:54,   lon:15,   color:'#e8d5b7' },
-  asia:     { key:'asia',     name:'Asie',           lat:34,   lon:100,  color:'#d4e8b7' },
-  namerica: { key:'namerica', name:'Amérique du Nord',lat:45,  lon:-100, color:'#b7d4e8' },
-  samerica: { key:'samerica', name:'Amérique du Sud', lat:-15, lon:-60,  color:'#e8b7d4' },
-  africa:   { key:'africa',   name:'Afrique',        lat:0,    lon:20,   color:'#e8e4b7' },
-  oceania:  { key:'oceania',  name:'Océanie',        lat:-25,  lon:135,  color:'#b7e8e4' },
+// Point représentatif pour la planète (latitude 0 = tropiques, on moyenne via plusieurs points)
+// On utilise un point central Europe comme proxy planète
+const LOCATIONS = {
+  // Planète
+  planet:      { name:'Planète',              lat:30,    lon:0,     continent:null   },
+  // Continents
+  europe:      { name:'Europe',               lat:54,    lon:15,    continent:null   },
+  asia:        { name:'Asie',                 lat:34,    lon:100,   continent:null   },
+  namerica:    { name:'Amér. du Nord',        lat:45,    lon:-100,  continent:null   },
+  samerica:    { name:'Amér. du Sud',         lat:-15,   lon:-60,   continent:null   },
+  africa:      { name:'Afrique',              lat:0,     lon:20,    continent:null   },
+  oceania:     { name:'Océanie',              lat:-25,   lon:135,   continent:null   },
+  // France + régions
+  france:      { name:'France',               lat:46.5,  lon:2.3,   continent:'europe' },
+  idf:         { name:'Île-de-France',        lat:48.85, lon:2.35,  continent:'europe' },
+  aura:        { name:'Auv.-Rhône-Alpes',     lat:45.75, lon:4.85,  continent:'europe' },
+  paca:        { name:'PACA',                 lat:43.93, lon:6.07,  continent:'europe' },
+  occ:         { name:'Occitanie',            lat:43.60, lon:1.44,  continent:'europe' },
+  na:          { name:'Nouvelle-Aquitaine',   lat:44.84, lon:-0.58, continent:'europe' },
+  bre:         { name:'Bretagne',             lat:48.11, lon:-1.68, continent:'europe' },
+  pdl:         { name:'Pays de la Loire',     lat:47.22, lon:-1.55, continent:'europe' },
+  nor:         { name:'Normandie',            lat:49.18, lon:0.35,  continent:'europe' },
+  hdf:         { name:'Hauts-de-France',      lat:50.63, lon:3.06,  continent:'europe' },
+  ges:         { name:'Grand Est',            lat:48.57, lon:7.75,  continent:'europe' },
+  bfc:         { name:'Bourgogne-FC',         lat:47.28, lon:5.00,  continent:'europe' },
+  cvl:         { name:'Centre-Val de Loire',  lat:47.90, lon:1.90,  continent:'europe' },
+  cor:         { name:'Corse',                lat:42.00, lon:9.00,  continent:'europe' },
+  // Pays (chargés à la demande)
+  germany:     { name:'Allemagne',            lat:51.5,  lon:10.5,  continent:'europe' },
+  uk:          { name:'Royaume-Uni',          lat:54.0,  lon:-2.0,  continent:'europe' },
+  spain:       { name:'Espagne',              lat:40.4,  lon:-3.7,  continent:'europe' },
+  italy:       { name:'Italie',              lat:42.5,  lon:12.5,  continent:'europe' },
+  portugal:    { name:'Portugal',             lat:39.5,  lon:-8.0,  continent:'europe' },
+  netherlands: { name:'Pays-Bas',             lat:52.3,  lon:5.3,   continent:'europe' },
+  belgium:     { name:'Belgique',             lat:50.8,  lon:4.4,   continent:'europe' },
+  switzerland: { name:'Suisse',               lat:46.8,  lon:8.2,   continent:'europe' },
+  austria:     { name:'Autriche',             lat:47.8,  lon:13.0,  continent:'europe' },
+  poland:      { name:'Pologne',              lat:52.0,  lon:20.0,  continent:'europe' },
+  sweden:      { name:'Suède',                lat:63.0,  lon:16.0,  continent:'europe' },
+  norway:      { name:'Norvège',              lat:65.0,  lon:14.0,  continent:'europe' },
+  denmark:     { name:'Danemark',             lat:56.0,  lon:10.0,  continent:'europe' },
+  finland:     { name:'Finlande',             lat:64.0,  lon:26.0,  continent:'europe' },
+  russia:      { name:'Russie',               lat:60.0,  lon:60.0,  continent:'europe' },
+  ukraine:     { name:'Ukraine',              lat:49.0,  lon:32.0,  continent:'europe' },
+  turkey:      { name:'Turquie',              lat:39.0,  lon:35.0,  continent:'asia'   },
+  usa:         { name:'États-Unis',           lat:39.5,  lon:-98.0, continent:'namerica'},
+  canada:      { name:'Canada',               lat:56.0,  lon:-96.0, continent:'namerica'},
+  mexico:      { name:'Mexique',              lat:23.0,  lon:-102.0,continent:'namerica'},
+  brazil:      { name:'Brésil',               lat:-10.0, lon:-53.0, continent:'samerica'},
+  argentina:   { name:'Argentine',            lat:-34.0, lon:-64.0, continent:'samerica'},
+  china:       { name:'Chine',                lat:35.0,  lon:105.0, continent:'asia'   },
+  india:       { name:'Inde',                 lat:20.0,  lon:77.0,  continent:'asia'   },
+  japan:       { name:'Japon',                lat:36.0,  lon:138.0, continent:'asia'   },
+  indonesia:   { name:'Indonésie',            lat:-2.0,  lon:118.0, continent:'asia'   },
+  australia:   { name:'Australie',            lat:-25.0, lon:133.0, continent:'oceania'},
+  southafrica: { name:'Afrique du Sud',       lat:-29.0, lon:25.0,  continent:'africa' },
+  nigeria:     { name:'Nigeria',              lat:9.0,   lon:8.0,   continent:'africa' },
+  egypt:       { name:'Égypte',               lat:26.0,  lon:30.0,  continent:'africa' },
+  morocco:     { name:'Maroc',                lat:32.0,  lon:-5.0,  continent:'africa' },
+  algeria:     { name:'Algérie',              lat:28.0,  lon:2.0,   continent:'africa' },
 };
 
-// France + régions
-const FRANCE_REGIONS = {
-  france:{ name:"France",              lat:46.5,  lon:2.3,  continent:'europe' },
-  idf:   { name:"Île-de-France",       lat:48.85, lon:2.35, continent:'europe' },
-  aura:  { name:"Auv.-Rhône-Alpes",    lat:45.75, lon:4.85, continent:'europe' },
-  paca:  { name:"PACA",                lat:43.93, lon:6.07, continent:'europe' },
-  occ:   { name:"Occitanie",           lat:43.60, lon:1.44, continent:'europe' },
-  na:    { name:"Nouvelle-Aquitaine",  lat:44.84, lon:-0.58,continent:'europe' },
-  bre:   { name:"Bretagne",            lat:48.11, lon:-1.68,continent:'europe' },
-  pdl:   { name:"Pays de la Loire",    lat:47.22, lon:-1.55,continent:'europe' },
-  nor:   { name:"Normandie",           lat:49.18, lon:0.35, continent:'europe' },
-  hdf:   { name:"Hauts-de-France",     lat:50.63, lon:3.06, continent:'europe' },
-  ges:   { name:"Grand Est",           lat:48.57, lon:7.75, continent:'europe' },
-  bfc:   { name:"Bourgogne-FC",        lat:47.28, lon:5.00, continent:'europe' },
-  cvl:   { name:"Centre-Val de Loire", lat:47.90, lon:1.90, continent:'europe' },
-  cor:   { name:"Corse",               lat:42.00, lon:9.00, continent:'europe' },
+// Mapping GeoJSON numeric id → location key
+const ID_MAP = {
+  250:'france', 276:'germany', 826:'uk', 724:'spain', 380:'italy',
+  620:'portugal', 528:'netherlands', 56:'belgium', 756:'switzerland',
+  40:'austria', 616:'poland', 752:'sweden', 578:'norway', 208:'denmark',
+  246:'finland', 643:'russia', 804:'ukraine', 792:'turkey',
+  840:'usa', 124:'canada', 484:'mexico', 76:'brazil', 32:'argentina',
+  156:'china', 356:'india', 392:'japan', 360:'indonesia', 36:'australia',
+  710:'southafrica', 566:'nigeria', 818:'egypt', 504:'morocco', 12:'algeria',
 };
 
-// ~50 pays clés + numericId GeoJSON world-atlas
-const COUNTRIES = {
-  france:      { name:'France',        lat:46.5,  lon:2.3,   continent:'europe',   id:250 },
-  germany:     { name:'Allemagne',     lat:51.5,  lon:10.5,  continent:'europe',   id:276 },
-  uk:          { name:'Royaume-Uni',   lat:54.0,  lon:-2.0,  continent:'europe',   id:826 },
-  spain:       { name:'Espagne',       lat:40.4,  lon:-3.7,  continent:'europe',   id:724 },
-  italy:       { name:'Italie',        lat:42.5,  lon:12.5,  continent:'europe',   id:380 },
-  portugal:    { name:'Portugal',      lat:39.5,  lon:-8.0,  continent:'europe',   id:620 },
-  netherlands: { name:'Pays-Bas',      lat:52.3,  lon:5.3,   continent:'europe',   id:528 },
-  belgium:     { name:'Belgique',      lat:50.8,  lon:4.4,   continent:'europe',   id:56  },
-  switzerland: { name:'Suisse',        lat:46.8,  lon:8.2,   continent:'europe',   id:756 },
-  austria:     { name:'Autriche',      lat:47.8,  lon:13.0,  continent:'europe',   id:40  },
-  poland:      { name:'Pologne',       lat:52.0,  lon:20.0,  continent:'europe',   id:616 },
-  sweden:      { name:'Suède',         lat:63.0,  lon:16.0,  continent:'europe',   id:752 },
-  norway:      { name:'Norvège',       lat:65.0,  lon:14.0,  continent:'europe',   id:578 },
-  denmark:     { name:'Danemark',      lat:56.0,  lon:10.0,  continent:'europe',   id:208 },
-  finland:     { name:'Finlande',      lat:64.0,  lon:26.0,  continent:'europe',   id:246 },
-  czechia:     { name:'Tchéquie',      lat:49.8,  lon:15.5,  continent:'europe',   id:203 },
-  greece:      { name:'Grèce',         lat:39.0,  lon:22.0,  continent:'europe',   id:300 },
-  russia:      { name:'Russie',        lat:60.0,  lon:60.0,  continent:'europe',   id:643 },
-  ukraine:     { name:'Ukraine',       lat:49.0,  lon:32.0,  continent:'europe',   id:804 },
-  turkey:      { name:'Turquie',       lat:39.0,  lon:35.0,  continent:'asia',     id:792 },
-  usa:         { name:'États-Unis',    lat:39.5,  lon:-98.0, continent:'namerica', id:840 },
-  canada:      { name:'Canada',        lat:56.0,  lon:-96.0, continent:'namerica', id:124 },
-  mexico:      { name:'Mexique',       lat:23.0,  lon:-102.0,continent:'namerica', id:484 },
-  brazil:      { name:'Brésil',        lat:-10.0, lon:-53.0, continent:'samerica', id:76  },
-  argentina:   { name:'Argentine',     lat:-34.0, lon:-64.0, continent:'samerica', id:32  },
-  colombia:    { name:'Colombie',      lat:4.0,   lon:-74.0, continent:'samerica', id:170 },
-  chile:       { name:'Chili',         lat:-35.0, lon:-71.0, continent:'samerica', id:152 },
-  peru:        { name:'Pérou',         lat:-9.0,  lon:-75.0, continent:'samerica', id:604 },
-  china:       { name:'Chine',         lat:35.0,  lon:105.0, continent:'asia',     id:156 },
-  india:       { name:'Inde',          lat:20.0,  lon:77.0,  continent:'asia',     id:356 },
-  japan:       { name:'Japon',         lat:36.0,  lon:138.0, continent:'asia',     id:392 },
-  southkorea:  { name:'Corée du Sud',  lat:36.5,  lon:127.9, continent:'asia',     id:410 },
-  indonesia:   { name:'Indonésie',     lat:-2.0,  lon:118.0, continent:'asia',     id:360 },
-  thailand:    { name:'Thaïlande',     lat:15.0,  lon:101.0, continent:'asia',     id:764 },
-  vietnam:     { name:'Vietnam',       lat:16.0,  lon:108.0, continent:'asia',     id:704 },
-  pakistan:    { name:'Pakistan',      lat:30.0,  lon:69.0,  continent:'asia',     id:586 },
-  iran:        { name:'Iran',          lat:32.0,  lon:53.0,  continent:'asia',     id:364 },
-  saudiarabia: { name:'Arabie Saoudite',lat:24.0, lon:45.0,  continent:'asia',     id:682 },
-  egypt:       { name:'Égypte',        lat:26.0,  lon:30.0,  continent:'africa',   id:818 },
-  nigeria:     { name:'Nigeria',       lat:9.0,   lon:8.0,   continent:'africa',   id:566 },
-  southafrica: { name:'Afrique du Sud',lat:-29.0, lon:25.0,  continent:'africa',   id:710 },
-  ethiopia:    { name:'Éthiopie',      lat:9.0,   lon:40.0,  continent:'africa',   id:231 },
-  kenya:       { name:'Kenya',         lat:0.0,   lon:37.0,  continent:'africa',   id:404 },
-  morocco:     { name:'Maroc',         lat:32.0,  lon:-5.0,  continent:'africa',   id:504 },
-  algeria:     { name:'Algérie',       lat:28.0,  lon:2.0,   continent:'africa',   id:12  },
-  australia:   { name:'Australie',     lat:-25.0, lon:133.0, continent:'oceania',  id:36  },
-  newzealand:  { name:'Nouvelle-Zélande',lat:-41.0,lon:174.0,continent:'oceania',  id:554 },
-};
+const FRANCE_REGION_KEYS = ['france','idf','aura','paca','occ','na','bre','pdl','nor','hdf','ges','bfc','cvl','cor'];
+const CONTINENT_KEYS = ['europe','asia','namerica','samerica','africa','oceania'];
+const PRELOAD_KEYS = ['planet', ...CONTINENT_KEYS, 'france'];
 
-// Mapping numericId → country key
-const ID_TO_COUNTRY = {};
-Object.entries(COUNTRIES).forEach(([k,v])=>{ ID_TO_COUNTRY[v.id]=k; });
-
-const DECADES=[
+const DECADES = [
   {key:'d1',label:'1991–2000',start:'1991-01-01',end:'2000-12-31',color:'#27ae60'},
   {key:'d2',label:'2001–2010',start:'2001-01-01',end:'2010-12-31',color:'#2471a3'},
   {key:'d3',label:'2011–2020',start:'2011-01-01',end:'2020-12-31',color:'#8e44ad'},
-  {key:'d4',label:'2021–',    start:'2021-01-01',end:null,        color:'#e67e22'}
+  {key:'d4',label:'2021–',    start:'2021-01-01',end:null,        color:'#e67e22'},
 ];
-const MNAMES=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-const MSHORT=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+
+const MNAMES = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MSHORT = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
 
 // ══════════════════════════════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════════════════════════════
-let currentPeriod='day';
-let selectedKey='france';      // pays ou région france sélectionné
-let refDecade='d1';
-let normalsCache={};           // key → normales calculées
-let mapAnomalies={};           // key → anomalie courante (pour coloration carte)
-let chartInstance=null;
+const today = new Date(); today.setHours(0,0,0,0);
+const era5End = addDays(today, -5);
 
-const today=new Date(); today.setHours(0,0,0,0);
-const era5End=addDays(today,-5);
+let selectedKey = 'france';
+let currentPeriod = 'day';
+let refDecade = 'd1';
+let normalsCache = {};   // key → {d1,d2,d3,d4}
+let anomalyCache = {};   // key → delta number
+let chartInstance = null;
 
-let navDay=new Date(era5End);
-let navWeek=(()=>{const d=new Date(era5End);const dow=d.getDay()===0?6:d.getDay()-1;d.setDate(d.getDate()-dow);return d;})();
-let navMonth={y:era5End.getFullYear(),m:era5End.getMonth()};
-let navYear=era5End.getFullYear();
+let navDay   = new Date(era5End);
+let navWeek  = getMondayOf(era5End);
+let navMonth = { y: era5End.getFullYear(), m: era5End.getMonth() };
+let navYear  = era5End.getFullYear();
 
 // ══════════════════════════════════════════════════════════════════════════════
-// CACHE
+// CACHE localStorage
 // ══════════════════════════════════════════════════════════════════════════════
-const CACHE_TTL=24*60*60*1000;
-function cacheGet(k){try{const r=localStorage.getItem('m2_'+k);if(!r)return null;const{ts,data}=JSON.parse(r);if(Date.now()-ts>CACHE_TTL){localStorage.removeItem('m2_'+k);return null;}return data;}catch(e){return null;}}
-function cacheSet(k,data){try{localStorage.setItem('m2_'+k,JSON.stringify({ts:Date.now(),data}));}catch(e){}}
+const TTL = 24*60*60*1000;
+function cacheGet(k){ try{ const r=localStorage.getItem('era5_'+k); if(!r) return null; const {ts,data}=JSON.parse(r); if(Date.now()-ts>TTL){localStorage.removeItem('era5_'+k);return null;} return data; }catch(e){return null;} }
+function cacheSet(k,data){ try{ localStorage.setItem('era5_'+k,JSON.stringify({ts:Date.now(),data})); }catch(e){} }
 
 // ══════════════════════════════════════════════════════════════════════════════
 // HELPERS
 // ══════════════════════════════════════════════════════════════════════════════
-function toDateStr(d){return d.toISOString().slice(0,10);}
-function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
-function avg(arr){const v=arr.filter(x=>x!==null&&!isNaN(x));return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;}
-function getDOY(date){return Math.floor((date-new Date(date.getFullYear(),0,0))/86400000);}
-function clampEra5(d){return d>era5End?new Date(era5End):new Date(d);}
-function fmtShort(d){return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
-function fmtFull(d){return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
-function fmtWeekRange(mon){const sun=addDays(mon,6);return`Sem. du ${fmtShort(mon)} au ${fmtShort(sun)}`;}
-function getWeekNumber(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const dn=dt.getUTCDay()||7;dt.setUTCDate(dt.getUTCDate()+4-dn);const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7);}
-
-function getLocation(key){
-  if(FRANCE_REGIONS[key]) return FRANCE_REGIONS[key];
-  if(COUNTRIES[key]) return COUNTRIES[key];
-  if(key==='planet') return PLANET;
-  if(CONTINENTS[key]) return CONTINENTS[key];
-  return null;
+function toDS(d){ return d.toISOString().slice(0,10); }
+function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function avg(arr){ const v=arr.filter(x=>x!==null&&!isNaN(x)); return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null; }
+function getDOY(date){ return Math.floor((date - new Date(date.getFullYear(),0,0))/86400000); }
+function clamp(d){ return d > era5End ? new Date(era5End) : new Date(d); }
+function getMondayOf(d){ const r=new Date(d); const dow=r.getDay()===0?6:r.getDay()-1; r.setDate(r.getDate()-dow); return r; }
+function getWeekNum(d){ const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); const dn=dt.getUTCDay()||7; dt.setUTCDate(dt.getUTCDate()+4-dn); const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1)); return Math.ceil((((dt-ys)/86400000)+1)/7); }
+function fmtShort(d){ return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'}); }
+function fmtFull(d){ return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
+function fmtWeekRange(mon){ return `Sem. du ${fmtShort(mon)} au ${fmtShort(addDays(mon,6))}`; }
+function fmtT(v){ return v!==null ? v.toFixed(1)+'°C' : '—'; }
+function deltaStr(real,norm){ if(real===null||norm===null) return '—'; const d=real-norm; return (d>=0?'+':'')+d.toFixed(1)+'°C vs réel'; }
+function deltaCls(real,norm){ if(real===null||norm===null) return 'neu'; const d=real-norm; return d>0.5?'hot':d<-0.5?'cold':'neu'; }
+function anomColor(delta){
+  if(delta===null||delta===undefined) return '#ddd';
+  const t=Math.max(-1,Math.min(1,delta/3));
+  if(t<0){ return `rgb(${Math.round(36+(-t)*148)},${Math.round(113+(-t)*(-77))},${Math.round(163+(-t)*(-127))})`; }
+  return `rgb(${Math.round(184+t*8)},${Math.round(36+t*21)},${Math.round(36+t*7)})`;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// ERA5 API + NORMALES
+// API ERA5
 // ══════════════════════════════════════════════════════════════════════════════
-async function fetchOpenMeteo(lat,lon,startDate,endDate){
-  const url=`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_mean&timezone=auto`;
-  const res=await fetch(url);
-  if(!res.ok)throw new Error(`API HTTP ${res.status}`);
-  const data=await res.json();
-  if(data.error)throw new Error(data.reason||'Erreur API');
-  return data;
+async function fetchERA5(lat,lon,start,end){
+  const url=`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${start}&end_date=${end}&daily=temperature_2m_mean&timezone=auto`;
+  const r=await fetch(url);
+  if(!r.ok) throw new Error(`ERA5 HTTP ${r.status}`);
+  const d=await r.json();
+  if(d.error) throw new Error(d.reason||'Erreur API');
+  return d;
 }
 
-function computeDailyNormals(dates,temps){
-  const acc=Array.from({length:367},()=>({sum:0,count:0}));
-  for(let i=0;i<dates.length;i++){if(temps[i]===null)continue;const doy=getDOY(new Date(dates[i]));if(doy>=1&&doy<=366){acc[doy].sum+=temps[i];acc[doy].count++;}}
-  const raw=acc.map(a=>a.count>0?a.sum/a.count:null);
+function buildDailyNormals(dates,temps){
+  const acc=Array.from({length:367},()=>({s:0,n:0}));
+  for(let i=0;i<dates.length;i++){ if(temps[i]===null) continue; const doy=getDOY(new Date(dates[i])); if(doy>=1&&doy<=366){acc[doy].s+=temps[i];acc[doy].n++;} }
+  const raw=acc.map(a=>a.n>0?a.s/a.n:null);
   const sm=new Array(367).fill(null);
-  for(let doy=1;doy<=366;doy++){const vals=[];for(let d=-7;d<=7;d++){let idx=doy+d;if(idx<1)idx+=365;if(idx>366)idx-=365;if(raw[idx]!==null)vals.push(raw[idx]);}sm[doy]=vals.length?avg(vals):null;}
+  for(let doy=1;doy<=366;doy++){ const vals=[]; for(let d=-7;d<=7;d++){let idx=doy+d;if(idx<1)idx+=365;if(idx>366)idx-=365;if(raw[idx]!==null)vals.push(raw[idx]);} sm[doy]=vals.length?avg(vals):null; }
   return sm;
 }
-function computeMonthlyNormals(dates,temps){
-  const acc=Array.from({length:12},()=>({sum:0,count:0}));
-  for(let i=0;i<dates.length;i++){if(temps[i]===null)continue;const m=new Date(dates[i]).getMonth();acc[m].sum+=temps[i];acc[m].count++;}
-  return acc.map(a=>a.count>0?a.sum/a.count:null);
+function buildMonthlyNormals(dates,temps){
+  const acc=Array.from({length:12},()=>({s:0,n:0}));
+  for(let i=0;i<dates.length;i++){ if(temps[i]===null) continue; const m=new Date(dates[i]).getMonth(); acc[m].s+=temps[i]; acc[m].n++; }
+  return acc.map(a=>a.n>0?a.s/a.n:null);
 }
 
-async function loadNormals(key,onProgress){
-  const ck=`nrm_${key}`;
+async function getNormals(key, onProgress){
+  if(normalsCache[key]) return normalsCache[key];
+  const ck='nrm_'+key;
   const cached=cacheGet(ck);
-  if(cached){document.getElementById('cache-badge').style.display='inline-flex';if(onProgress)onProgress(100,'Cache','');return cached;}
-  document.getElementById('cache-badge').style.display='none';
-  const loc=getLocation(key);
-  if(!loc)throw new Error('Lieu inconnu: '+key);
+  if(cached){ normalsCache[key]=cached; return cached; }
+  const loc=LOCATIONS[key];
+  if(!loc) throw new Error('Lieu inconnu: '+key);
   const result={};
-  const d4end=toDateStr(era5End);
+  const d4end=toDS(era5End);
   for(let i=0;i<DECADES.length;i++){
     const dec=DECADES[i];
     const endDate=dec.end||d4end;
-    if(onProgress)onProgress(Math.round(10+(i/DECADES.length)*78),`Normales ${loc.name} · ${dec.label}`,`ERA5 ${dec.start}→${endDate}`);
-    const data=await fetchOpenMeteo(loc.lat,loc.lon,dec.start,endDate);
-    result[dec.key]={daily:computeDailyNormals(data.daily.time,data.daily.temperature_2m_mean),monthly:computeMonthlyNormals(data.daily.time,data.daily.temperature_2m_mean)};
+    if(onProgress) onProgress(Math.round(10+(i/DECADES.length)*78), `${loc.name} · ${dec.label}`, `ERA5 ${dec.start}→${endDate}`);
+    const data=await fetchERA5(loc.lat,loc.lon,dec.start,endDate);
+    result[dec.key]={ daily:buildDailyNormals(data.daily.time,data.daily.temperature_2m_mean), monthly:buildMonthlyNormals(data.daily.time,data.daily.temperature_2m_mean) };
   }
-  if(onProgress)onProgress(95,'Mise en cache','');
   cacheSet(ck,result);
-  if(onProgress)onProgress(100,'Prêt','');
+  normalsCache[key]=result;
   return result;
 }
 
-// Anomalie courante pour un lieu (pour colorier la carte)
-async function getAnomaly(key,refDec){
-  const normals=await loadNormals(key,null);
-  const loc=getLocation(key);
-  const end=clampEra5(new Date(navDay));
+// Charge données récentes + calcule anomalie vs refDecade
+async function loadRecentAndAnomaly(key){
+  const loc=LOCATIONS[key]; if(!loc) return null;
+  const normals=await getNormals(key,null);
+  const end=clamp(new Date(navDay));
   const start=addDays(end,-6);
-  const data=await fetchOpenMeteo(loc.lat,loc.lon,toDateStr(start),toDateStr(end));
+  const data=await fetchERA5(loc.lat,loc.lon,toDS(start),toDS(end));
   const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
-  const realAvg=temps.length?avg(temps):null;
-  const normAvg=normals[refDec].daily[getDOY(end)];
-  return realAvg!==null&&normAvg!==null?realAvg-normAvg:null;
+  const real=temps.length?avg(temps):null;
+  const normVal=normals[refDecade].daily[getDOY(end)];
+  const delta=real!==null&&normVal!==null?real-normVal:null;
+  anomalyCache[key]=delta;
+  return{real,normVal,delta};
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// CARTE D3
+// MAP D3
 // ══════════════════════════════════════════════════════════════════════════════
-let svgMap=null, pathGen=null, worldFeatures=null;
-
-function anomalyColor(delta){
-  if(delta===null||delta===undefined)return'#ddd';
-  const t=Math.max(-1,Math.min(1,delta/3));
-  if(t<0){const r=Math.round(36+(-t)*(36-184));const g=Math.round(113+(-t)*(113-36));const b=Math.round(163+(-t)*(163-36));return`rgb(${r},${g},${b})`;}
-  else{const r=Math.round(184+t*(192-184));const g=Math.round(36+t*(57-36));const b=Math.round(36+t*(43-36));return`rgb(${r},${g},${b})`;}
-}
+let svgMap=null, pathFn=null;
 
 async function initMap(){
-  const container=document.getElementById('world-map');
-  const W=container.parentElement.clientWidth-32||480;
-  const H=Math.round(W*0.55);
+  const cont=document.getElementById('world-map').parentElement;
+  const W=cont.clientWidth-32||460;
+  const H=Math.round(W*0.54);
   const svg=d3.select('#world-map').attr('viewBox',`0 0 ${W} ${H}`).attr('width','100%');
   svgMap=svg;
   const proj=d3.geoNaturalEarth1().scale(W/6.3).translate([W/2,H/2]);
-  pathGen=d3.geoPath(proj);
+  pathFn=d3.geoPath(proj);
 
   const world=await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
-  worldFeatures=topojson.feature(world,world.objects.countries).features;
+  const features=topojson.feature(world,world.objects.countries).features;
 
-  svg.selectAll('path.country')
-    .data(worldFeatures)
+  svg.selectAll('path.land')
+    .data(features)
     .join('path')
-    .attr('class','country')
-    .attr('d',pathGen)
-    .attr('fill','#e0ddd5')
+    .attr('class','land')
+    .attr('d',pathFn)
+    .attr('fill','#ddd')
     .attr('stroke','#fff')
     .attr('stroke-width',.4)
     .style('cursor','pointer')
-    .on('mouseover',function(event,d){
-      const ck=ID_TO_COUNTRY[+d.id];
-      const name=ck?COUNTRIES[ck].name:null;
-      if(!name)return;
-      d3.select(this).attr('fill',d3.color(d3.select(this).attr('fill')).darker(.3));
+    .on('mouseover',function(ev,d){
+      const ck=ID_MAP[+d.id];
+      const name=ck?LOCATIONS[ck]?.name:null;
+      if(!name) return;
+      d3.select(this).attr('fill',d3.color(d3.select(this).attr('fill')).darker(.25));
       const tt=document.getElementById('map-tooltip');
-      const anom=mapAnomalies[ck];
-      const sign=anom!==null&&anom!==undefined?(anom>=0?'+':''):'';
-      const anomStr=anom!==null&&anom!==undefined?`${sign}${anom.toFixed(1)}°C`:'—';
+      const anom=anomalyCache[ck];
+      const anomStr=anom!=null?(anom>=0?'+':'')+anom.toFixed(1)+'°C':'pas encore chargé';
       tt.innerHTML=`<strong>${name}</strong><br>Anomalie : ${anomStr}`;
       tt.style.display='block';
-      tt.style.left=(event.offsetX+12)+'px';
-      tt.style.top=(event.offsetY+12)+'px';
+      tt.style.left=(ev.offsetX+14)+'px';
+      tt.style.top=(ev.offsetY+10)+'px';
     })
-    .on('mousemove',function(event){
+    .on('mousemove',function(ev){
       const tt=document.getElementById('map-tooltip');
-      tt.style.left=(event.offsetX+12)+'px';
-      tt.style.top=(event.offsetY+12)+'px';
+      tt.style.left=(ev.offsetX+14)+'px'; tt.style.top=(ev.offsetY+10)+'px';
     })
-    .on('mouseout',function(event,d){
-      const ck=ID_TO_COUNTRY[+d.id];
-      d3.select(this).attr('fill',ck&&mapAnomalies[ck]!==undefined?anomalyColor(mapAnomalies[ck]):'#e0ddd5');
+    .on('mouseout',function(ev,d){
+      const ck=ID_MAP[+d.id];
+      d3.select(this).attr('fill', ck&&anomalyCache[ck]!==undefined ? anomColor(anomalyCache[ck]) : '#ddd');
       document.getElementById('map-tooltip').style.display='none';
     })
-    .on('click',function(event,d){
-      const ck=ID_TO_COUNTRY[+d.id];
-      if(!ck)return;
-      selectKey(ck==='france'?'france':ck);
+    .on('click',function(ev,d){
+      const ck=ID_MAP[+d.id]; if(!ck) return;
+      selectKey(ck);
     });
 
-  // Contour côtier
-  svg.append('path').datum(topojson.mesh(world,world.objects.countries)).attr('fill','none').attr('stroke','#fff').attr('stroke-width',.5).attr('d',pathGen);
-
-  // Charger anomalies pour pays connus (silencieux, best effort)
-  loadMapAnomalies();
+  svg.append('path').datum(topojson.mesh(world,world.objects.countries))
+    .attr('fill','none').attr('stroke','#fff').attr('stroke-width',.5).attr('d',pathFn);
 }
 
-async function loadMapAnomalies(){
-  const keys=Object.keys(COUNTRIES);
-  for(let i=0;i<keys.length;i++){
-    const k=keys[i];
-    try{
-      const anom=await getAnomaly(k,refDecade);
-      mapAnomalies[k]=anom;
-      if(svgMap){
-        svgMap.selectAll('path.country').filter(d=>ID_TO_COUNTRY[+d.id]===k).attr('fill',anomalyColor(anom));
-      }
-    }catch(e){}
-  }
+function paintCountry(key, delta){
+  if(!svgMap) return;
+  const loc=LOCATIONS[key]; if(!loc) return;
+  // Trouve le feature par id
+  const numId=Object.entries(ID_MAP).find(([,v])=>v===key)?.[0];
+  if(!numId) return;
+  svgMap.selectAll('path.land').filter(d=>+d.id===+numId).attr('fill',anomColor(delta));
+}
+
+function highlightCountry(key){
+  if(!svgMap) return;
+  svgMap.selectAll('path.land').attr('stroke','#fff').attr('stroke-width',.4);
+  const numId=Object.entries(ID_MAP).find(([,v])=>v===key)?.[0];
+  if(numId) svgMap.selectAll('path.land').filter(d=>+d.id===+numId).attr('stroke','#c0392b').attr('stroke-width',1.8);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// FRANCE REGIONS PANEL
+// FRANCE PANEL
 // ══════════════════════════════════════════════════════════════════════════════
 function buildFrancePanel(){
   const grid=document.getElementById('region-grid');
   grid.innerHTML='';
-  Object.entries(FRANCE_REGIONS).forEach(([k,v])=>{
+  FRANCE_REGION_KEYS.forEach(k=>{
     const btn=document.createElement('button');
     btn.className='region-btn'+(selectedKey===k?' active':'');
-    btn.textContent=v.name;
+    btn.textContent=LOCATIONS[k].name;
     btn.onclick=()=>selectKey(k);
     grid.appendChild(btn);
   });
 }
-
 function showFrancePanel(show){
-  const panel=document.getElementById('france-panel');
-  if(show){panel.classList.add('visible');buildFrancePanel();}
-  else panel.classList.remove('visible');
-}
-
-function selectKey(key){
-  selectedKey=key;
-  const isFrance=key==='france'||FRANCE_REGIONS[key];
-  showFrancePanel(!!isFrance);
-  // Highlight carte
-  if(svgMap){
-    const countryKey=FRANCE_REGIONS[key]?'france':key;
-    svgMap.selectAll('path.country').attr('stroke-width',.4).attr('stroke','#fff');
-    svgMap.selectAll('path.country').filter(d=>ID_TO_COUNTRY[+d.id]===countryKey)
-      .attr('stroke','#c0392b').attr('stroke-width',1.5);
-  }
-  buildFrancePanel();
-  loadData();
+  const p=document.getElementById('france-panel');
+  if(show){ p.classList.add('visible'); buildFrancePanel(); }
+  else p.classList.remove('visible');
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -569,73 +527,78 @@ function buildNavRow(){
   const row=document.getElementById('nav-row');
   row.innerHTML='';
   if(currentPeriod==='day'){
-    row.innerHTML=`<button class="nav-btn" id="nav-prev">←</button><input type="date" id="nav-date" style="font-family:var(--mono);font-size:12px;padding:5px 9px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;"><button class="nav-btn" id="nav-next">→</button><span id="nav-label" style="font-size:12px;color:var(--text-2);font-family:var(--mono);min-width:180px;"></span><button class="nav-btn" id="nav-today" style="margin-left:auto;font-size:11px;">Dernier dispo</button>`;
-    const inp=document.getElementById('nav-date');
-    inp.max=toDateStr(era5End);inp.min='1991-01-02';inp.value=toDateStr(navDay);
+    row.innerHTML=`<button class="nav-btn" id="np">←</button><input type="date" id="nd" style="font-family:var(--mono);font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;"><button class="nav-btn" id="nn">→</button><span id="nl" class="nav-current"></span><button class="nav-btn" id="nt" style="margin-left:auto;font-size:11px;">Dernier dispo</button>`;
+    const inp=document.getElementById('nd');
+    inp.max=toDS(era5End); inp.min='1991-01-02'; inp.value=toDS(navDay);
     updateNavLabel();
-    inp.onchange=()=>{const v=new Date(inp.value+'T00:00:00');if(!isNaN(v)){navDay=v;updateNavLabel();loadData();}};
-    document.getElementById('nav-prev').onclick=()=>{navDay=addDays(navDay,-1);if(navDay<new Date('1991-01-02'))navDay=new Date('1991-01-02');inp.value=toDateStr(navDay);updateNavLabel();loadData();};
-    document.getElementById('nav-next').onclick=()=>{navDay=addDays(navDay,1);if(navDay>era5End)navDay=new Date(era5End);inp.value=toDateStr(navDay);updateNavLabel();loadData();};
-    document.getElementById('nav-today').onclick=()=>{navDay=new Date(era5End);inp.value=toDateStr(navDay);updateNavLabel();loadData();};
+    inp.onchange=()=>{ const v=new Date(inp.value+'T00:00:00'); if(!isNaN(v)){navDay=v;updateNavLabel();loadData();} };
+    document.getElementById('np').onclick=()=>{ navDay=addDays(navDay,-1); if(navDay<new Date('1991-01-02'))navDay=new Date('1991-01-02'); inp.value=toDS(navDay); updateNavLabel(); loadData(); };
+    document.getElementById('nn').onclick=()=>{ navDay=addDays(navDay,1); if(navDay>era5End)navDay=new Date(era5End); inp.value=toDS(navDay); updateNavLabel(); loadData(); };
+    document.getElementById('nt').onclick=()=>{ navDay=new Date(era5End); inp.value=toDS(navDay); updateNavLabel(); loadData(); };
   } else if(currentPeriod==='week'){
-    row.innerHTML=`<button class="nav-btn" id="nav-prev">←</button><span id="nav-label" class="nav-current" style="font-size:12px;font-weight:500;min-width:220px;text-align:center;"></span><button class="nav-btn" id="nav-next">→</button><button class="nav-btn" id="nav-today" style="margin-left:auto;font-size:11px;">Semaine actuelle</button>`;
+    row.innerHTML=`<button class="nav-btn" id="np">←</button><span id="nl" class="nav-current"></span><button class="nav-btn" id="nn">→</button><button class="nav-btn" id="nt" style="margin-left:auto;font-size:11px;">Semaine actuelle</button>`;
     updateNavLabel();
-    document.getElementById('nav-prev').onclick=()=>{navWeek=addDays(navWeek,-7);updateNavLabel();loadData();};
-    document.getElementById('nav-next').onclick=()=>{const n=addDays(navWeek,7);if(n<=era5End){navWeek=n;updateNavLabel();loadData();}};
-    document.getElementById('nav-today').onclick=()=>{const d=new Date(era5End);const dow=d.getDay()===0?6:d.getDay()-1;d.setDate(d.getDate()-dow);navWeek=d;updateNavLabel();loadData();};
+    document.getElementById('np').onclick=()=>{ navWeek=addDays(navWeek,-7); updateNavLabel(); loadData(); };
+    document.getElementById('nn').onclick=()=>{ const n=addDays(navWeek,7); if(n<=era5End){navWeek=n;updateNavLabel();loadData();} };
+    document.getElementById('nt').onclick=()=>{ navWeek=getMondayOf(era5End); updateNavLabel(); loadData(); };
   } else if(currentPeriod==='month'){
     let mo=MNAMES.map((n,i)=>`<option value="${i}"${i===navMonth.m?' selected':''}>${n}</option>`).join('');
-    let yo='';for(let y=new Date().getFullYear();y>=1991;y--){yo+=`<option value="${y}"${y===navMonth.y?' selected':''}>${y}</option>`;}
-    row.innerHTML=`<label class="ref-label">Mois</label><select id="nav-ms">${mo}</select><label class="ref-label">Année</label><select id="nav-ys">${yo}</select><button class="nav-btn" id="nav-prev">← Préc.</button><button class="nav-btn" id="nav-next">Suiv. →</button><button class="nav-btn" id="nav-today" style="margin-left:auto;font-size:11px;">Ce mois</button>`;
-    const sync=()=>{document.getElementById('nav-ms').value=navMonth.m;document.getElementById('nav-ys').value=navMonth.y;};
-    document.getElementById('nav-ms').onchange=e=>{navMonth.m=+e.target.value;loadData();};
-    document.getElementById('nav-ys').onchange=e=>{navMonth.y=+e.target.value;loadData();};
-    document.getElementById('nav-prev').onclick=()=>{navMonth.m--;if(navMonth.m<0){navMonth.m=11;navMonth.y--;}if(navMonth.y<1991){navMonth.y=1991;navMonth.m=0;}sync();loadData();};
-    document.getElementById('nav-next').onclick=()=>{navMonth.m++;if(navMonth.m>11){navMonth.m=0;navMonth.y++;}const my=era5End.getFullYear(),mm=era5End.getMonth();if(navMonth.y>my||(navMonth.y===my&&navMonth.m>mm)){navMonth.y=my;navMonth.m=mm;}sync();loadData();};
-    document.getElementById('nav-today').onclick=()=>{navMonth={y:era5End.getFullYear(),m:era5End.getMonth()};sync();loadData();};
+    let yo=''; for(let y=today.getFullYear();y>=1991;y--) yo+=`<option value="${y}"${y===navMonth.y?' selected':''}>${y}</option>`;
+    row.innerHTML=`<span class="ctrl-label">Mois</span><select id="nms">${mo}</select><span class="ctrl-label">Année</span><select id="nys">${yo}</select><button class="nav-btn" id="np" style="margin-left:4px;">← Préc.</button><button class="nav-btn" id="nn">Suiv. →</button><button class="nav-btn" id="nt" style="margin-left:auto;font-size:11px;">Ce mois</button>`;
+    const sync=()=>{ document.getElementById('nms').value=navMonth.m; document.getElementById('nys').value=navMonth.y; };
+    document.getElementById('nms').onchange=e=>{ navMonth.m=+e.target.value; loadData(); };
+    document.getElementById('nys').onchange=e=>{ navMonth.y=+e.target.value; loadData(); };
+    document.getElementById('np').onclick=()=>{ navMonth.m--; if(navMonth.m<0){navMonth.m=11;navMonth.y--;} if(navMonth.y<1991){navMonth.y=1991;navMonth.m=0;} sync(); loadData(); };
+    document.getElementById('nn').onclick=()=>{ navMonth.m++; if(navMonth.m>11){navMonth.m=0;navMonth.y++;} const my=era5End.getFullYear(),mm=era5End.getMonth(); if(navMonth.y>my||(navMonth.y===my&&navMonth.m>mm)){navMonth.y=my;navMonth.m=mm;} sync(); loadData(); };
+    document.getElementById('nt').onclick=()=>{ navMonth={y:era5End.getFullYear(),m:era5End.getMonth()}; sync(); loadData(); };
   } else {
-    let yo='';for(let y=new Date().getFullYear();y>=1991;y--){yo+=`<option value="${y}"${y===navYear?' selected':''}>${y}</option>`;}
-    row.innerHTML=`<label class="ref-label">Année</label><select id="nav-ys">${yo}</select><button class="nav-btn" id="nav-prev">← Préc.</button><button class="nav-btn" id="nav-next">Suiv. →</button><button class="nav-btn" id="nav-today" style="margin-left:auto;font-size:11px;">Cette année</button>`;
-    document.getElementById('nav-ys').onchange=e=>{navYear=+e.target.value;loadData();};
-    document.getElementById('nav-prev').onclick=()=>{if(navYear>1991){navYear--;document.getElementById('nav-ys').value=navYear;loadData();}};
-    document.getElementById('nav-next').onclick=()=>{if(navYear<era5End.getFullYear()){navYear++;document.getElementById('nav-ys').value=navYear;loadData();}};
-    document.getElementById('nav-today').onclick=()=>{navYear=era5End.getFullYear();document.getElementById('nav-ys').value=navYear;loadData();};
+    let yo=''; for(let y=today.getFullYear();y>=1991;y--) yo+=`<option value="${y}"${y===navYear?' selected':''}>${y}</option>`;
+    row.innerHTML=`<span class="ctrl-label">Année</span><select id="nys">${yo}</select><button class="nav-btn" id="np" style="margin-left:4px;">← Préc.</button><button class="nav-btn" id="nn">Suiv. →</button><button class="nav-btn" id="nt" style="margin-left:auto;font-size:11px;">Cette année</button>`;
+    document.getElementById('nys').onchange=e=>{ navYear=+e.target.value; loadData(); };
+    document.getElementById('np').onclick=()=>{ if(navYear>1991){navYear--;document.getElementById('nys').value=navYear;loadData();} };
+    document.getElementById('nn').onclick=()=>{ if(navYear<era5End.getFullYear()){navYear++;document.getElementById('nys').value=navYear;loadData();} };
+    document.getElementById('nt').onclick=()=>{ navYear=era5End.getFullYear(); document.getElementById('nys').value=navYear; loadData(); };
   }
 }
 function updateNavLabel(){
-  const el=document.getElementById('nav-label');if(!el)return;
-  if(currentPeriod==='day')el.textContent=fmtFull(navDay);
-  else if(currentPeriod==='week'){const wn=getWeekNumber(navWeek);el.textContent=`S${wn} · ${fmtWeekRange(navWeek)}`;}
+  const el=document.getElementById('nl'); if(!el) return;
+  if(currentPeriod==='day') el.textContent=fmtFull(navDay);
+  else if(currentPeriod==='week') el.textContent=`S${getWeekNum(navWeek)} · ${fmtWeekRange(navWeek)}`;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// METRICS & CHART
+// DASHBOARD METRICS
 // ══════════════════════════════════════════════════════════════════════════════
-function fmtT(v){return v!==null?v.toFixed(1)+'°C':'—';}
-function deltaClass(d){return d===null?'neu':d>0.5?'hot':d<-0.5?'cold':'neu';}
-function deltaStr(real,norm){if(real===null||norm===null)return'—';const d=real-norm;return(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';}
-
-function setDecadeCards(real,normals,label){
+function setDecadeCards(real, normals, label){
   document.getElementById('m-real').textContent=fmtT(real);
   document.getElementById('m-real-sub').textContent=label||'';
   ['d1','d2','d3','d4'].forEach(k=>{
     document.getElementById(`m-${k}`).textContent=fmtT(normals[k]);
-    const el=document.getElementById(`m-${k}-delta`);
+    const el=document.getElementById(`m-${k}-d`);
     el.textContent=deltaStr(real,normals[k]);
-    if(real!==null&&normals[k]!==null){const d=real-normals[k];el.className='dc-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');}
+    el.className='dc-delta '+deltaCls(real,normals[k]);
   });
 }
 
-function setSummaryCard(id,name,temp,norm,sub){
-  document.getElementById(`sc-${id}-name`).textContent=name||'—';
-  const el=document.getElementById(`sc-${id}-temp`);
-  el.textContent=fmtT(temp);
-  const delta=temp!==null&&norm!==null?temp-norm:null;
-  el.className='sc-temp '+(delta===null?'neu':delta>0.5?'hot':delta<-0.5?'cold':'neu');
-  const del=document.getElementById(`sc-${id}-delta`);
-  del.textContent=delta!==null?(delta>=0?'+':'')+delta.toFixed(1)+'°C':'—';
-  del.className='sc-delta '+(delta===null?'neu':delta>0.5?'hot':delta<-0.5?'cold':'neu');
-  if(sub)document.getElementById(`sc-${id}-sub`).textContent=sub;
+function setSummaryCard(id, name, real, norm, refLabel){
+  document.getElementById(`sc-${id}-name`||`sc-${id} .sc-name`);
+  const nameEl=document.querySelector(`#sc-${id} .sc-name`);
+  if(nameEl) nameEl.textContent=name;
+  const tempEl=document.getElementById(`sc-${id}-temp`);
+  if(tempEl){ tempEl.textContent=fmtT(real); const d=real!==null&&norm!==null?real-norm:null; tempEl.className='sc-temp '+(d===null?'neu':d>0.5?'hot':d<-0.5?'cold':'neu'); }
+  const dEl=document.getElementById(`sc-${id}-delta`);
+  if(dEl){ const d=real!==null&&norm!==null?real-norm:null; dEl.textContent=d!==null?(d>=0?'+':'')+d.toFixed(1)+'°C':'—'; dEl.className='sc-delta '+(d===null?'neu':d>0.5?'hot':d<-0.5?'cold':'neu'); }
+  const rEl=document.getElementById(`sc-${id}-ref`);
+  if(rEl) rEl.textContent=refLabel||'';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CHART
+// ══════════════════════════════════════════════════════════════════════════════
+function normalsForDates(dates,normals){
+  const out={d1:[],d2:[],d3:[],d4:[]};
+  dates.forEach(d=>{ const doy=getDOY(new Date(d)); ['d1','d2','d3','d4'].forEach(k=>{ const v=normals[k].daily[doy]; out[k].push(v!==null?parseFloat(v.toFixed(1)):null); }); });
+  return out;
 }
 
 function renderChart(labels,realData,nd,title){
@@ -643,142 +606,157 @@ function renderChart(labels,realData,nd,title){
   const canvas=document.getElementById('main-chart');
   if(chartInstance){chartInstance.destroy();chartInstance=null;}
   const ptR=realData.length>60?0:3;
-  chartInstance=new Chart(canvas,{
-    type:'line',
-    data:{labels,datasets:[
-      {label:'Réelle',data:realData,borderColor:'#c0392b',borderWidth:2.5,pointRadius:ptR,pointHoverRadius:5,pointBackgroundColor:'#c0392b',tension:0.35,fill:false,order:1},
-      {label:'2021–', data:nd.d4,borderColor:'#e67e22',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:2},
-      {label:'2011–2020',data:nd.d3,borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:3},
-      {label:'2001–2010',data:nd.d2,borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:4},
-      {label:'1991–2000',data:nd.d1,borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:5}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:8,
-        callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null)return null;const lbl=ctx.dataset.label;if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)}°C`;const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];if(rv!==null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}return`  ${lbl} : ${v.toFixed(1)}°C`;}}}},
-      scales:{
-        x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:12}},
-        y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}
-      }
+  chartInstance=new Chart(canvas,{type:'line',data:{labels,datasets:[
+    {label:'Réelle',data:realData,borderColor:'#c0392b',borderWidth:2.5,pointRadius:ptR,pointHoverRadius:5,pointBackgroundColor:'#c0392b',tension:0.35,fill:false,order:1},
+    {label:'2021–', data:nd.d4,borderColor:'#e67e22',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:2},
+    {label:'2011–2020',data:nd.d3,borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:3},
+    {label:'2001–2010',data:nd.d2,borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:4},
+    {label:'1991–2000',data:nd.d1,borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:5},
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:8,
+      callbacks:{label:ctx=>{ const v=ctx.parsed.y; if(v===null)return null; const lbl=ctx.dataset.label; if(lbl==='Réelle') return`  Réelle : ${v.toFixed(1)}°C`; const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex]; if(rv!==null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];} return`  ${lbl} : ${v.toFixed(1)}°C`; }}}},
+    scales:{
+      x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:12}},
+      y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}
     }
-  });
+  }});
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// LOADERS PAR PERIODE
+// LOADERS
 // ══════════════════════════════════════════════════════════════════════════════
-function normalsForDates(dates,normals){
-  const out={d1:[],d2:[],d3:[],d4:[]};
-  dates.forEach(d=>{const doy=getDOY(new Date(d));['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].daily[doy];out[k].push(v!==null?parseFloat(v.toFixed(1)):null);});});
-  return out;
-}
-
 async function loadDay(loc,normals){
-  const end=clampEra5(new Date(navDay));
-  const start=addDays(end,-29);
-  const data=await fetchOpenMeteo(loc.lat,loc.lon,toDateStr(start),toDateStr(end));
-  const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
+  const end=clamp(new Date(navDay)); const start=addDays(end,-29);
+  const data=await fetchERA5(loc.lat,loc.lon,toDS(start),toDS(end));
+  const dates=data.daily.time, temps=data.daily.temperature_2m_mean;
   const nd=normalsForDates(dates,normals);
-  const idx=dates.indexOf(toDateStr(end));
-  const realVal=idx>=0?temps[idx]:[...temps].reverse().find(v=>v!==null);
-  const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=idx>=0?nd[k][idx]:nd[k][nd[k].length-1];});
-  setDecadeCards(realVal,normVals,fmtFull(end));
+  const idx=dates.indexOf(toDS(end));
+  const real=idx>=0?temps[idx]:[...temps].reverse().find(v=>v!==null);
+  const normVals={}; ['d1','d2','d3','d4'].forEach(k=>{ normVals[k]=idx>=0?nd[k][idx]:nd[k][nd[k].length-1]; });
+  setDecadeCards(real,normVals,fmtFull(end));
   renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${end.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`);
-  return{real:realVal,norm:normVals[refDecade]};
+  return{real,norm:normVals[refDecade]};
 }
 
 async function loadWeek(loc,normals){
-  const monday=new Date(navWeek);const sunday=clampEra5(addDays(monday,6));
-  const data=await fetchOpenMeteo(loc.lat,loc.lon,toDateStr(monday),toDateStr(sunday));
-  const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
+  const mon=new Date(navWeek); const sun=clamp(addDays(mon,6));
+  const data=await fetchERA5(loc.lat,loc.lon,toDS(mon),toDS(sun));
+  const dates=data.daily.time, temps=data.daily.temperature_2m_mean;
   const nd=normalsForDates(dates,normals);
-  const realAvg=avg(temps);const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=avg(nd[k]);});
-  const wn=getWeekNumber(monday);
-  setDecadeCards(realAvg,normVals,`S${wn} · moy. semaine`);
-  renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${fmtWeekRange(monday)}`);
-  return{real:realAvg,norm:normVals[refDecade]};
+  const real=avg(temps); const normVals={}; ['d1','d2','d3','d4'].forEach(k=>{ normVals[k]=avg(nd[k]); });
+  setDecadeCards(real,normVals,`S${getWeekNum(mon)} · moy. semaine`);
+  renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${fmtWeekRange(mon)}`);
+  return{real,norm:normVals[refDecade]};
 }
 
 async function loadMonth(loc,normals){
-  const{y,m}=navMonth;
-  const start=new Date(y,m,1);const end=clampEra5(new Date(y,m+1,0));
-  const data=await fetchOpenMeteo(loc.lat,loc.lon,toDateStr(start),toDateStr(end));
-  const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
+  const{y,m}=navMonth; const start=new Date(y,m,1); const end=clamp(new Date(y,m+1,0));
+  const data=await fetchERA5(loc.lat,loc.lon,toDS(start),toDS(end));
+  const dates=data.daily.time, temps=data.daily.temperature_2m_mean;
   const nd=normalsForDates(dates,normals);
-  const realAvg=avg(temps.filter(v=>v!==null));const normVals={};['d1','d2','d3','d4'].forEach(k=>{normVals[k]=normals[k].monthly[m];});
-  setDecadeCards(realAvg,normVals,`${MNAMES[m]} ${y} · moy.`);
+  const real=avg(temps.filter(v=>v!==null)); const normVals={}; ['d1','d2','d3','d4'].forEach(k=>{ normVals[k]=normals[k].monthly[m]; });
+  setDecadeCards(real,normVals,`${MNAMES[m]} ${y}`);
   renderChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${MNAMES[m]} ${y}`);
-  return{real:realAvg,norm:normVals[refDecade]};
+  return{real,norm:normVals[refDecade]};
 }
 
 async function loadYear(loc,normals){
-  const y=navYear;const start=new Date(y,0,1);const end=clampEra5(new Date(y,11,31));
-  const data=await fetchOpenMeteo(loc.lat,loc.lon,toDateStr(start),toDateStr(end));
-  const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
-  const byM={};for(let i=0;i<dates.length;i++){const mo=new Date(dates[i]).getMonth();if(!byM[mo])byM[mo]=[];if(temps[i]!==null)byM[mo].push(temps[i]);}
+  const y=navYear; const start=new Date(y,0,1); const end=clamp(new Date(y,11,31));
+  const data=await fetchERA5(loc.lat,loc.lon,toDS(start),toDS(end));
+  const dates=data.daily.time, temps=data.daily.temperature_2m_mean;
+  const byM={}; for(let i=0;i<dates.length;i++){const mo=new Date(dates[i]).getMonth();if(!byM[mo])byM[mo]=[];if(temps[i]!==null)byM[mo].push(temps[i]);}
   const months=Object.keys(byM).map(Number).sort((a,b)=>a-b);
-  const labels=months.map(mo=>MSHORT[mo]);
   const realData=months.map(mo=>{const t=byM[mo];return t.length?parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)):null;});
-  const nd={d1:[],d2:[],d3:[],d4:[]};months.forEach(mo=>{['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly[mo];nd[k].push(v!==null?parseFloat(v.toFixed(1)):null);});});
-  const realAvg=avg(realData);const normVals={};['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly.filter(x=>x!==null);normVals[k]=v.length?parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)):null;});
-  setDecadeCards(realAvg,normVals,`${y} · moy. annuelle`);
-  renderChart(labels,realData,nd,`${loc.name} · ${y}`);
-  return{real:realAvg,norm:normVals[refDecade]};
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// SUMMARY CARDS (planète + continent)
-// ══════════════════════════════════════════════════════════════════════════════
-async function loadSummaryCard(cardId,key,label){
-  try{
-    const loc=getLocation(key);if(!loc)return;
-    const normals=await loadNormals(key,null);
-    const end=clampEra5(new Date(navDay));
-    const start=addDays(end,-6);
-    const data=await fetchOpenMeteo(loc.lat,loc.lon,toDateStr(start),toDateStr(end));
-    const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
-    const realAvg=avg(temps);
-    const norm=normals[refDecade].daily[getDOY(end)];
-    setSummaryCard(cardId,label,realAvg,norm,`vs ${DECADES.find(d=>d.key===refDecade).label}`);
-  }catch(e){}
+  const nd={d1:[],d2:[],d3:[],d4:[]}; months.forEach(mo=>{ ['d1','d2','d3','d4'].forEach(k=>{ const v=normals[k].monthly[mo]; nd[k].push(v!==null?parseFloat(v.toFixed(1)):null); }); });
+  const real=avg(realData); const normVals={}; ['d1','d2','d3','d4'].forEach(k=>{ const v=normals[k].monthly.filter(x=>x!==null); normVals[k]=v.length?parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)):null; });
+  setDecadeCards(real,normVals,`${y} · moy. annuelle`);
+  renderChart(months.map(mo=>MSHORT[mo]),realData,nd,`${loc.name} · ${y}`);
+  return{real,norm:normVals[refDecade]};
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 // DISPATCHER PRINCIPAL
 // ══════════════════════════════════════════════════════════════════════════════
 async function loadData(){
-  const loc=getLocation(selectedKey);
-  if(!loc){setError('Lieu introuvable');return;}
+  const loc=LOCATIONS[selectedKey]; if(!loc){return;}
   setStatus(`Chargement ${loc.name}…`,false);
-
-  let normals=normalsCache[selectedKey]||null;
+  let normals=normalsCache[selectedKey];
   if(!normals){
     showProgress();
-    setProgress(0,`Calcul normales ERA5 · ${loc.name}`,'Chargement 1991–présent');
+    setProgress(0,`Normales ERA5 · ${loc.name}`,'Calcul sur 4 décennies (1991–présent)');
     try{
-      normals=await loadNormals(selectedKey,(pct,lbl,det)=>setProgress(pct,lbl,det));
-      normalsCache[selectedKey]=normals;
+      normals=await getNormals(selectedKey,(pct,lbl,det)=>setProgress(pct,lbl,det));
     }catch(e){setError(e.message);return;}
   }
-
   try{
-    setProgress(95,'Données récentes…','');
+    setProgress(92,'Données récentes…','');
     let result;
     if     (currentPeriod==='day')  result=await loadDay(loc,normals);
     else if(currentPeriod==='week') result=await loadWeek(loc,normals);
     else if(currentPeriod==='month')result=await loadMonth(loc,normals);
     else                            result=await loadYear(loc,normals);
     hideProgress();
-
-    // Summary card sélection
-    setSummaryCard('sel',loc.name,result.real,result.norm,`vs ${DECADES.find(d=>d.key===refDecade).label}`);
-
-    // Summary cards planète + continent (silencieux)
-    loadSummaryCard('planet','planet','Moyenne globale');
+    // Mise à jour anomalie + couleur carte
+    if(result.real!==null&&result.norm!==null){
+      anomalyCache[selectedKey]=result.real-result.norm;
+      paintCountry(selectedKey,anomalyCache[selectedKey]);
+    }
+    // Card sélection
+    const refLbl=DECADES.find(d=>d.key===refDecade).label;
+    setSummaryCard('sel',loc.name,result.real,result.norm,`vs ${refLbl}`);
+    // Card continent
     const contKey=loc.continent;
-    if(contKey&&CONTINENTS[contKey])loadSummaryCard('cont',contKey,CONTINENTS[contKey].name);
-
-    setStatus(`ERA5 · ${loc.name} · Normales calculées par décennie`,true);
+    if(contKey&&LOCATIONS[contKey]){
+      const cl=LOCATIONS[contKey];
+      setSummaryCard('cont',cl.name,anomalyCache[contKey]!==undefined?null:null,null,`vs ${refLbl}`);
+      if(anomalyCache[contKey]!==undefined){
+        // on a déjà les données du continent
+        const cn=normalsCache[contKey];
+        if(cn){
+          const cend=clamp(new Date(navDay));
+          const normC=cn[refDecade].daily[getDOY(cend)];
+          // recalcul si besoin — on utilise ce qu'on a
+        }
+      }
+    }
+    setStatus(`ERA5 · ${loc.name} · cache 24h`,true);
   }catch(e){setError(e.message);}
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PRELOAD (planète + continents + france, en parallèle, silencieux)
+// ══════════════════════════════════════════════════════════════════════════════
+async function preloadBackground(){
+  const keys=PRELOAD_KEYS;
+  let loaded=0;
+  const lbl=document.getElementById('map-loading-txt');
+  for(const key of keys){
+    try{
+      const r=await loadRecentAndAnomaly(key);
+      if(r){
+        anomalyCache[key]=r.delta;
+        paintCountry(key,r.delta);
+        // Summary cards
+        const refLbl=DECADES.find(d=>d.key===refDecade).label;
+        if(key==='planet') setSummaryCard('planet','Planète',r.real,r.normVal,`vs ${refLbl}`);
+        if(key===LOCATIONS[selectedKey]?.continent) setSummaryCard('cont',LOCATIONS[key].name,r.real,r.normVal,`vs ${refLbl}`);
+      }
+      loaded++;
+      if(lbl) lbl.textContent=`${loaded}/${keys.length} zones chargées`;
+    }catch(e){}
+  }
+  if(lbl) lbl.textContent='';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SELECT KEY
+// ══════════════════════════════════════════════════════════════════════════════
+function selectKey(key){
+  selectedKey=key;
+  const isFranceZone=FRANCE_REGION_KEYS.includes(key);
+  showFrancePanel(isFranceZone);
+  highlightCountry(key==='france'||isFranceZone?'france':key);
+  loadData();
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -786,30 +764,29 @@ async function loadData(){
 // ══════════════════════════════════════════════════════════════════════════════
 function setStatus(msg,ok){document.getElementById('status-dot').style.background=ok?'#27ae60':'#f39c12';document.getElementById('status-text').textContent=msg;}
 function setError(msg){document.getElementById('status-dot').style.background='#c0392b';document.getElementById('status-text').textContent='Erreur : '+msg;hideProgress();}
-function showProgress(){document.getElementById('progress-wrap').classList.add('visible');document.getElementById('chart-card').style.opacity='0.4';}
-function hideProgress(){document.getElementById('progress-wrap').classList.remove('visible');document.getElementById('chart-card').style.opacity='1';}
-function setProgress(pct,label,detail){document.getElementById('progress-bar').style.width=pct+'%';if(label!==undefined)document.getElementById('progress-label').textContent=label;if(detail!==undefined)document.getElementById('progress-detail').textContent=detail;}
+function showProgress(){document.getElementById('progress-wrap').classList.add('visible');document.getElementById('chart-card')?.style&&(document.getElementById('chart-card').style.opacity='0.4');}
+function hideProgress(){document.getElementById('progress-wrap').classList.remove('visible');document.getElementById('chart-card')?.style&&(document.getElementById('chart-card').style.opacity='1');}
+function setProgress(pct,lbl,det){document.getElementById('progress-bar').style.width=pct+'%';if(lbl!==undefined)document.getElementById('progress-label').textContent=lbl;if(det!==undefined)document.getElementById('progress-detail').textContent=det;}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // EVENTS & INIT
 // ══════════════════════════════════════════════════════════════════════════════
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.onclick=()=>{
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    tab.classList.add('active');
-    currentPeriod=tab.dataset.period;
-    buildNavRow();loadData();
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    currentPeriod=t.dataset.period;
+    buildNavRow(); loadData();
   };
 });
-document.getElementById('ref-decade-sel').onchange=e=>{
-  refDecade=e.target.value;
-  loadMapAnomalies();
-  loadData();
-};
+document.getElementById('ref-sel').onchange=e=>{ refDecade=e.target.value; loadData(); preloadBackground(); };
 
-document.getElementById('current-year').textContent=new Date().getFullYear();
+document.getElementById('current-year').textContent=today.getFullYear();
 buildNavRow();
-initMap().then(()=>{selectKey('france');});
+initMap().then(()=>{
+  selectKey('france');
+  preloadBackground();
+});
 </script>
 </body>
 </html>
