@@ -720,36 +720,6 @@ function setWoCards(real,normals,label,periodLabel){
   });
 }
 
-function renderWoChart(labels,realData,nd,title){
-  const _wct=document.getElementById('wo-chart-title');if(_wct)_wct.textContent=title;
-  const canvas=document.getElementById('wo-chart');
-  if(!canvas)return;
-  if(woChart){woChart.destroy();woChart=null;}
-  const ptR=realData.length>60?0:3;
-  woChart=new Chart(canvas,{type:'line',data:{labels,datasets:[
-    {label:'Réelle',data:realData,borderColor:'#c0392b',borderWidth:2.5,pointRadius:ptR,pointHoverRadius:5,pointBackgroundColor:'#c0392b',tension:0.35,fill:false,order:1},
-    {label:'2021–',data:nd.d4||[],borderColor:'#e67e22',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:2},
-    {label:'2011–2020',data:nd.d3||[],borderColor:'#8e44ad',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:3},
-    {label:'2001–2010',data:nd.d2||[],borderColor:'#2471a3',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:4},
-    {label:'1991–2000',data:nd.d1||[],borderColor:'#27ae60',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.35,fill:false,order:5},
-    {label:'1991–2026',data:nd.d5||[],borderColor:'#7f8c8d',borderWidth:2,borderDash:[2,3],pointRadius:0,tension:0.35,fill:false,order:6},
-  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-    plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,.1)',borderWidth:1,titleColor:'#1a1a18',bodyColor:'#6b6b66',padding:8,
-      callbacks:{label:ctx=>{
-        const v=ctx.parsed.y;if(v===null||v===undefined)return null;
-        const lbl=ctx.dataset.label;
-        if(lbl==='Réelle')return`  Réelle : ${v.toFixed(1)} ±${UNC.real}°C`;
-        const dk={'2021–':'d4','2011–2020':'d3','2001–2010':'d2','1991–2000':'d1','1991–2026':'d5'}[lbl];
-        if(!dk)return null;
-        const rv=ctx.chart.data.datasets[0].data[ctx.dataIndex];
-        if(rv!=null){const d=rv-v;return[`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`,`  Écart : ${d>=0?'+':''}${d.toFixed(1)}°C`];}
-        return`  ${lbl} : ${v.toFixed(1)} ±${UNC[dk]}°C`;
-      }}}},
-    scales:{
-      x:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)'},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},maxRotation:45,autoSkip:true,maxTicksLimit:14}},
-      y:{grid:{color:'rgba(0,0,0,.04)'},border:{color:'rgba(0,0,0,.08)',dash:[4,4]},ticks:{color:'#9b9b96',font:{size:10,family:"'DM Mono',monospace"},callback:v=>v.toFixed(0)+'°C'}}
-    }}});
-}
 
 // ── Loaders Monde ────────────────────────────────────────────────────────────
 // Charge les 6 continents et affiche la moyenne pondérée pour Planète
@@ -884,7 +854,6 @@ async function loadWo(){
       const dd=new Date(dates[li]+'T00:00:00');
       const pLabel=dd.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
       setWoCards(real,nv,fmtFull(dd),pLabel);
-      renderWoChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${dd.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`);
 
     } else if(period==='week'){
       const mon=new Date(woNav.week);const sun=clamp(addDays(mon,6));
@@ -897,7 +866,6 @@ async function loadWo(){
       nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
       const wn=getWeekNum(mon);
       setWoCards(real,nv,`S${wn} · moy. semaine`,`sem. ${wn}`);
-      renderWoChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${fmtWeek(mon)}`);
 
     } else if(period==='month'){
       const{y,m}=woNav.month;const start=new Date(y,m,1);const end=clamp(new Date(y,m+1,0));
@@ -909,7 +877,6 @@ async function loadWo(){
       const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
       nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
       setWoCards(real,nv,`${MNAMES[m]} ${y}`,MSHORT[m]);
-      renderWoChart(dates.map(d=>fmtShort(new Date(d))),temps,nd,`${loc.name} · ${MNAMES[m]} ${y}`);
 
     } else {
       const y=woNav.year;const start=new Date(y,0,1);const end=clamp(new Date(y,11,31));
