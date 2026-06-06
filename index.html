@@ -118,12 +118,12 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
   <div id="era-note" style="font-size:11px;color:#c0392b;font-family:var(--mono);padding:4px 0 8px;display:none;"></div>
 
   <div class="metrics">
-    <div class="metric r"><div class="metric-label">Réel</div><div class="metric-val hot" id="m-real">—</div><span class="metric-err" id="m-real-err"></span><div class="metric-delta neu" id="m-real-sub">—</div></div>
-    <div class="metric d1"><div class="metric-label">1991–2000</div><div class="metric-val" style="color:#27ae60" id="m-d1">—</div><span class="metric-err" id="m-d1-err"></span><div class="metric-delta" id="m-d1-d">—</div></div>
-    <div class="metric d2"><div class="metric-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="m-d2">—</div><span class="metric-err" id="m-d2-err"></span><div class="metric-delta" id="m-d2-d">—</div></div>
-    <div class="metric d3"><div class="metric-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="m-d3">—</div><span class="metric-err" id="m-d3-err"></span><div class="metric-delta" id="m-d3-d">—</div></div>
-    <div class="metric d4"><div class="metric-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="m-d4">—</div><span class="metric-err" id="m-d4-err"></span><div class="metric-delta" id="m-d4-d">—</div></div>
-    <div class="metric d5"><div class="metric-label">Moy. 1991–2025</div><div class="metric-val" style="color:#7f8c8d" id="m-d5">—</div><span class="metric-err" id="m-d5-err"></span><div class="metric-delta" id="m-d5-d">—</div></div>
+    <div class="metric r"><div class="metric-label" id="m-real-label">—</div><div class="metric-val hot" id="m-real">—</div><span class="metric-err" id="m-real-err"></span><div class="metric-delta neu" id="m-real-sub">—</div></div>
+    <div class="metric d1"><div class="metric-label" id="m-d1-label">1991–2000</div><div class="metric-val" style="color:#27ae60" id="m-d1">—</div><span class="metric-err" id="m-d1-err"></span><div class="metric-delta" id="m-d1-d">—</div></div>
+    <div class="metric d2"><div class="metric-label" id="m-d2-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="m-d2">—</div><span class="metric-err" id="m-d2-err"></span><div class="metric-delta" id="m-d2-d">—</div></div>
+    <div class="metric d3"><div class="metric-label" id="m-d3-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="m-d3">—</div><span class="metric-err" id="m-d3-err"></span><div class="metric-delta" id="m-d3-d">—</div></div>
+    <div class="metric d4"><div class="metric-label" id="m-d4-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="m-d4">—</div><span class="metric-err" id="m-d4-err"></span><div class="metric-delta" id="m-d4-d">—</div></div>
+    <div class="metric d5"><div class="metric-label" id="m-d5-label">Moy. 1991–2025</div><div class="metric-val" style="color:#7f8c8d" id="m-d5">—</div><span class="metric-err" id="m-d5-err"></span><div class="metric-delta" id="m-d5-d">—</div></div>
   </div>
 
   <div class="progress-wrap" id="progress">
@@ -188,12 +188,12 @@ footer a{color:var(--text-3);text-decoration:underline;text-underline-offset:2px
 
   <!-- 6 cartes métriques -->
   <div class="metrics" id="wo-metrics">
-    <div class="metric r"><div class="metric-label">Réel</div><div class="metric-val hot" id="wo-m-real">—</div><span class="metric-err" id="wo-m-real-err"></span><div class="metric-delta neu" id="wo-m-real-sub">—</div></div>
-    <div class="metric d1"><div class="metric-label">1991–2000</div><div class="metric-val" style="color:#27ae60" id="wo-m-d1">—</div><span class="metric-err" id="wo-m-d1-err"></span><div class="metric-delta" id="wo-m-d1-d">—</div></div>
-    <div class="metric d2"><div class="metric-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="wo-m-d2">—</div><span class="metric-err" id="wo-m-d2-err"></span><div class="metric-delta" id="wo-m-d2-d">—</div></div>
-    <div class="metric d3"><div class="metric-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="wo-m-d3">—</div><span class="metric-err" id="wo-m-d3-err"></span><div class="metric-delta" id="wo-m-d3-d">—</div></div>
-    <div class="metric d4"><div class="metric-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="wo-m-d4">—</div><span class="metric-err" id="wo-m-d4-err"></span><div class="metric-delta" id="wo-m-d4-d">—</div></div>
-    <div class="metric d5"><div class="metric-label">Moy. 1991–2025</div><div class="metric-val" style="color:#7f8c8d" id="wo-m-d5">—</div><span class="metric-err" id="wo-m-d5-err"></span><div class="metric-delta" id="wo-m-d5-d">—</div></div>
+    <div class="metric r"><div class="metric-label" id="wo-m-real-label">—</div><div class="metric-val hot" id="wo-m-real">—</div><span class="metric-err" id="wo-m-real-err"></span><div class="metric-delta neu" id="wo-m-real-sub">—</div></div>
+    <div class="metric d1"><div class="metric-label" id="wo-m-d1-label">1991–2000</div><div class="metric-val" style="color:#27ae60" id="wo-m-d1">—</div><span class="metric-err" id="wo-m-d1-err"></span><div class="metric-delta" id="wo-m-d1-d">—</div></div>
+    <div class="metric d2"><div class="metric-label" id="wo-m-d2-label">2001–2010</div><div class="metric-val" style="color:#2471a3" id="wo-m-d2">—</div><span class="metric-err" id="wo-m-d2-err"></span><div class="metric-delta" id="wo-m-d2-d">—</div></div>
+    <div class="metric d3"><div class="metric-label" id="wo-m-d3-label">2011–2020</div><div class="metric-val" style="color:#8e44ad" id="wo-m-d3">—</div><span class="metric-err" id="wo-m-d3-err"></span><div class="metric-delta" id="wo-m-d3-d">—</div></div>
+    <div class="metric d4"><div class="metric-label" id="wo-m-d4-label">Depuis 2021</div><div class="metric-val" style="color:#e67e22" id="wo-m-d4">—</div><span class="metric-err" id="wo-m-d4-err"></span><div class="metric-delta" id="wo-m-d4-d">—</div></div>
+    <div class="metric d5"><div class="metric-label" id="wo-m-d5-label">Moy. 1991–2025</div><div class="metric-val" style="color:#7f8c8d" id="wo-m-d5">—</div><span class="metric-err" id="wo-m-d5-err"></span><div class="metric-delta" id="wo-m-d5-d">—</div></div>
   </div>
 
   <!-- Planisphère -->
@@ -443,23 +443,21 @@ function setProgress(pct,lbl,det){
 // periodLabel = ex: "1er janvier" ou "janvier" ou "semaine 23" selon le mode
 function setCards(real,normals,label,periodLabel,year){
   const uncReal=year?getUncReal(year):UNC.real;
+  // Label carte Réel = la période choisie (ex: "26 sept. 1976", "Septembre 1976", "1976")
+  const rl=document.getElementById('m-real-label');if(rl)rl.textContent=label||'Réel';
   document.getElementById('m-real').textContent=real!==null?real.toFixed(1)+'°C':'—';
   document.getElementById('m-real-err').textContent=real!==null?`±${uncReal}°C`:'';
+  document.getElementById('m-real-sub').textContent='';
   // Note d'avertissement pour données anciennes
   const note=year?getEraNote(year):null;
   const noteEl=document.getElementById('era-note');
   if(noteEl){noteEl.textContent=note||'';noteEl.style.display=note?'block':'none';}
-  document.getElementById('m-real-sub').textContent=label||'';
-  // Labels des décennies avec la période concernée
-  const decadeLabels={
-    d1:periodLabel?`moy. ${periodLabel} · 91–00`:'—',
-    d2:periodLabel?`moy. ${periodLabel} · 01–10`:'—',
-    d3:periodLabel?`moy. ${periodLabel} · 11–20`:'—',
-    d4:periodLabel?`moy. ${periodLabel} · 21–26`:'—',
-    d5:periodLabel?`moy. 1991–2025`:'—',
-  };
+  // Labels décennies = "Moy. [période] · décennie"
+  const DR={d1:'1991–2000',d2:'2001–2010',d3:'2011–2020',d4:'2021–2025',d5:'1991–2025'};
   ['d1','d2','d3','d4','d5'].forEach(k=>{
     const n=normals[k];
+    const lbl=document.getElementById(`m-${k}-label`);
+    if(lbl)lbl.textContent=periodLabel?`Moy. ${periodLabel} · ${DR[k]}`:DR[k];
     const el=document.getElementById(`m-${k}`);if(el)el.textContent=(n!==null&&n!==undefined)?n.toFixed(1)+'°C':'—';
     const ee=document.getElementById(`m-${k}-err`);if(ee)ee.textContent=(n!==null&&n!==undefined)?`±${UNC[k]}°C`:'';
     const ed=document.getElementById(`m-${k}-d`);if(!ed)return;
@@ -467,7 +465,7 @@ function setCards(real,normals,label,periodLabel,year){
       const d=real-n;
       ed.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';
       ed.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');
-    } else {ed.textContent=decadeLabels[k];ed.className='metric-delta neu';}
+    } else {ed.textContent='';ed.className='metric-delta neu';}
   });
 }
 
@@ -740,227 +738,28 @@ function setWoStatus(msg,ok){
 
 function setWoCards(real,normals,label,periodLabel,year){
   const uncReal=year?getUncReal(year):UNC.real;
+  const rl=document.getElementById('wo-m-real-label');if(rl)rl.textContent=label||'Réel';
   document.getElementById('wo-m-real').textContent=(real!==null&&real!==undefined)?real.toFixed(1)+'°C':'—';
   document.getElementById('wo-m-real-err').textContent=(real!==null&&real!==undefined)?`±${uncReal}°C`:'';
+  document.getElementById('wo-m-real-sub').textContent='';
   const note=year?getEraNote(year):null;
   const noteEl=document.getElementById('wo-era-note');
   if(noteEl){noteEl.textContent=note||'';noteEl.style.display=note?'block':'none';}
-  document.getElementById('wo-m-real-sub').textContent=label||'';
+  const DR={d1:'1991–2000',d2:'2001–2010',d3:'2011–2020',d4:'2021–2025',d5:'1991–2025'};
   ['d1','d2','d3','d4','d5'].forEach(k=>{
     const n=normals[k];
-    const ev=document.getElementById(`wo-m-${k}`);
-    if(ev)ev.textContent=(n!==null&&n!==undefined)?n.toFixed(1)+'°C':'—';
-    const ee=document.getElementById(`wo-m-${k}-err`);
-    if(ee)ee.textContent=(n!==null&&n!==undefined)?`±${UNC[k]}°C`:'';
+    const lbl=document.getElementById(`wo-m-${k}-label`);
+    if(lbl)lbl.textContent=periodLabel?`Moy. ${periodLabel} · ${DR[k]}`:DR[k];
+    const el=document.getElementById(`wo-m-${k}`);if(el)el.textContent=(n!==null&&n!==undefined)?n.toFixed(1)+'°C':'—';
+    const ee=document.getElementById(`wo-m-${k}-err`);if(ee)ee.textContent=(n!==null&&n!==undefined)?`±${UNC[k]}°C`:'';
     const ed=document.getElementById(`wo-m-${k}-d`);if(!ed)return;
     if(real!==null&&real!==undefined&&n!==null&&n!==undefined){
       const d=real-n;
       ed.textContent=(d>=0?'+':'')+d.toFixed(1)+'°C vs réel';
       ed.className='metric-delta '+(d>0.5?'hot':d<-0.5?'cold':'neu');
-    } else {
-      ed.textContent=periodLabel?`moy. ${periodLabel}`:'—';
-      ed.className='metric-delta neu';
-    }
+    } else {ed.textContent='';ed.className='metric-delta neu';}
   });
 }
-
-
-// ── Loaders Monde ────────────────────────────────────────────────────────────
-// Charge les 6 continents et affiche la moyenne pondérée pour Planète
-const CONTINENT_WEIGHTS={europe:0.12,namerica:0.16,samerica:0.14,africa:0.20,asia:0.30,oceania:0.08};
-
-async function loadWoPlanet(myId, period){
-  document.getElementById('map-sel-name').textContent='Monde';
-  setWoStatus('Chargement continents…',null);
-
-  const continentsToLoad=['europe','namerica','samerica','africa','asia','oceania'];
-  const W={europe:0.12,namerica:0.16,samerica:0.14,africa:0.20,asia:0.30,oceania:0.08};
-  const results={};
-
-  for(const c of continentsToLoad){
-    if(myId!==woLoadId)return;
-    const loc=getLoc(c); if(!loc)continue;
-    const normals=getNormals(c); if(!normals)continue;
-    setWoStatus(`Chargement ${loc.name}…`,null);
-    try{
-      let real=null;
-      const nv={d1:null,d2:null,d3:null,d4:null,d5:null};
-      if(period==='day'){
-        const end=clamp(new Date(woNav.day)); const start=addDays(end,-6);
-        const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
-        const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
-        real=temps.length?Math.round(avg(temps)*10)/10:null;
-        const doy=getDOY(end);
-        ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k]?.daily[doy]??null;});
-      } else if(period==='week'){
-        const mon=new Date(woNav.week); const sun=clamp(addDays(mon,6));
-        const data=await fetchData(loc.lat,loc.lon,toDS(mon),toDS(sun));
-        const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
-        real=temps.length?Math.round(avg(temps)*10)/10:null;
-        const doy=getDOY(mon);
-        ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k]?.daily[doy]??null;});
-      } else if(period==='month'){
-        const{y,m}=woNav.month;
-        const data=await fetchData(loc.lat,loc.lon,`${y}-${String(m+1).padStart(2,'0')}-01`,toDS(clamp(new Date(y,m+1,0))));
-        const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
-        real=temps.length?Math.round(avg(temps)*10)/10:null;
-        ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k]?.monthly[m]??null;});
-      } else {
-        const y=woNav.year;
-        const data=await fetchData(loc.lat,loc.lon,`${y}-01-01`,toDS(clamp(new Date(y,11,31))));
-        const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
-        real=temps.length?Math.round(avg(temps)*10)/10:null;
-        ['d1','d2','d3','d4'].forEach(k=>{const mv=normals[k]?.monthly.filter(x=>x!==null)||[];nv[k]=mv.length?Math.round(mv.reduce((a,b)=>a+b,0)/mv.length*10)/10:null;});
-      }
-      const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
-      nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
-      results[c]={real,nv};
-      // Stocker anomalie pour colorier la carte
-      if(real!==null&&nv.d1!==null) anomCache[c]=Math.round((real-nv.d1)*10)/10;
-    }catch(e){
-      console.warn('loadWoPlanet error for', c, e.message);
-      results[c]=null;
-    }
-    await new Promise(r=>setTimeout(r,200));
-  }
-
-  if(myId!==woLoadId)return;
-
-  // Peindre tous les continents d'un coup (paintZone planet gère le reset)
-  // On peint chaque continent directement sans reset intermédiaire
-  if(svgMap){
-    svgMap.selectAll('path.land').attr('fill','#ddd');
-    continentsToLoad.forEach(c=>{
-      if(anomCache[c]==null)return;
-      const col=anomColor(anomCache[c]);
-      svgMap.selectAll('path.land').filter(d=>CONTINENT_COUNTRIES[c]?.includes(String(d.id))).attr('fill',col);
-    });
-  }
-
-  // Calculer moyenne pondérée planète
-  let wReal=0,wSum=0;
-  const wD={d1:0,d2:0,d3:0,d4:0,d5:0},wDsum={d1:0,d2:0,d3:0,d4:0,d5:0};
-  Object.entries(results).forEach(([c,r])=>{
-    if(!r||r.real===null)return;
-    const w=W[c]||0.15;
-    wReal+=r.real*w; wSum+=w;
-    ['d1','d2','d3','d4','d5'].forEach(k=>{if(r.nv[k]!==null){wD[k]+=r.nv[k]*w;wDsum[k]+=w;}});
-  });
-
-  const planetReal=wSum>0?Math.round(wReal/wSum*10)/10:null;
-  const planetNv={};
-  ['d1','d2','d3','d4','d5'].forEach(k=>{planetNv[k]=wDsum[k]>0?Math.round(wD[k]/wDsum[k]*10)/10:null;});
-
-  // Label période
-  let label='',periodLabel='';
-  if(period==='day'){const dd=clamp(new Date(woNav.day));label=fmtFull(dd);periodLabel=dd.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
-  else if(period==='week'){const wn=getWeekNum(woNav.week);label=`S${wn} · moy. semaine`;periodLabel=`sem. ${wn}`;}
-  else if(period==='month'){label=`${MNAMES[woNav.month.m]} ${woNav.month.y}`;periodLabel=MSHORT[woNav.month.m];}
-  else{label=`${woNav.year} · moy. annuelle`;periodLabel='année';}
-
-  setWoCards(planetReal,planetNv,label,periodLabel);
-  setWoStatus('ERA5 · Monde',true);
-}
-
-
-
-async function loadWo(){
-  const myId=++woLoadId;
-  const key=woKey, period=woPeriod;
-
-  // Pour 'planet' : charger tous les continents et faire la moyenne pondérée
-  if(key==='planet'){
-    await loadWoPlanet(myId, period);
-    return;
-  }
-
-  const loc=getLoc(key);
-  if(!loc)return;
-  const normals=getNormals(key)||getNormals('europe');
-  if(!normals)return;
-
-  document.getElementById('map-sel-name').textContent=loc.name;
-  setWoStatus(`Chargement ${loc.name}…`,null);
-
-  try{
-    let real=null, nv={d1:null,d2:null,d3:null,d4:null,d5:null}, labels=[], realData=[], nd={};
-
-    if(period==='day'){
-      const end=clamp(new Date(woNav.day));const start=addDays(end,-29);
-      const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
-      const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
-      nd=normForDates(dates,normals);
-      const li=[...temps].map((v,i)=>v!==null?i:-1).filter(i=>i>=0).pop()??temps.length-1;
-      real=temps[li];
-      ['d1','d2','d3','d4'].forEach(k=>{nv[k]=nd[k][li]??null;});
-      const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
-      nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
-      const dd=new Date(dates[li]+'T00:00:00');
-      const pLabel=dd.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
-      setWoCards(real,nv,fmtFull(dd),pLabel);
-
-    } else if(period==='week'){
-      const mon=new Date(woNav.week);const sun=clamp(addDays(mon,6));
-      const data=await fetchData(loc.lat,loc.lon,toDS(mon),toDS(sun));
-      const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
-      nd=normForDates(dates,normals);
-      const vt=temps.filter(v=>v!==null);real=vt.length?avg(vt):null;
-      ['d1','d2','d3','d4'].forEach(k=>{nv[k]=avg(nd[k].filter((_,i)=>temps[i]!==null));});
-      const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
-      nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
-      const wn=getWeekNum(mon);
-      setWoCards(real,nv,`S${wn} · moy. semaine`,`sem. ${wn}`);
-
-    } else if(period==='month'){
-      const{y,m}=woNav.month;const start=new Date(y,m,1);const end=clamp(new Date(y,m+1,0));
-      const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
-      const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
-      nd=normForDates(dates,normals);
-      real=avg(temps.filter(v=>v!==null));
-      ['d1','d2','d3','d4'].forEach(k=>{nv[k]=normals[k].monthly[m]??null;});
-      const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
-      nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
-      setWoCards(real,nv,`${MNAMES[m]} ${y}`,MSHORT[m]);
-
-    } else {
-      const y=woNav.year;const start=new Date(y,0,1);const end=clamp(new Date(y,11,31));
-      const data=await fetchData(loc.lat,loc.lon,toDS(start),toDS(end));
-      const dates=data.daily.time,temps=data.daily.temperature_2m_mean;
-      const byM={};for(let i=0;i<dates.length;i++){const mo=new Date(dates[i]).getMonth();if(!byM[mo])byM[mo]=[];if(temps[i]!==null)byM[mo].push(temps[i]);}
-      const months=Object.keys(byM).map(Number).sort((a,b)=>a-b);
-      const realData=months.map(mo=>{const t=byM[mo];return t.length?parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)):null;});
-      const ndY={d1:[],d2:[],d3:[],d4:[],d5:[]};
-      months.forEach(mo=>{['d1','d2','d3','d4','d5'].forEach(k=>{ndY[k].push(normals[k]?.monthly[mo]??null);});});
-      real=avg(realData);
-      ['d1','d2','d3','d4'].forEach(k=>{const v=normals[k].monthly.filter(x=>x!==null);nv[k]=v.length?parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)):null;});
-      const d5v=['d1','d2','d3','d4'].map(k=>nv[k]).filter(v=>v!==null);
-      nv.d5=d5v.length?Math.round(d5v.reduce((a,b)=>a+b,0)/d5v.length*10)/10:null;
-      setWoCards(real,nv,`${woNav.year} · moy. annuelle`,'année');
-      nd=ndY;
-    }
-
-    if(myId!==woLoadId)return;
-    setWoStatus(`ERA5 · ${loc.name}`,true);
-
-    // Calculer anomalie pour colorer la carte
-    const normRef=nv[mapRef];
-    if(real!==null&&normRef!==null&&normRef!==undefined){
-      const delta=Math.round((real-normRef)*10)/10;
-      anomCache[key]=delta;
-      paintZone(key,delta);
-    }
-
-  }catch(e){
-    if(myId!==woLoadId)return;
-    setWoStatus(e.message,false);
-    setWoCards(null,{d1:null,d2:null,d3:null,d4:null,d5:null},e.message.slice(0,50));
-    if(woChart){woChart.destroy();woChart=null;}
-    const _wct2=document.getElementById('wo-chart-title');if(_wct2)_wct2.textContent='—';
-  }
-}
-
-// ── Carte interactive ────────────────────────────────────────────────────────
-
 function paintZone(key,delta){
   if(!svgMap)return;
   const color=anomColor(delta);
