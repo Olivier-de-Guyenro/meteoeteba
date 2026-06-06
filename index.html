@@ -482,7 +482,7 @@ function buildNav(){
   if(period==='day'){
     row.innerHTML=`<button class="nav-btn" id="np">←</button><input type="date" id="nd" style="font-family:var(--mono);font-size:12px;padding:5px 9px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;"><button class="nav-btn" id="nn">→</button><span id="nl" class="nav-current"></span><button class="nav-btn" id="nt" style="margin-left:auto;font-size:11px;">Dernier</button>`;
     const inp=document.getElementById('nd');
-    inp.max=toDS(era5End);inp.min='2024-01-01';inp.value=toDS(nav.day);
+    inp.max=toDS(era5End);inp.min='1991-01-01';inp.value=toDS(nav.day);
     updateLabel();
     inp.onchange=()=>{const v=new Date(inp.value+'T00:00:00');if(!isNaN(v)){nav.day=v;updateLabel();load();}};
     document.getElementById('np').onclick=()=>{nav.day=addDays(nav.day,-1);if(nav.day<new Date('2024-01-01'))nav.day=new Date('2024-01-01');inp.value=toDS(nav.day);updateLabel();load();};
@@ -496,19 +496,19 @@ function buildNav(){
     document.getElementById('nt').onclick=()=>{nav.week=getMon(era5End);updateLabel();load();};
   } else if(period==='month'){
     const mo=MNAMES.map((n,i)=>`<option value="${i}"${i===nav.month.m?' selected':''}>${n}</option>`).join('');
-    let yo='';for(let y=today.getFullYear();y>=2024;y--)yo+=`<option value="${y}"${y===nav.month.y?' selected':''}>${y}</option>`;
+    let yo='';for(let y=today.getFullYear();y>=1991;y--)yo+=`<option value="${y}"${y===nav.month.y?' selected':''}>${y}</option>`;
     row.innerHTML=`<span class="ctrl-label">Mois</span><select id="nms">${mo}</select><span class="ctrl-label">Année</span><select id="nys">${yo}</select><button class="nav-btn" id="np" style="margin-left:4px;">← Préc.</button><button class="nav-btn" id="nn">Suiv. →</button><button class="nav-btn" id="nt" style="margin-left:auto;font-size:11px;">Ce mois</button>`;
     const sync=()=>{document.getElementById('nms').value=nav.month.m;document.getElementById('nys').value=nav.month.y;};
     document.getElementById('nms').onchange=e=>{nav.month.m=+e.target.value;load();};
     document.getElementById('nys').onchange=e=>{nav.month.y=+e.target.value;load();};
-    document.getElementById('np').onclick=()=>{nav.month.m--;if(nav.month.m<0){nav.month.m=11;nav.month.y--;}if(nav.month.y<2024){nav.month.y=2024;nav.month.m=0;}sync();load();};
+    document.getElementById('np').onclick=()=>{nav.month.m--;if(nav.month.m<0){nav.month.m=11;nav.month.y--;}if(nav.month.y<1991){nav.month.y=1991;nav.month.m=0;}sync();load();};
     document.getElementById('nn').onclick=()=>{nav.month.m++;if(nav.month.m>11){nav.month.m=0;nav.month.y++;}const my=era5End.getFullYear(),mm=era5End.getMonth();if(nav.month.y>my||(nav.month.y===my&&nav.month.m>mm)){nav.month.y=my;nav.month.m=mm;}sync();load();};
     document.getElementById('nt').onclick=()=>{nav.month={y:era5End.getFullYear(),m:era5End.getMonth()};sync();load();};
   } else {
-    let yo='';for(let y=today.getFullYear();y>=2024;y--)yo+=`<option value="${y}"${y===nav.year?' selected':''}>${y}</option>`;
+    let yo='';for(let y=today.getFullYear();y>=1991;y--)yo+=`<option value="${y}"${y===nav.year?' selected':''}>${y}</option>`;
     row.innerHTML=`<span class="ctrl-label">Année</span><select id="nys">${yo}</select><button class="nav-btn" id="np" style="margin-left:4px;">← Préc.</button><button class="nav-btn" id="nn">Suiv. →</button><button class="nav-btn" id="nt" style="margin-left:auto;font-size:11px;">Cette année</button>`;
     document.getElementById('nys').onchange=e=>{nav.year=+e.target.value;load();};
-    document.getElementById('np').onclick=()=>{if(nav.year>2024){nav.year--;document.getElementById('nys').value=nav.year;load();}};
+    document.getElementById('np').onclick=()=>{if(nav.year>1991){nav.year--;document.getElementById('nys').value=nav.year;load();}};
     document.getElementById('nn').onclick=()=>{if(nav.year<era5End.getFullYear()){nav.year++;document.getElementById('nys').value=nav.year;load();}};
     document.getElementById('nt').onclick=()=>{nav.year=era5End.getFullYear();document.getElementById('nys').value=nav.year;load();};
   }
@@ -655,7 +655,7 @@ function buildWoNav(){
   const row=document.getElementById('wo-nav-row');row.innerHTML='';
   if(woPeriod==='day'){
     row.innerHTML=`<button class="nav-btn" id="wop">←</button><input type="date" id="wond" style="font-family:var(--mono);font-size:12px;padding:5px 9px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;"><button class="nav-btn" id="wonn">→</button><span id="wonl" class="nav-current"></span><button class="nav-btn" id="wont" style="margin-left:auto;font-size:11px;">Dernier</button>`;
-    const inp=document.getElementById('wond');inp.max=toDS(era5End);inp.min='2024-01-01';inp.value=toDS(woNav.day);
+    const inp=document.getElementById('wond');inp.max=toDS(era5End);inp.min='1991-01-01';inp.value=toDS(woNav.day);
     updateWoLabel();
     inp.onchange=()=>{const v=new Date(inp.value+'T00:00:00');if(!isNaN(v)){woNav.day=v;updateWoLabel();loadWo();}};
     document.getElementById('wop').onclick=()=>{woNav.day=addDays(woNav.day,-1);if(woNav.day<new Date('2024-01-01'))woNav.day=new Date('2024-01-01');inp.value=toDS(woNav.day);updateWoLabel();loadWo();};
@@ -669,19 +669,19 @@ function buildWoNav(){
     document.getElementById('wont').onclick=()=>{woNav.week=getMon(era5End);updateWoLabel();loadWo();};
   } else if(woPeriod==='month'){
     const mo=MNAMES.map((n,i)=>`<option value="${i}"${i===woNav.month.m?' selected':''}>${n}</option>`).join('');
-    let yo='';for(let y=today.getFullYear();y>=2024;y--)yo+=`<option value="${y}"${y===woNav.month.y?' selected':''}>${y}</option>`;
+    let yo='';for(let y=today.getFullYear();y>=1991;y--)yo+=`<option value="${y}"${y===woNav.month.y?' selected':''}>${y}</option>`;
     row.innerHTML=`<span class="ctrl-label">Mois</span><select id="wonms">${mo}</select><span class="ctrl-label">Année</span><select id="wonys">${yo}</select><button class="nav-btn" id="wop" style="margin-left:4px;">← Préc.</button><button class="nav-btn" id="wonn">Suiv. →</button><button class="nav-btn" id="wont" style="margin-left:auto;font-size:11px;">Ce mois</button>`;
     const sync=()=>{document.getElementById('wonms').value=woNav.month.m;document.getElementById('wonys').value=woNav.month.y;};
     document.getElementById('wonms').onchange=e=>{woNav.month.m=+e.target.value;loadWo();};
     document.getElementById('wonys').onchange=e=>{woNav.month.y=+e.target.value;loadWo();};
-    document.getElementById('wop').onclick=()=>{woNav.month.m--;if(woNav.month.m<0){woNav.month.m=11;woNav.month.y--;}if(woNav.month.y<2024){woNav.month.y=2024;woNav.month.m=0;}sync();loadWo();};
+    document.getElementById('wop').onclick=()=>{woNav.month.m--;if(woNav.month.m<0){woNav.month.m=11;woNav.month.y--;}if(woNav.month.y<1991){woNav.month.y=1991;woNav.month.m=0;}sync();loadWo();};
     document.getElementById('wonn').onclick=()=>{woNav.month.m++;if(woNav.month.m>11){woNav.month.m=0;woNav.month.y++;}const my=era5End.getFullYear(),mm=era5End.getMonth();if(woNav.month.y>my||(woNav.month.y===my&&woNav.month.m>mm)){woNav.month.y=my;woNav.month.m=mm;}sync();loadWo();};
     document.getElementById('wont').onclick=()=>{woNav.month={y:era5End.getFullYear(),m:era5End.getMonth()};sync();loadWo();};
   } else {
-    let yo='';for(let y=today.getFullYear();y>=2024;y--)yo+=`<option value="${y}"${y===woNav.year?' selected':''}>${y}</option>`;
+    let yo='';for(let y=today.getFullYear();y>=1991;y--)yo+=`<option value="${y}"${y===woNav.year?' selected':''}>${y}</option>`;
     row.innerHTML=`<span class="ctrl-label">Année</span><select id="wonys">${yo}</select><button class="nav-btn" id="wop" style="margin-left:4px;">← Préc.</button><button class="nav-btn" id="wonn">Suiv. →</button><button class="nav-btn" id="wont" style="margin-left:auto;font-size:11px;">Cette année</button>`;
     document.getElementById('wonys').onchange=e=>{woNav.year=+e.target.value;loadWo();};
-    document.getElementById('wop').onclick=()=>{if(woNav.year>2024){woNav.year--;document.getElementById('wonys').value=woNav.year;loadWo();}};
+    document.getElementById('wop').onclick=()=>{if(woNav.year>1991){woNav.year--;document.getElementById('wonys').value=woNav.year;loadWo();}};
     document.getElementById('wonn').onclick=()=>{if(woNav.year<era5End.getFullYear()){woNav.year++;document.getElementById('wonys').value=woNav.year;loadWo();}};
     document.getElementById('wont').onclick=()=>{woNav.year=era5End.getFullYear();document.getElementById('wonys').value=woNav.year;loadWo();};
   }
