@@ -28,11 +28,13 @@
       --radius-lg: 16px;
     }
     body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
-    .page { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .page { max-width: 1060px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
     .site-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2.5rem; gap: 1rem; flex-wrap: wrap; }
     .site-title { font-size: 22px; font-weight: 500; letter-spacing: -.3px; }
     .site-title span { color: var(--text-2); font-weight: 300; }
     .site-sub { font-size: 12px; color: var(--text-3); margin-top: 3px; font-family: var(--mono); }
+
     .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 1.5rem; }
     .tab-group { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 3px; gap: 2px; }
     .tab { padding: 6px 16px; font-size: 13px; font-family: var(--font); border: none; background: transparent; color: var(--text-2); border-radius: 7px; cursor: pointer; transition: all .15s; font-weight: 400; }
@@ -42,31 +44,66 @@
     .region-wrap label { font-size: 12px; color: var(--text-3); font-family: var(--mono); white-space: nowrap; }
     select { font-family: var(--font); font-size: 13px; padding: 7px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); cursor: pointer; outline: none; transition: border-color .15s; min-width: 220px; }
     select:hover, select:focus { border-color: var(--border-strong); }
-    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
-    @media (max-width: 680px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
-    .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
-    .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); font-family: var(--mono); margin-bottom: 8px; }
-    .metric-value { font-size: 28px; font-weight: 500; letter-spacing: -.5px; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
-    .metric-sub { font-size: 11px; color: var(--text-3); }
-    .c-red { color: var(--red); }
-    .c-blue { color: var(--blue); }
-    .c-green { color: var(--green); }
+
+    /* ─── 5 metric cards ─── */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 800px) { .metrics { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 520px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+
+    .metric {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      border-top: 3px solid transparent;
+    }
+    .metric.is-real { border-top-color: #c0392b; }
+    .metric.is-d1   { border-top-color: #27ae60; }
+    .metric.is-d2   { border-top-color: #2471a3; }
+    .metric.is-d3   { border-top-color: #8e44ad; }
+    .metric.is-d4   { border-top-color: #e67e22; }
+
+    .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); font-family: var(--mono); margin-bottom: 6px; }
+    .metric-value { font-size: 26px; font-weight: 500; letter-spacing: -.5px; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+    .metric-delta { font-size: 12px; font-weight: 500; font-family: var(--mono); }
+    .metric-sub   { font-size: 10px; color: var(--text-3); margin-top: 2px; }
+    .c-real { color: #c0392b; }
+    .c-d1   { color: #27ae60; }
+    .c-d2   { color: #2471a3; }
+    .c-d3   { color: #8e44ad; }
+    .c-d4   { color: #e67e22; }
     .c-muted { color: var(--text-2); }
+    .delta-hot  { color: #c0392b; }
+    .delta-cold { color: #2471a3; }
+    .delta-neu  { color: var(--text-3); }
+
+    /* ─── Chart ─── */
     .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
     .chart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; gap: 12px; flex-wrap: wrap; }
     .chart-title { font-size: 14px; font-weight: 500; }
-    .legend { display: flex; flex-wrap: wrap; gap: 12px; }
-    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-2); font-family: var(--mono); }
-    .leg-line { width: 18px; height: 2px; border-radius: 1px; flex-shrink: 0; }
+    .legend { display: flex; flex-wrap: wrap; gap: 10px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-2); font-family: var(--mono); }
+    .leg-line { width: 16px; height: 2px; border-radius: 1px; flex-shrink: 0; }
     .chart-container { position: relative; width: 100%; height: 300px; }
-    .status-bar { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); color: var(--text-3); padding: 8px 0; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; transition: background .3s; }
+
+    /* ─── Progress ─── */
     .progress-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 1rem; text-align: center; display: none; }
     .progress-wrap.visible { display: block; }
     .progress-bar-outer { background: var(--surface2); border-radius: 4px; height: 6px; margin: 1rem auto; max-width: 400px; overflow: hidden; }
-    .progress-bar-inner { height: 100%; background: var(--text); border-radius: 4px; transition: width .3s; width: 0%; }
-    .progress-label { font-size: 12px; color: var(--text-3); font-family: var(--mono); }
-    .cache-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-family: var(--mono); color: var(--text-3); background: var(--surface2); border-radius: 4px; padding: 2px 6px; margin-left: 8px; }
+    .progress-bar-inner { height: 100%; background: var(--text); border-radius: 4px; transition: width .4s; width: 0%; }
+    .progress-label { font-size: 13px; color: var(--text-2); }
+    .progress-detail { font-size: 11px; color: var(--text-3); font-family: var(--mono); margin-top: 4px; }
+
+    .cache-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-family: var(--mono); color: var(--text-3); background: var(--surface2); border-radius: 4px; padding: 2px 6px; margin-left: 8px; vertical-align: middle; }
+
+    .status-bar { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); color: var(--text-3); padding: 8px 0; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; transition: background .3s; }
+
     footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-3); font-family: var(--mono); display: flex; gap: 1.5rem; flex-wrap: wrap; }
     footer a { color: var(--text-3); text-decoration: underline; text-underline-offset: 2px; }
     footer a:hover { color: var(--text-2); }
@@ -110,35 +147,48 @@
     </div>
   </div>
 
-  <div class="metrics" id="metrics">
-    <div class="metric">
-      <div class="metric-label">Température réelle</div>
-      <div class="metric-value c-muted" id="m-real">—</div>
-      <div class="metric-sub" id="m-real-sub">en attente</div>
+  <!-- 5 metric cards -->
+  <div class="metrics">
+    <div class="metric is-real">
+      <div class="metric-label">Réel</div>
+      <div class="metric-value c-real" id="m-real">—</div>
+      <div class="metric-delta" id="m-real-delta" style="visibility:hidden">—</div>
+      <div class="metric-sub" id="m-real-sub">—</div>
     </div>
-    <div class="metric">
-      <div class="metric-label">Normale 2011–2020</div>
-      <div class="metric-value c-muted" id="m-norm">—</div>
-      <div class="metric-sub" id="m-norm-sub">décennie récente</div>
+    <div class="metric is-d1">
+      <div class="metric-label">1991–2000</div>
+      <div class="metric-value c-d1" id="m-d1">—</div>
+      <div class="metric-delta" id="m-d1-delta">—</div>
+      <div class="metric-sub">écart vs réel</div>
     </div>
-    <div class="metric">
-      <div class="metric-label">Écart à 2011–2020</div>
-      <div class="metric-value" id="m-delta">—</div>
-      <div class="metric-sub" id="m-delta-sub">—</div>
+    <div class="metric is-d2">
+      <div class="metric-label">2001–2010</div>
+      <div class="metric-value c-d2" id="m-d2">—</div>
+      <div class="metric-delta" id="m-d2-delta">—</div>
+      <div class="metric-sub">écart vs réel</div>
     </div>
-    <div class="metric">
-      <div class="metric-label">Réchauffement</div>
-      <div class="metric-value" id="m-trend">—</div>
-      <div class="metric-sub" id="m-trend-sub">1991–2000 → 2011–2020</div>
+    <div class="metric is-d3">
+      <div class="metric-label">2011–2020</div>
+      <div class="metric-value c-d3" id="m-d3">—</div>
+      <div class="metric-delta" id="m-d3-delta">—</div>
+      <div class="metric-sub">écart vs réel</div>
+    </div>
+    <div class="metric is-d4">
+      <div class="metric-label">Depuis 2021</div>
+      <div class="metric-value c-d4" id="m-d4">—</div>
+      <div class="metric-delta" id="m-d4-delta">—</div>
+      <div class="metric-sub">écart vs réel</div>
     </div>
   </div>
 
+  <!-- Progress -->
   <div class="progress-wrap" id="progress-wrap">
     <div class="progress-label" id="progress-label">Calcul des normales ERA5…</div>
     <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
-    <div class="progress-label" id="progress-detail" style="margin-top:6px;font-size:10px;">Chargement des données historiques (30 ans)</div>
+    <div class="progress-detail" id="progress-detail">Chargement des données historiques (30+ ans)</div>
   </div>
 
+  <!-- Chart -->
   <div class="chart-card" id="chart-card">
     <div class="chart-header">
       <div>
@@ -147,9 +197,10 @@
       </div>
       <div class="legend">
         <div class="legend-item"><div class="leg-line" style="background:#c0392b"></div>Réelle</div>
-        <div class="legend-item"><div class="leg-line" style="background:#8e44ad;border-top:2px dashed #8e44ad;height:0"></div>2011–2020</div>
-        <div class="legend-item"><div class="leg-line" style="background:#2471a3;border-top:2px dashed #2471a3;height:0"></div>2001–2010</div>
-        <div class="legend-item"><div class="leg-line" style="background:#27ae60;border-top:2px dashed #27ae60;height:0"></div>1991–2000</div>
+        <div class="legend-item"><div class="leg-line" style="background:#e67e22;opacity:.7"></div>2021–</div>
+        <div class="legend-item"><div class="leg-line" style="background:#8e44ad;opacity:.7"></div>2011–2020</div>
+        <div class="legend-item"><div class="leg-line" style="background:#2471a3;opacity:.7"></div>2001–2010</div>
+        <div class="legend-item"><div class="leg-line" style="background:#27ae60;opacity:.7"></div>1991–2000</div>
       </div>
     </div>
     <div class="chart-container">
@@ -164,12 +215,11 @@
 
   <footer>
     <span>Données : <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> · Réanalyse ERA5 (ECMWF)</span>
-    <span>Normales calculées sur données ERA5 1991–2020</span>
-    <span>Cache local 24h · Dernière donnée disponible : J−5</span>
+    <span>Normales calculées sur données ERA5 brutes par décennie</span>
+    <span>Cache local 24h · Dernière donnée ERA5 : J−5 environ</span>
   </footer>
 
 </div>
-
 <script>
 // ─── Régions ──────────────────────────────────────────────────────────────────
 const REGIONS = {
@@ -189,16 +239,16 @@ const REGIONS = {
   cor:    { name:"Corse",                    lat:42.00, lon:9.00  }
 };
 
-// ─── Décennies de normales ────────────────────────────────────────────────────
+// ─── Décennies ────────────────────────────────────────────────────────────────
 const DECADES = [
-  { key:'d1', label:'1991–2000', start:'1991-01-01', end:'2000-12-31', color:'#27ae60', dash:[6,4] },
-  { key:'d2', label:'2001–2010', start:'2001-01-01', end:'2010-12-31', color:'#2471a3', dash:[6,4] },
-  { key:'d3', label:'2011–2020', start:'2011-01-01', end:'2020-12-31', color:'#8e44ad', dash:[6,4] }
+  { key:'d1', label:'1991–2000', start:'1991-01-01', end:'2000-12-31', color:'#27ae60' },
+  { key:'d2', label:'2001–2010', start:'2001-01-01', end:'2010-12-31', color:'#2471a3' },
+  { key:'d3', label:'2011–2020', start:'2011-01-01', end:'2020-12-31', color:'#8e44ad' },
+  { key:'d4', label:'2021–',     start:'2021-01-01', end:null,         color:'#e67e22' }
 ];
 
-// ─── Cache localStorage (TTL 24h) ─────────────────────────────────────────────
+// ─── Cache localStorage 24h ───────────────────────────────────────────────────
 const CACHE_TTL = 24 * 60 * 60 * 1000;
-
 function cacheGet(key) {
   try {
     const raw = localStorage.getItem('meteo_' + key);
@@ -208,7 +258,6 @@ function cacheGet(key) {
     return data;
   } catch(e) { return null; }
 }
-
 function cacheSet(key, data) {
   try { localStorage.setItem('meteo_' + key, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
 }
@@ -221,23 +270,17 @@ function avg(arr) {
   const v = arr.filter(x => x !== null && !isNaN(x));
   return v.length ? v.reduce((a,b) => a+b, 0) / v.length : null;
 }
-
 function getDOY(date) {
   return Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
 }
 
-// Calcule les normales journalières moyennes sur une période depuis les données ERA5 brutes
-// Retourne un tableau de 366 valeurs (doy 1..366), null si pas de données
 function computeDailyNormals(dates, temps) {
-  // Accumulate by DOY (1-366)
   const acc = Array.from({length: 367}, () => ({ sum: 0, count: 0 }));
   for (let i = 0; i < dates.length; i++) {
     if (temps[i] === null) continue;
     const doy = getDOY(new Date(dates[i]));
-    acc[doy].sum += temps[i];
-    acc[doy].count++;
+    if (doy >= 1 && doy <= 366) { acc[doy].sum += temps[i]; acc[doy].count++; }
   }
-  // Smooth with 15-day window
   const raw = acc.map(a => a.count > 0 ? a.sum / a.count : null);
   const smoothed = new Array(367).fill(null);
   for (let doy = 1; doy <= 366; doy++) {
@@ -248,19 +291,17 @@ function computeDailyNormals(dates, temps) {
       if (idx > 366) idx -= 365;
       if (raw[idx] !== null) vals.push(raw[idx]);
     }
-    smoothed[doy] = vals.length > 0 ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
+    smoothed[doy] = vals.length > 0 ? avg(vals) : null;
   }
   return smoothed;
 }
 
-// Calcule les normales mensuelles depuis les données ERA5 brutes
 function computeMonthlyNormals(dates, temps) {
   const acc = Array.from({length: 12}, () => ({ sum: 0, count: 0 }));
   for (let i = 0; i < dates.length; i++) {
     if (temps[i] === null) continue;
     const m = new Date(dates[i]).getMonth();
-    acc[m].sum += temps[i];
-    acc[m].count++;
+    acc[m].sum += temps[i]; acc[m].count++;
   }
   return acc.map(a => a.count > 0 ? a.sum / a.count : null);
 }
@@ -275,395 +316,315 @@ async function fetchOpenMeteo(lat, lon, startDate, endDate) {
   return data;
 }
 
-// ─── Chargement des normales (avec cache) ────────────────────────────────────
-// Retourne { d1, d2, d3 } chacun avec { daily: [366], monthly: [12] }
+// ─── Chargement des normales par décennie ─────────────────────────────────────
 async function loadDecadeNormals(lat, lon, regionKey, onProgress) {
-  const cacheKey = `normals_${regionKey}`;
+  const cacheKey = `normals4_${regionKey}`;
   const cached = cacheGet(cacheKey);
   if (cached) {
     document.getElementById('cache-badge').style.display = 'inline-flex';
-    onProgress(100, 'Normales chargées depuis le cache');
+    onProgress(100, 'Normales chargées depuis le cache', '');
     return cached;
   }
-
   document.getElementById('cache-badge').style.display = 'none';
+
   const result = {};
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d4end = toDateStr(addDays(today, -5)); // ERA5 lag
 
   for (let i = 0; i < DECADES.length; i++) {
     const dec = DECADES[i];
-    const pct = Math.round((i / DECADES.length) * 80);
-    onProgress(pct, `Calcul normales ${dec.label}…`);
+    const endDate = dec.end || d4end;
+    const pct = Math.round(10 + (i / DECADES.length) * 75);
+    onProgress(pct, `Calcul normales ${dec.label}…`, `Chargement ERA5 ${dec.start} → ${endDate}`);
 
-    const data = await fetchOpenMeteo(lat, lon, dec.start, dec.end);
+    const data = await fetchOpenMeteo(lat, lon, dec.start, endDate);
     result[dec.key] = {
-      daily: computeDailyNormals(data.daily.time, data.daily.temperature_2m_mean),
+      daily:   computeDailyNormals(data.daily.time, data.daily.temperature_2m_mean),
       monthly: computeMonthlyNormals(data.daily.time, data.daily.temperature_2m_mean)
     };
   }
 
-  onProgress(90, 'Mise en cache…');
+  onProgress(92, 'Mise en cache…', '');
   cacheSet(cacheKey, result);
-  onProgress(100, 'Normales calculées');
+  onProgress(100, 'Normales prêtes', '');
   return result;
 }
 
-// ─── État global ─────────────────────────────────────────────────────────────
+// ─── État global ──────────────────────────────────────────────────────────────
 let chartInstance = null;
 let currentPeriod = 'day';
 let currentRegion = 'france';
-let normalsCache = {}; // en mémoire pour la session
+let normalsCache = {};
 
-// ─── UI helpers ───────────────────────────────────────────────────────────────
+// ─── UI ───────────────────────────────────────────────────────────────────────
 function setStatus(msg, ok) {
   document.getElementById('status-dot').style.background = ok ? '#27ae60' : '#f39c12';
   document.getElementById('status-text').textContent = msg;
 }
-
 function setError(msg) {
   document.getElementById('status-dot').style.background = '#c0392b';
   document.getElementById('status-text').textContent = 'Erreur : ' + msg;
   hideProgress();
 }
-
 function showProgress() {
   document.getElementById('progress-wrap').classList.add('visible');
   document.getElementById('chart-card').style.opacity = '0.3';
 }
-
 function hideProgress() {
   document.getElementById('progress-wrap').classList.remove('visible');
   document.getElementById('chart-card').style.opacity = '1';
 }
-
 function setProgress(pct, label, detail) {
   document.getElementById('progress-bar').style.width = pct + '%';
-  if (label) document.getElementById('progress-label').textContent = label;
-  if (detail) document.getElementById('progress-detail').textContent = detail;
+  if (label !== undefined) document.getElementById('progress-label').textContent = label;
+  if (detail !== undefined) document.getElementById('progress-detail').textContent = detail;
 }
 
-function setMetrics(real, norm3, realLabel, warming) {
-  const delta = real !== null && norm3 !== null ? real - norm3 : null;
+function fmtTemp(v) { return v !== null ? v.toFixed(1) + '°C' : '—'; }
+function fmtDelta(real, norm) {
+  if (real === null || norm === null) return { text: '—', cls: 'delta-neu' };
+  const d = real - norm;
+  const sign = d >= 0 ? '+' : '';
+  const cls = d > 0.5 ? 'delta-hot' : d < -0.5 ? 'delta-cold' : 'delta-neu';
+  return { text: `${sign}${d.toFixed(1)}°C vs réel`, cls };
+}
 
-  document.getElementById('m-real').textContent = real !== null ? real.toFixed(1) + '°C' : '—';
+function setMetrics(real, normals, realLabel) {
+  document.getElementById('m-real').textContent = fmtTemp(real);
   document.getElementById('m-real-sub').textContent = realLabel || '';
 
-  document.getElementById('m-norm').textContent = norm3 !== null ? norm3.toFixed(1) + '°C' : '—';
-
-  const deltaEl = document.getElementById('m-delta');
-  deltaEl.textContent = delta !== null ? (delta >= 0 ? '+' : '') + delta.toFixed(1) + '°C' : '—';
-  deltaEl.className = 'metric-value ' + (delta === null ? 'c-muted' : delta > 0.5 ? 'c-red' : delta < -0.5 ? 'c-blue' : 'c-muted');
-  document.getElementById('m-delta-sub').textContent = delta !== null
-    ? (Math.abs(delta) < 0.5 ? 'dans la norme' : delta > 0 ? 'au-dessus' : 'en dessous')
-    : '—';
-
-  const trendEl = document.getElementById('m-trend');
-  trendEl.textContent = warming !== null ? (warming >= 0 ? '+' : '') + warming.toFixed(1) + '°C' : '—';
-  trendEl.className = 'metric-value ' + (warming === null ? 'c-muted' : warming > 0 ? 'c-red' : 'c-blue');
+  ['d1','d2','d3','d4'].forEach(k => {
+    const n = normals[k];
+    document.getElementById(`m-${k}`).textContent = fmtTemp(n);
+    const { text, cls } = fmtDelta(real, n);
+    const el = document.getElementById(`m-${k}-delta`);
+    el.textContent = text;
+    el.className = 'metric-delta ' + cls;
+  });
 }
 
 // ─── Chart ────────────────────────────────────────────────────────────────────
-function renderChart(labels, realData, normalsData, title) {
+function renderChart(labels, realData, nd, title) {
   document.getElementById('chart-title').textContent = title;
   const canvas = document.getElementById('main-chart');
   if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-
-  const ptRadius = realData.length > 60 ? 0 : 3;
+  const ptR = realData.length > 60 ? 0 : 3;
 
   chartInstance = new Chart(canvas, {
     type: 'line',
     data: {
       labels,
       datasets: [
-        {
-          label: 'Réelle',
-          data: realData,
-          borderColor: '#c0392b',
-          borderWidth: 2.5,
-          pointRadius: ptRadius,
-          pointHoverRadius: 5,
-          pointBackgroundColor: '#c0392b',
-          tension: 0.35,
-          fill: false,
-          order: 1,
-          z: 10
-        },
-        {
-          label: '2011–2020',
-          data: normalsData.d3,
-          borderColor: '#8e44ad',
-          borderWidth: 1.5,
-          borderDash: [6, 4],
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          tension: 0.35,
-          fill: false,
-          order: 2
-        },
-        {
-          label: '2001–2010',
-          data: normalsData.d2,
-          borderColor: '#2471a3',
-          borderWidth: 1.5,
-          borderDash: [6, 4],
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          tension: 0.35,
-          fill: false,
-          order: 3
-        },
-        {
-          label: '1991–2000',
-          data: normalsData.d1,
-          borderColor: '#27ae60',
-          borderWidth: 1.5,
-          borderDash: [6, 4],
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          tension: 0.35,
-          fill: false,
-          order: 4
-        }
+        { label:'Réelle',     data:realData, borderColor:'#c0392b', borderWidth:2.5, pointRadius:ptR, pointHoverRadius:5, pointBackgroundColor:'#c0392b', tension:0.35, fill:false, order:1 },
+        { label:'2021–',      data:nd.d4,    borderColor:'#e67e22', borderWidth:1.5, borderDash:[6,4], pointRadius:0, pointHoverRadius:4, tension:0.35, fill:false, order:2 },
+        { label:'2011–2020',  data:nd.d3,    borderColor:'#8e44ad', borderWidth:1.5, borderDash:[6,4], pointRadius:0, pointHoverRadius:4, tension:0.35, fill:false, order:3 },
+        { label:'2001–2010',  data:nd.d2,    borderColor:'#2471a3', borderWidth:1.5, borderDash:[6,4], pointRadius:0, pointHoverRadius:4, tension:0.35, fill:false, order:4 },
+        { label:'1991–2000',  data:nd.d1,    borderColor:'#27ae60', borderWidth:1.5, borderDash:[6,4], pointRadius:0, pointHoverRadius:4, tension:0.35, fill:false, order:5 }
       ]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
       plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#fff',
-          borderColor: 'rgba(0,0,0,.1)',
-          borderWidth: 1,
-          titleColor: '#1a1a18',
-          bodyColor: '#6b6b66',
-          padding: 10,
-          callbacks: {
+        legend:{ display:false },
+        tooltip:{
+          backgroundColor:'#fff', borderColor:'rgba(0,0,0,.1)', borderWidth:1,
+          titleColor:'#1a1a18', bodyColor:'#6b6b66', padding:10,
+          callbacks:{
             label: ctx => {
               const v = ctx.parsed.y;
               if (v === null) return null;
               const lbl = ctx.dataset.label;
               if (lbl === 'Réelle') return `  Réelle : ${v.toFixed(1)}°C`;
               const realV = ctx.chart.data.datasets[0].data[ctx.dataIndex];
-              if (lbl === '2011–2020' && realV !== null) {
+              if (realV !== null) {
                 const d = realV - v;
-                return [`  ${lbl} : ${v.toFixed(1)}°C`, `  Écart : ${d >= 0 ? '+' : ''}${d.toFixed(1)}°C`];
+                return [`  ${lbl} : ${v.toFixed(1)}°C`, `  Écart : ${d >= 0?'+':''}${d.toFixed(1)}°C`];
               }
               return `  ${lbl} : ${v.toFixed(1)}°C`;
             }
           }
         }
       },
-      scales: {
-        x: {
-          grid: { color: 'rgba(0,0,0,.04)' },
-          border: { color: 'rgba(0,0,0,.08)' },
-          ticks: { color: '#9b9b96', font: { size: 11, family: "'DM Mono', monospace" }, maxRotation: 45, autoSkip: true, maxTicksLimit: 14 }
-        },
-        y: {
-          grid: { color: 'rgba(0,0,0,.04)' },
-          border: { color: 'rgba(0,0,0,.08)', dash: [4,4] },
-          ticks: { color: '#9b9b96', font: { size: 11, family: "'DM Mono', monospace" }, callback: v => v.toFixed(0) + '°C' }
-        }
+      scales:{
+        x:{ grid:{color:'rgba(0,0,0,.04)'}, border:{color:'rgba(0,0,0,.08)'}, ticks:{color:'#9b9b96', font:{size:11, family:"'DM Mono',monospace"}, maxRotation:45, autoSkip:true, maxTicksLimit:14} },
+        y:{ grid:{color:'rgba(0,0,0,.04)'}, border:{color:'rgba(0,0,0,.08)', dash:[4,4]}, ticks:{color:'#9b9b96', font:{size:11, family:"'DM Mono',monospace"}, callback:v=>v.toFixed(0)+'°C'} }
       }
     }
   });
 }
 
 // ─── Loaders ─────────────────────────────────────────────────────────────────
-async function loadDay(region, regionKey, normals) {
-  // Fetch derniers 30 jours (jusqu'à J-1 max)
-  const today = new Date(); today.setHours(0,0,0,0);
-  const end = addDays(today, -1); // J-1 car ERA5 a délai
-  const start = addDays(end, -29);
+function normalsForDates(dates, normals) {
+  const out = { d1:[], d2:[], d3:[], d4:[] };
+  dates.forEach(d => {
+    const doy = getDOY(new Date(d));
+    ['d1','d2','d3','d4'].forEach(k => {
+      const v = normals[k].daily[doy];
+      out[k].push(v !== null ? parseFloat(v.toFixed(1)) : null);
+    });
+  });
+  return out;
+}
 
-  setProgress(92, 'Chargement températures récentes…');
+async function loadDay(region, normals) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const end = addDays(today, -1);
+  const start = addDays(end, -29);
   const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(start), toDateStr(end));
   const dates = data.daily.time;
   const temps = data.daily.temperature_2m_mean;
-
-  const labels = dates.map(d => fmtDate(new Date(d)));
-  const nd1 = dates.map(d => { const n = normals.d1.daily[getDOY(new Date(d))]; return n !== null ? parseFloat(n.toFixed(1)) : null; });
-  const nd2 = dates.map(d => { const n = normals.d2.daily[getDOY(new Date(d))]; return n !== null ? parseFloat(n.toFixed(1)) : null; });
-  const nd3 = dates.map(d => { const n = normals.d3.daily[getDOY(new Date(d))]; return n !== null ? parseFloat(n.toFixed(1)) : null; });
-
+  const nd = normalsForDates(dates, normals);
   const lastReal = [...temps].reverse().find(v => v !== null);
-  const lastD3 = nd3[nd3.length - 1];
-  const lastD1 = nd1[nd1.length - 1];
-  const warming = lastD1 !== null && lastD3 !== null ? lastD3 - lastD1 : null;
-
-  setMetrics(lastReal, lastD3, 'J−1 · ' + fmtDate(end), warming);
-  renderChart(labels, temps, { d1: nd1, d2: nd2, d3: nd3 }, `Températures journalières · 30 derniers jours (J−1)`);
+  const lastNorms = {};
+  ['d1','d2','d3','d4'].forEach(k => { lastNorms[k] = nd[k][nd[k].length-1]; });
+  setMetrics(lastReal, lastNorms, 'J−1 · ' + fmtDate(end));
+  renderChart(dates.map(d => fmtDate(new Date(d))), temps, nd, 'Températures journalières · 30 derniers jours (J−1)');
 }
 
-async function loadWeek(region, regionKey, normals) {
+async function loadWeek(region, normals) {
   const today = new Date(); today.setHours(0,0,0,0);
   const end = addDays(today, -1);
   const start = addDays(end, -83);
-
-  setProgress(92, 'Chargement semaines récentes…');
   const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(start), toDateStr(end));
   const dates = data.daily.time;
   const temps = data.daily.temperature_2m_mean;
 
   const weeks = [];
-  let wT = [], wd1 = [], wd2 = [], wd3 = [], wLabel = '';
-
-  for (let i = 0; i < dates.length; i++) {
+  let wT=[], wN={d1:[],d2:[],d3:[],d4:[]}, wLabel='';
+  for (let i=0; i<dates.length; i++) {
     const d = new Date(dates[i]);
-    if (d.getDay() === 1 && wT.length > 0) {
-      weeks.push({ label: wLabel, real: avg(wT), d1: avg(wd1), d2: avg(wd2), d3: avg(wd3) });
-      wT = []; wd1 = []; wd2 = []; wd3 = [];
+    if (d.getDay()===1 && wT.length>0) {
+      const nr={};
+      ['d1','d2','d3','d4'].forEach(k=>{ nr[k]=avg(wN[k]); });
+      weeks.push({label:wLabel, real:avg(wT), n:nr});
+      wT=[]; wN={d1:[],d2:[],d3:[],d4:[]};
     }
-    if (wT.length === 0) wLabel = fmtDate(d);
+    if (wT.length===0) wLabel=fmtDate(d);
     wT.push(temps[i]);
-    const doy = getDOY(d);
-    wd1.push(normals.d1.daily[doy]);
-    wd2.push(normals.d2.daily[doy]);
-    wd3.push(normals.d3.daily[doy]);
+    const doy=getDOY(d);
+    ['d1','d2','d3','d4'].forEach(k=>{ wN[k].push(normals[k].daily[doy]); });
   }
-  if (wT.length) weeks.push({ label: wLabel, real: avg(wT), d1: avg(wd1), d2: avg(wd2), d3: avg(wd3) });
+  if (wT.length) {
+    const nr={};
+    ['d1','d2','d3','d4'].forEach(k=>{ nr[k]=avg(wN[k]); });
+    weeks.push({label:wLabel, real:avg(wT), n:nr});
+  }
 
-  const labels = weeks.map(w => w.label);
-  const realData = weeks.map(w => w.real !== null ? parseFloat(w.real.toFixed(1)) : null);
-  const nd1 = weeks.map(w => w.d1 !== null ? parseFloat(w.d1.toFixed(1)) : null);
-  const nd2 = weeks.map(w => w.d2 !== null ? parseFloat(w.d2.toFixed(1)) : null);
-  const nd3 = weeks.map(w => w.d3 !== null ? parseFloat(w.d3.toFixed(1)) : null);
+  const labels=weeks.map(w=>w.label);
+  const realData=weeks.map(w=>w.real!==null?parseFloat(w.real.toFixed(1)):null);
+  const nd={d1:[],d2:[],d3:[],d4:[]};
+  weeks.forEach(w=>{ ['d1','d2','d3','d4'].forEach(k=>{ nd[k].push(w.n[k]!==null?parseFloat(w.n[k].toFixed(1)):null); }); });
 
-  const lastR = [...realData].reverse().find(v => v !== null);
-  const lastD3 = nd3[nd3.length - 1];
-  const warming = nd1[nd1.length-1] !== null && lastD3 !== null ? lastD3 - nd1[nd1.length-1] : null;
-  setMetrics(lastR, lastD3, 'semaine courante', warming);
-  renderChart(labels, realData, { d1: nd1, d2: nd2, d3: nd3 }, `Températures hebdomadaires · 12 dernières semaines`);
+  const lastR=[...realData].reverse().find(v=>v!==null);
+  const lastN={};
+  ['d1','d2','d3','d4'].forEach(k=>{ lastN[k]=nd[k][nd[k].length-1]; });
+  setMetrics(lastR, lastN, 'semaine courante');
+  renderChart(labels, realData, nd, 'Températures hebdomadaires · 12 dernières semaines');
 }
 
-async function loadMonth(region, regionKey, normals) {
+async function loadMonth(region, normals) {
   const today = new Date(); today.setHours(0,0,0,0);
   const end = addDays(today, -1);
   const startOfYear = new Date(today.getFullYear(), 0, 1);
-
-  setProgress(92, 'Chargement mois en cours…');
   const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(startOfYear), toDateStr(end));
   const dates = data.daily.time;
   const temps = data.daily.temperature_2m_mean;
 
-  const MNAMES = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
-  const byM = {};
-  for (let i = 0; i < dates.length; i++) {
-    const m = new Date(dates[i]).getMonth();
-    if (!byM[m]) byM[m] = { t: [], d1: [], d2: [], d3: [] };
-    if (temps[i] !== null) byM[m].t.push(temps[i]);
+  const MNAMES=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+  const byM={};
+  for (let i=0; i<dates.length; i++) {
+    const m=new Date(dates[i]).getMonth();
+    if (!byM[m]) byM[m]={t:[]};
+    if (temps[i]!==null) byM[m].t.push(temps[i]);
   }
+  const months=Object.keys(byM).map(Number).sort((a,b)=>a-b);
+  const labels=months.map(m=>MNAMES[m]);
+  const realData=months.map(m=>{ const t=byM[m].t; return t.length?parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)):null; });
+  const nd={d1:[],d2:[],d3:[],d4:[]};
+  months.forEach(m=>{ ['d1','d2','d3','d4'].forEach(k=>{ const v=normals[k].monthly[m]; nd[k].push(v!==null?parseFloat(v.toFixed(1)):null); }); });
 
-  const months = Object.keys(byM).map(Number).sort((a,b) => a-b);
-  const labels = months.map(m => MNAMES[m]);
-  const realData = months.map(m => { const t = byM[m].t; return t.length ? parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)) : null; });
-  const nd1 = months.map(m => { const v = normals.d1.monthly[m]; return v !== null ? parseFloat(v.toFixed(1)) : null; });
-  const nd2 = months.map(m => { const v = normals.d2.monthly[m]; return v !== null ? parseFloat(v.toFixed(1)) : null; });
-  const nd3 = months.map(m => { const v = normals.d3.monthly[m]; return v !== null ? parseFloat(v.toFixed(1)) : null; });
-
-  const lastR = [...realData].reverse().find(v => v !== null);
-  const lastM = months[months.length - 1];
-  const lastD3 = nd3[nd3.length - 1];
-  const warming = nd1[nd1.length-1] !== null && lastD3 !== null ? lastD3 - nd1[nd1.length-1] : null;
-  setMetrics(lastR, lastD3, MNAMES[lastM] + ' ' + today.getFullYear(), warming);
-  renderChart(labels, realData, { d1: nd1, d2: nd2, d3: nd3 }, `Températures mensuelles · ${today.getFullYear()}`);
+  const lastR=[...realData].reverse().find(v=>v!==null);
+  const lastM=months[months.length-1];
+  const lastN={};
+  ['d1','d2','d3','d4'].forEach(k=>{ lastN[k]=nd[k][nd[k].length-1]; });
+  setMetrics(lastR, lastN, MNAMES[lastM]+' '+today.getFullYear());
+  renderChart(labels, realData, nd, 'Températures mensuelles · '+today.getFullYear());
 }
 
-async function loadYear(region, regionKey, normals) {
+async function loadYear(region, normals) {
   const today = new Date(); today.setHours(0,0,0,0);
   const end = addDays(today, -1);
-  const startYear = today.getFullYear() - 4;
-  const startDate = new Date(startYear, 0, 1);
-
-  setProgress(92, 'Chargement années récentes…');
-  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(startDate), toDateStr(end));
+  const startYear = today.getFullYear()-4;
+  const data = await fetchOpenMeteo(region.lat, region.lon, toDateStr(new Date(startYear,0,1)), toDateStr(end));
   const dates = data.daily.time;
   const temps = data.daily.temperature_2m_mean;
 
-  const byY = {};
-  for (let i = 0; i < dates.length; i++) {
-    const y = new Date(dates[i]).getFullYear();
-    if (!byY[y]) byY[y] = { t: [] };
-    if (temps[i] !== null) byY[y].t.push(temps[i]);
+  const byY={};
+  for (let i=0; i<dates.length; i++) {
+    const y=new Date(dates[i]).getFullYear();
+    if (!byY[y]) byY[y]={t:[]};
+    if (temps[i]!==null) byY[y].t.push(temps[i]);
   }
+  const years=Object.keys(byY).map(Number).sort((a,b)=>a-b);
+  const labels=years.map(String);
+  const realData=years.map(y=>{ const t=byY[y].t; return t.length?parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)):null; });
 
-  const years = Object.keys(byY).map(Number).sort((a,b) => a-b);
-  const labels = years.map(String);
-  const realData = years.map(y => { const t = byY[y].t; return t.length ? parseFloat((t.reduce((a,b)=>a+b)/t.length).toFixed(1)) : null; });
-
-  // Normales annuelles = moyenne des 12 mois
-  function annualNorm(dec) {
-    const m = dec.monthly;
-    const v = m.filter(x => x !== null);
-    return v.length ? parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)) : null;
+  function annualAvg(dec) {
+    const v=dec.monthly.filter(x=>x!==null);
+    return v.length?parseFloat((v.reduce((a,b)=>a+b)/v.length).toFixed(1)):null;
   }
-  const an1 = annualNorm(normals.d1);
-  const an2 = annualNorm(normals.d2);
-  const an3 = annualNorm(normals.d3);
-  const nd1 = years.map(() => an1);
-  const nd2 = years.map(() => an2);
-  const nd3 = years.map(() => an3);
+  const nd={};
+  ['d1','d2','d3','d4'].forEach(k=>{ const a=annualAvg(normals[k]); nd[k]=years.map(()=>a); });
 
-  const lastR = [...realData].reverse().find(v => v !== null);
-  const warming = an1 !== null && an3 !== null ? an3 - an1 : null;
-  setMetrics(lastR, an3, String(today.getFullYear()), warming);
-  renderChart(labels, realData, { d1: nd1, d2: nd2, d3: nd3 }, `Températures annuelles · ${startYear}–${today.getFullYear()}`);
+  const lastR=[...realData].reverse().find(v=>v!==null);
+  const lastN={};
+  ['d1','d2','d3','d4'].forEach(k=>{ lastN[k]=nd[k][nd[k].length-1]; });
+  setMetrics(lastR, lastN, String(today.getFullYear()));
+  renderChart(labels, realData, nd, 'Températures annuelles · '+startYear+'–'+today.getFullYear());
 }
 
-// ─── Dispatcher principal ─────────────────────────────────────────────────────
+// ─── Dispatcher ───────────────────────────────────────────────────────────────
 async function loadData() {
   const region = REGIONS[currentRegion];
   setStatus(`Chargement pour ${region.name}…`, false);
 
-  // Normales déjà en mémoire ?
   let normals = normalsCache[currentRegion] || null;
-
   if (!normals) {
     showProgress();
-    setProgress(0, 'Calcul des normales ERA5…', 'Chargement des données historiques 1991–2020 (30 ans)');
+    setProgress(0, 'Calcul des normales ERA5…', 'Chargement 1991–présent (4 décennies)');
     try {
-      normals = await loadDecadeNormals(region.lat, region.lon, currentRegion, (pct, msg) => {
-        setProgress(pct, msg);
+      normals = await loadDecadeNormals(region.lat, region.lon, currentRegion, (pct, label, detail) => {
+        setProgress(pct, label, detail);
       });
       normalsCache[currentRegion] = normals;
-    } catch(e) {
-      setError(e.message);
-      return;
-    }
+    } catch(e) { setError(e.message); return; }
   }
 
   try {
-    setProgress(95, 'Chargement données récentes…');
-    if      (currentPeriod === 'day')   await loadDay(region, currentRegion, normals);
-    else if (currentPeriod === 'week')  await loadWeek(region, currentRegion, normals);
-    else if (currentPeriod === 'month') await loadMonth(region, currentRegion, normals);
-    else                                await loadYear(region, currentRegion, normals);
-
+    setProgress(95, 'Chargement données récentes…', '');
+    if      (currentPeriod==='day')   await loadDay(region, normals);
+    else if (currentPeriod==='week')  await loadWeek(region, normals);
+    else if (currentPeriod==='month') await loadMonth(region, normals);
+    else                              await loadYear(region, normals);
     hideProgress();
-    const fromCache = cacheGet(`normals_${currentRegion}`) !== null;
-    setStatus(`ERA5 · Normales calculées sur données réelles · ${region.name}${fromCache ? ' · cache 24h' : ''}`, true);
-  } catch(e) {
-    setError(e.message);
-  }
+    setStatus(`ERA5 · Normales calculées par décennie · ${region.name}`, true);
+  } catch(e) { setError(e.message); }
 }
 
-// ─── Events ───────────────────────────────────────────────────────────────────
+// ─── Events & init ────────────────────────────────────────────────────────────
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     tab.classList.add('active');
     currentPeriod = tab.dataset.period;
     loadData();
   });
 });
-
 document.getElementById('region-sel').addEventListener('change', e => {
   currentRegion = e.target.value;
   loadData();
 });
-
-// ─── Init ─────────────────────────────────────────────────────────────────────
 document.getElementById('current-year').textContent = new Date().getFullYear();
 loadData();
 </script>
