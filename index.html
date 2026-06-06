@@ -49,6 +49,7 @@
     .dc-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);font-family:var(--mono);margin-bottom:5px;}
     .dc-val{font-size:22px;font-weight:500;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
     .dc-delta{font-size:11px;font-weight:500;font-family:var(--mono);margin-top:3px;}
+    .dc-err{display:block;font-size:10px;color:var(--text);font-family:var(--mono);font-weight:500;margin-top:1px;opacity:.7;}
     .hot{color:#c0392b}.cold{color:#2471a3}.neu{color:var(--text-2)}
 
     /* ── Chart card ── */
@@ -141,11 +142,11 @@
   <div class="nav-row" id="fr-nav"></div>
 
   <div class="decade-cards">
-    <div class="dc is-real"><div class="dc-label">Réel</div><div class="dc-val hot" id="fr-m-real">—</div><div class="dc-delta neu" id="fr-m-real-sub">—</div></div>
-    <div class="dc is-d1"><div class="dc-label">1991–2000</div><div class="dc-val" style="color:#27ae60" id="fr-m-d1">—</div><div class="dc-delta" id="fr-m-d1-d">—</div></div>
-    <div class="dc is-d2"><div class="dc-label">2001–2010</div><div class="dc-val" style="color:#2471a3" id="fr-m-d2">—</div><div class="dc-delta" id="fr-m-d2-d">—</div></div>
-    <div class="dc is-d3"><div class="dc-label">2011–2020</div><div class="dc-val" style="color:#8e44ad" id="fr-m-d3">—</div><div class="dc-delta" id="fr-m-d3-d">—</div></div>
-    <div class="dc is-d4"><div class="dc-label">Depuis 2021</div><div class="dc-val" style="color:#e67e22" id="fr-m-d4">—</div><div class="dc-delta" id="fr-m-d4-d">—</div></div>
+    <div class="dc is-real"><div class="dc-label">Réel</div><div class="dc-val hot" id="fr-m-real">—</div><span class="dc-err" id="fr-m-real-err"></span><div class="dc-delta neu" id="fr-m-real-sub">—</div></div>
+    <div class="dc is-d1"><div class="dc-label">1991–2000</div><div class="dc-val" style="color:#27ae60" id="fr-m-d1">—</div><span class="dc-err" id="fr-m-d1-err"></span><div class="dc-delta" id="fr-m-d1-d">—</div></div>
+    <div class="dc is-d2"><div class="dc-label">2001–2010</div><div class="dc-val" style="color:#2471a3" id="fr-m-d2">—</div><span class="dc-err" id="fr-m-d2-err"></span><div class="dc-delta" id="fr-m-d2-d">—</div></div>
+    <div class="dc is-d3"><div class="dc-label">2011–2020</div><div class="dc-val" style="color:#8e44ad" id="fr-m-d3">—</div><span class="dc-err" id="fr-m-d3-err"></span><div class="dc-delta" id="fr-m-d3-d">—</div></div>
+    <div class="dc is-d4"><div class="dc-label">Depuis 2021</div><div class="dc-val" style="color:#e67e22" id="fr-m-d4">—</div><span class="dc-err" id="fr-m-d4-err"></span><div class="dc-delta" id="fr-m-d4-d">—</div></div>
   </div>
 
   <div class="chart-card" id="fr-chart-card">
@@ -223,11 +224,11 @@
       <div class="nav-row" id="wo-nav"></div>
 
       <div class="decade-cards world-dash">
-        <div class="dc is-real"><div class="dc-label">Réel</div><div class="dc-val hot" id="wo-m-real">—</div><div class="dc-delta neu" id="wo-m-real-sub">—</div></div>
-        <div class="dc is-d1"><div class="dc-label">1991–2000</div><div class="dc-val" style="color:#27ae60" id="wo-m-d1">—</div><div class="dc-delta" id="wo-m-d1-d">—</div></div>
-        <div class="dc is-d2"><div class="dc-label">2001–2010</div><div class="dc-val" style="color:#2471a3" id="wo-m-d2">—</div><div class="dc-delta" id="wo-m-d2-d">—</div></div>
-        <div class="dc is-d3"><div class="dc-label">2011–2020</div><div class="dc-val" style="color:#8e44ad" id="wo-m-d3">—</div><div class="dc-delta" id="wo-m-d3-d">—</div></div>
-        <div class="dc is-d4"><div class="dc-label">Depuis 2021</div><div class="dc-val" style="color:#e67e22" id="wo-m-d4">—</div><div class="dc-delta" id="wo-m-d4-d">—</div></div>
+        <div class="dc is-real"><div class="dc-label">Réel</div><div class="dc-val hot" id="wo-m-real">—</div><span class="dc-err" id="wo-m-real-err"></span><div class="dc-delta neu" id="wo-m-real-sub">—</div></div>
+        <div class="dc is-d1"><div class="dc-label">1991–2000</div><div class="dc-val" style="color:#27ae60" id="wo-m-d1">—</div><span class="dc-err" id="wo-m-d1-err"></span><div class="dc-delta" id="wo-m-d1-d">—</div></div>
+        <div class="dc is-d2"><div class="dc-label">2001–2010</div><div class="dc-val" style="color:#2471a3" id="wo-m-d2">—</div><span class="dc-err" id="wo-m-d2-err"></span><div class="dc-delta" id="wo-m-d2-d">—</div></div>
+        <div class="dc is-d3"><div class="dc-label">2011–2020</div><div class="dc-val" style="color:#8e44ad" id="wo-m-d3">—</div><span class="dc-err" id="wo-m-d3-err"></span><div class="dc-delta" id="wo-m-d3-d">—</div></div>
+        <div class="dc is-d4"><div class="dc-label">Depuis 2021</div><div class="dc-val" style="color:#e67e22" id="wo-m-d4">—</div><span class="dc-err" id="wo-m-d4-err"></span><div class="dc-delta" id="wo-m-d4-d">—</div></div>
       </div>
 
       <div class="chart-card" id="wo-chart-card">
@@ -389,7 +390,7 @@ const today=new Date(); today.setHours(0,0,0,0);
 const era5End=addDays(today,-7); // ERA5 lag garanti à J-7
 
 // Vider le cache si la version a changé
-const CACHE_VERSION='v6';
+const CACHE_VERSION='v7';
 if(localStorage.getItem('e5_version')!==CACHE_VERSION){
   Object.keys(localStorage).filter(k=>k.startsWith('e5_')).forEach(k=>localStorage.removeItem(k));
   localStorage.setItem('e5_version',CACHE_VERSION);
@@ -600,11 +601,17 @@ function getUncertainty(key){ return key==='planet' ? ERA5_UNCERTAINTY_PLANET : 
 
 function setCards(pfx,real,normals,label,locKey){
   const unc=getUncertainty(locKey||'');
-  const fmtU=(v,u)=>v!==null?`${v.toFixed(1)} ±${u}°C`:'—';
-  document.getElementById(`${pfx}-m-real`).textContent=fmtU(real,unc.real);
+  // Température seule dans dc-val, marge d'erreur dans dc-err séparé
+  function setCardVal(elId, errElId, v, u){
+    const el=document.getElementById(elId);
+    if(el) el.textContent=v!==null?v.toFixed(1)+'°C':'—';
+    const errEl=document.getElementById(errElId);
+    if(errEl) errEl.textContent=v!==null?`±${u}°C`:'';
+  }
+  setCardVal(`${pfx}-m-real`,`${pfx}-m-real-err`,real,unc.real);
   document.getElementById(`${pfx}-m-real-sub`).textContent=label||'';
   ['d1','d2','d3','d4'].forEach(k=>{
-    document.getElementById(`${pfx}-m-${k}`).textContent=fmtU(normals[k],unc[k]);
+    setCardVal(`${pfx}-m-${k}`,`${pfx}-m-${k}-err`,normals[k],unc[k]);
     const el=document.getElementById(`${pfx}-m-${k}-d`);
     el.textContent=dStr(real,normals[k]);el.className='dc-delta '+dCls(real,normals[k]);
   });
@@ -746,7 +753,7 @@ async function loadFrance(){
 // MONDE DISPATCHER
 // ══════════════════════════════════════════════════════════════════════════════
 async function loadWorld(){
-  const loc=LOCS[woKey];if(!loc)return;
+  const loc=woKey==='planet'?{name:'Planète'}:LOCS[woKey];if(!loc)return;
   document.getElementById('wo-sel-name').textContent=loc.name;
   setStatus('wo',`Chargement ${loc.name}…`,false);
   let normals=normalsCache[woKey];
@@ -782,7 +789,7 @@ async function preloadWorld(){
   for(const key of PRELOAD_WORLD){
     try{
       const normals=await getNormals(key,null);
-      const loc=LOCS[key];
+      const loc=key==='planet'?{name:'Planète',lat:0,lon:0}:LOCS[key];
       const end=clamp(new Date(woNav.day));const start=addDays(end,-6);
       const data=await fetchERA5(loc.lat,loc.lon,toDS(start),toDS(end));
       const temps=data.daily.temperature_2m_mean.filter(v=>v!==null);
